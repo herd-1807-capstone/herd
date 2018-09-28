@@ -7,27 +7,37 @@ module.exports = router;
 router.get('/:tourId', async(req, res, next) => {
   const tourId = req.params.tourId;
   try{
+    console.log(firebase.auth().currentUser)
+
     await db.ref(`/tours/${tourId}`).once('value').then(snapshot => {
-      res.json(snapshot);
-      console.log(firebase.auth().currentUser)
+      if(!snapshot){
+        res.status(404);
+      }else{
+        res.json(snapshot);
+      }
     });
   }catch(err){
-    console.log(err);
+    next(err);
   }
 })
 
 // POST
 router.post('/:tourName', async(req, res, next) => {
-  const tourName = req.params.tourName;
-  db.ref(`/tours/`).push({
-    tourName: tourName,
-    spots: {},
-    users: {"4GDfXiHKt1Pf5VbKGuqsR2bU9pl2" : {
-      "email" : "anpoon430@gmail.com",
-      "name" : "andy poon"
-    }
-  },
-  })
+  try{
+    const tourName = req.params.tourName;
+    const spots = req.body.spots;
+    const users = req.body.users;
+
+    console.log(firebase.auth().currentUser)
+
+    await db.ref(`/tours/`).push({
+      tourName,
+      spots,
+      users
+    });
+  }catch(err){
+    next(err);
+  }
 })
 
 // PUT
