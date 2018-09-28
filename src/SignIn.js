@@ -18,14 +18,14 @@ export default class SignIn extends Component{
       if (user) {
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          console.log('USER EXISTS IN DB???', snapshot)
+          // console.log('USER EXISTS IN DB???', snapshot)
           if (!snapshot.exists()) {
             let newUser = {
               email: user.email,
               name: user.displayName,
               phone: user.phoneNumber
             }
-            console.log('CREATING USER THE FIRST TIME');
+            // console.log('CREATING USER THE FIRST TIME');
             await db.ref(`/users/${user.uid}`).set(newUser);
           }
           this.setState({ user });
