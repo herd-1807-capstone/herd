@@ -1,0 +1,32 @@
+{
+  "tour" : {
+    "spots" : {
+      "active" : true,
+      "description" : "''",
+      "lat" : 0,
+      "lng" : 0,
+      "name" : "''",
+      "time" : "''"
+    },
+    "users" : {
+      "4GDfXiHKt1Pf5VbKGuqsR2bU9pl2" : {
+        "email" : "anpoon430@gmail.com",
+        "name" : "andy poon"
+      },
+      "email" : "''",
+      "lat" : 0,
+      "lng" : 0,
+      "name" : "''",
+      "notes" : "''",
+      "phone" : "''",
+      "status" : "''",
+      "visible" : true
+    }
+  },
+  "users" : {
+    "4GDfXiHKt1Pf5VbKGuqsR2bU9pl2" : {
+      "email" : "anpoon430@gmail.com",
+      "name" : "andy poon"
+    }
+  }
+}

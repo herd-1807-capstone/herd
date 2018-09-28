@@ -1,0 +1,63 @@
+{
+  "tours":{
+    "disney_tour": {
+      "spots": {
+        "spot1":{
+          "name": "magic kingdom",
+          "lat": 28.417663,
+          "lng": -81.581212
+        },
+        "spot2":{
+          "name": "partners statue",
+          "lat": 28.420198676881228,
+          "lng": -81.5814049534224
+        },
+        "spot3":{
+          "name": "cinderella castle",
+          "lat": 28.419479918691355,
+          "lng": -81.58118092861378
+        }
+      },
+      "users":{
+        "user1":true,
+        "user2":true,
+        "user3":true,
+        "user4":true
+      }
+    }
+  },
+  "users":{
+    "user1":{
+      "name": "user1",
+      "lat": 28.419684625935563,
+      "lng": -81.57853031348156,
+      "status": "admin",
+      "visible": true,
+      "tour": "disney_tour"
+    },
+    "user2":{
+      "name": "user2",
+      "lat": 28.419761497174317,
+      "lng": -81.58024134553563,
+      "status": "member",
+      "visible": true,
+      "tour": "disney_tour"
+    },
+    "user3":{
+      "name": "user3",
+      "lat": 28.418647736597766,
+      "lng": -81.58273139862405,
+      "status": "member",
+      "visible": false,
+      "tour": "disney_tour"
+    },
+    "user4":{
+      "name": "user4",
+      "lat": 28.417817370268278,
+      "lng": -81.57996335892068,
+      "status": "member",
+      "visible": true,
+      "tour": "disney_tour"
+    }
+  }
+}
