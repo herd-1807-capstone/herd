@@ -6,7 +6,6 @@ import GOOGLE_API_KEY from './secrets' ;
 import firebase from './fire'
 import {Spot, Admin, User} from './Marker';
 import BottomDrawer from './BottomDrawer';
-const querybase = require('querybase');
 
 const db = firebase.database();
 
