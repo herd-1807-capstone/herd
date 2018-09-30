@@ -165,22 +165,21 @@ router.get('/:tourId/users/:userId', async (req, res, next) => {
   const {tourId, userId} = req.params;
   const {lat, lng} = req.body;
   try{
-    const loggedInUser = firebase.auth().currentUser;
-    if(!loggedInUser || loggedInUser.uid !== userId) {
-      res.status(403).send('forbidden');
-      return;
-    }
-
+    // const loggedInUser = firebase.auth().currentUser;
+    // if(!loggedInUser || loggedInUser.uid !== userId) {
+    //   res.status(403).send('forbidden');
+    //   return;
+    // }
     const tour = await db.ref(`/tours/${tourId}`).once('value');
     if(!tour){
       res.status(404).send('tour not found');
       return;
     }
 
-    if(tour.val().users.indexOf(loggedInUser.uid) < 0){
-      res.status(403).send('forbidden');
-      return;
-    }
+    // if(tour.val().users.indexOf(loggedInUser.uid) < 0){
+    //   res.status(403).send('forbidden');
+    //   return;
+    // }
 
     const user = await db.ref(`/users/${userId}`).once('value');
     if(!user){

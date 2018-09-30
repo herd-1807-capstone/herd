@@ -5,5 +5,33 @@ body {
 }
 
 #google-map{
-  height: 70vh;
+  height: 59vh;
+}
+
+#bottom-sheet{
+  position: fixed;
+  max-height: 30vh;
+  overflow-y: scroll;
+}
+
+
+.carousel .slide{
+  height: 20vh;
+  background: transparent;
+  color: black;
+  border: solid 5px transparent;
+  padding: 10px;
+}
+.carousel .slide .selected{
+  background: transparent;
+  color: black
+}
+
+.control-arrow{
+  color: black;
+}
+
+.carousel .carousel-status{
+  color: black;
+  text-shadow: none;
 }
