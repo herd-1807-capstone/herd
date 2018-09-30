@@ -7,3 +7,27 @@ body {
 #google-map{
   height: 70vh;
 }
+
+#bottom-sheet{
+  height: 30vh;
+  background-color: antiquewhite
+}
+
+.carousel .slide{
+  background: white;
+  color: black;
+  border: solid 5px black;
+}
+.carousel .slide .selected{
+  background: white;
+  color: black
+}
+
+.control-arrow{
+  color: black;
+}
+
+.carousel .carousel-status{
+  color: black;
+  text-shadow: none;
+}
