@@ -1,10 +1,28 @@
 import React, { Component } from 'react';
-import firebase from './fire'
+import firebase from './fire';
+import Button from '@material-ui/core/Button';
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+
+
 
 const provider = new firebase.auth.GoogleAuthProvider();
 const auth = firebase.auth();
 const db = firebase.database();
-export default class SignIn extends Component{
+
+
+
+
+const style = theme => ({
+  button: {
+    margin: theme.spacing.unit,
+    },
+    extendedIcon: {
+      marginRight: theme.spacing.unit,
+    }
+})
+class SignIn extends Component{
   constructor(props){
     super(props)
     this.state = {
@@ -13,28 +31,14 @@ export default class SignIn extends Component{
     this.login = this.login.bind(this);
     this.logout = this.logout.bind(this);
   }
+
+
+  
   componentDidMount(){
-    auth.onAuthStateChanged(async(user) => {
-      if (user) {
-        try {
-          let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          // console.log('USER EXISTS IN DB???', snapshot)
-          if (!snapshot.exists()) {
-            let newUser = {
-              email: user.email,
-              name: user.displayName,
-              phone: user.phoneNumber
-            }
-            // console.log('CREATING USER THE FIRST TIME');
-            await db.ref(`/users/${user.uid}`).set(newUser);
-          }
-          this.setState({ user });
-        } catch (error) {
-          console.error(error)
-        }
-      }
-    });
+    
+    
   }
+
   async login(){
     let { user } = await auth.signInWithRedirect(provider);
     this.setState({
@@ -48,15 +52,25 @@ export default class SignIn extends Component{
     });
   }
   render(){
+    const { classes } = this.props
     return(
     <div id = 'signin'>
-        {this.state.user ?
-            <button onClick={this.logout}>Logout</button>
-          :
+
+        {/* {this.state.user ? */}
+            <Button variant="extendedFab" onClick={this.logout} color="primary" className={classes.button} >
+              <AccountCircle />Logout
+            </Button>
+          {/* :
             <button onClick={this.login}>Log in with Google</button>
-          }
+          } */}
     </div>
     )
   }
 }
 
+SignIn.propTypes = {
+  classes: PropTypes.object.isRequired,
+}
+
+
+export default withStyles(style)(SignIn)
