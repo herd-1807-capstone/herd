@@ -1,11 +1,11 @@
 import React, { Fragment, Component} from 'react';
 import GoogleMapReact from 'google-map-react';
-
 import GeolocationMarker from './GeolocationMarker';
 import GOOGLE_API_KEY from './secrets' ;
 import firebase from './fire'
 import {Spot, Admin, User} from './Marker';
 import BottomDrawer from './BottomDrawer';
+import axios from 'axios'
 
 const db = firebase.database();
 
@@ -35,11 +35,70 @@ class SimpleMap extends Component {
       map: null,
       maps: null,
     }
+    this.onMapClick = this.onMapClick.bind(this);
+    this.setCoords = this.setCoords.bind(this);
+    this.watchCurrentPosition = this.watchCurrentPosition.bind(this);
+    this.centerToCurrentPosition = this.centerToCurrentPosition.bind(this);
+    this.writeCurrentPosition = this.writeCurrentPosition.bind(this);
   }
-  writeCurrentPosition(){
+  async writeCurrentPosition(lat, lng){
+     const tourId = (this.state.user && this.state.user.tour) || 'disney_tour';
+     const userId = firebase.auth().currentUser.uid || 'user1';
+     try {
+       await axios.put(`http://localhost:8080/api/tours/${tourId}/users/${userId}`, {lat, lng})
+     } catch (error) {
+       console.error(error)
+     }
+  }
 
+  watchCurrentPosition(){
+    if ('geolocation' in navigator){
+      this.geoWatchId = navigator.geolocation.watchPosition(this.setCoords);
+    } else {
+      console.log('geolocation is not available');
+    }
+  }
+  async setCoords({coords}){
+    this.setState({
+      currentPosition: {
+        lat: coords.latitude,
+        lng: coords.longitude
+      }
+    })
+  }
+  componentDidUpdate(prevProps, prevState){
+    let changedLat = prevState.currentPosition.lat !== this.state.currentPosition.lat;
+    let changedLng = prevState.currentPosition.lng !== this.state.currentPosition.lng;
+    if ( changedLat || changedLng){
+      this.writeCurrentPosition(this.state.currentPosition.lat, this.state.currentPosition.lng)
+    }
+  }
+  clearWatchPosition(){
+    //disable GPS monitoring
+    if ('geolocation' in navigator){
+      navigator.geolocation.clearWatch(this.geoWatchId);
+    }
+  }
+  hidePosition(){
+    //hide from other users, but not admin, while GPS is active
+  }
+  onMapClick(evt){
+    //TODO: add marker to clicked location
+  }
+  centerToCurrentPosition(){
+    this.setState({
+      center: {
+        lat: this.state.currentPosition.lat,
+        lng: this.state.currentPosition.lng
+      }
+    }, ()=> { //reset center even user location didn't change
+      this.setState({
+        center: {}
+      })
+    })
   }
   async componentDidMount(){
+    this.watchCurrentPosition();
     // let loggedInUser = firebase.auth().currentUser;
     let loggedInUser = {};
     loggedInUser.uid = 'user1';  //temporary values
@@ -117,7 +176,11 @@ class SimpleMap extends Component {
       })
     }
   }
-
+  componentWillUnmount(){
+    if ('geolocation' in navigator){
+      navigator.geolocation.clearWatch(this.geoWatchId);
+    }
+  }
   renderSpots(){
     return this.state.spots.map((loc) => {
       return (

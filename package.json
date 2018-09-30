@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^3.1.1",
     "@material-ui/icons": "^3.0.1",
+    "axios": "^0.18.0",
     "express-session": "^1.15.6",
     "firebase": "^5.5.2",
     "firebaseui": "^3.4.1",
@@ -13,8 +14,8 @@
     "morgan": "^1.9.1",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
-    "react-responsive-carousel": "^3.1.42",
     "react-firebaseui": "^3.0.7",
+    "react-responsive-carousel": "^3.1.42",
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.5"
   },
