@@ -1,9 +1,9 @@
-const router = require('express').Router()
 const db = require('../db')
 const firebase = require('firebase')
+const router = require('express').Router()
 module.exports = router;
 
-// GET
+// GET /tours/:tourId
 router.get('/:tourId', async(req, res, next) => {
   const tourId = req.params.tourId;
   try{
@@ -15,11 +15,11 @@ router.get('/:tourId', async(req, res, next) => {
       return;
     }
 
-    db.ref(`/tours/${tourId}`).once('value').then (snapshot => {
-      const members = snapshot.val().users;
+    db.ref(`/tours/${tourId}`).once('value').then(snapshot => {
+      const users = snapshot.val().users;
 
       // check if current user is either an admin of this tour or a member.
-      if(members.indexOf(user.uid) < 0){
+      if(users.indexOf(user.uid) < 0){
         res.status(403).send('forbidden');
         return;
       }
@@ -32,25 +32,80 @@ router.get('/:tourId', async(req, res, next) => {
   }
 })
 
-// POST
-router.post('/:tourName', async(req, res, next) => {
+// POST /tours
+router.post('/', async(req, res, next) => {
   try{
-    const tourName = req.params.tourName;
-    const {spots, users} = req.body;
+    const {name, spots, emails} = req.body;
 
     const user = firebase.auth().currentUser;
-    if(!user || user.status.toLowerCase() !== 'admin'){
+    if(!user){
       res.status(403).send('forbidden');
       return;
     }
 
-    await db.ref(`/tours/`).push({
-      tourName,
-      spots,
-      users
-    });
+    // make sure the current user is an admin
+    const tempUser = await db.ref(`/users/${user.uid}`).once('value');
+    if(!tempUser || tempUser.status !== 'admin'){
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    const tour = {
+      name
+    };
+
+    if(spots) tour.spots = spots;
+    if(emails) {
+      // get all uids of users(emails)
+      let userIds = [];
+
+      const users = await db.ref('/users').orderByChild('email').once('value');
+      for(let email of emails){
+        finduser:
+        for(let u of users){
+          if(u.email === email){
+            userIds.push(u.uid);
+            break finduser;
+          }
+        }
+      }
+
+      if(userIds.length > 0){
+        tour.users = userIds;
+      }
+    }
+
+    const tourCreated = await db.ref(`/tours/`).push(tour);
 
     res.status(201).send();
+  }catch(err){
+    next(err);
+  }
+})
+
+// DELETE
+router.delete('/:tourId', async(req, res, next) => {
+  try{
+    // first, check logged-in user's privilege i.e., the guide of this tour(tourId)
+    const user = firebase.auth().currentUser;
+    if(!user) {
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    if(user.status.toLowerCase() !== 'admin'){
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    const tour = db.ref(`/tours/${tourId}`).once('value');
+    if(tour.val().users.indexOf(user.uid) < 0){
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    await db.ref(`/tours/${tourId}`).remove();
+    res.status(201);
   }catch(err){
     next(err);
   }
@@ -59,8 +114,7 @@ router.post('/:tourName', async(req, res, next) => {
 // PUT
 router.put('/:tourId', async(req, res, next) => {
   try{
-    const tourName = req.params.tourName;
-    const {spots, users} = req.body;
+    const {name, spots, emails} = req.body;
 
     const user = firebase.auth().currentUser;
     if(user.status.toLowerCase() !== 'admin'){
@@ -79,45 +133,34 @@ router.put('/:tourId', async(req, res, next) => {
     }
 
     const tourVal = tour.val();
-    await db.ref(`/tours/${tourId}`).set({
-      ...tourVal,
-      tourName,
-      spots,
-      users
-    });
+    if(name) tourVal.name = name;
+    if(spots) tourVal.spots = spots;
+    if(emails) {
+      // get all uids of users(emails)
+      let userIds = [];
+
+      const users = await db.ref('/users').orderByChild('email').once('value');
+      for(let email of emails){
+        finduser:
+        for(let u of users){
+          if(u.email === email){
+            userIds.push(u.uid);
+            break finduser;
+          }
+        }
+      }
+
+      if(userIds.length > 0){
+        tour.users = userIds;
+      }
+    }
+    await db.ref(`/tours/${tourId}`).set(tourVal);
   }catch(err){
     next(err);
   }
 })
 
-// DELETE
-router.delete('/:tourId', async(req, res, next) => {
-  try{
-    // first, check logged-in user's privilege i.e., the guide of this tour(tourId)
-    const user = firebase.auth().currentUser;
-    if(!user) {
-      res.status(403).send('forbidden logged-out user');
-      return;
-    }
-
-    if(user.status.toLowerCase() !== 'admin'){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const tour = db.ref(`/tours/${tourId}`).once('value');
-    if(tour.val().users.indexOf(user.uid) < 0){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    await db.ref(`/tours/${tourId}`).remove();
-  }catch(err){
-    next(err);
-  }
-})
-
-// PUT /tours/:tourId/users/:userId
+// PUT /tours/:tourId/users/:userId - updates user's location i.e., lat and lng of a User instance in db.
 router.get('/:tourId/users/:userId', async (req, res, next) => {
   const {tourId, userId} = req.params;
   const {lat, lng} = req.body;
@@ -147,11 +190,13 @@ router.get('/:tourId/users/:userId', async (req, res, next) => {
 
     // update the user with a new pair of lat and lng
     const userVal = user.val();
-    await db.ref(`/users/${userId}`).set({
-      ...userVal,
-      lat,
-      lng
-    });
+    if(lat && lng){
+      // update lat AND lng
+      userVal.lat = lat;
+      userVal.lng = lng;
+    }
+
+    await db.ref(`/users/${userId}`).set(userVal);
 
     res.status(201).send('updated');
   }catch(err){
