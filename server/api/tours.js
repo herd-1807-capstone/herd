@@ -74,11 +74,13 @@ router.put('/:tourId', async(req, res, next) => {
       res.status(404).send('tour not found');
       return;
     }
-    if(!tour.users.indexOf(user.uid)){
+    if(!tour.val().users.indexOf(user.uid)){
       res.status(403).send('forbidden');
     }
 
+    const tourVal = tour.val();
     await db.ref(`/tours/${tourId}`).set({
+      ...tourVal,
       tourName,
       spots,
       users
@@ -93,13 +95,18 @@ router.delete('/:tourId', async(req, res, next) => {
   try{
     // first, check logged-in user's privilege i.e., the guide of this tour(tourId)
     const user = firebase.auth().currentUser;
+    if(!user) {
+      res.status(403).send('forbidden logged-out user');
+      return;
+    }
+
     if(user.status.toLowerCase() !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
 
     const tour = db.ref(`/tours/${tourId}`).once('value');
-    if(tour.users.indexOf(user.uid) < 0){
+    if(tour.val().users.indexOf(user.uid) < 0){
       res.status(403).send('forbidden');
       return;
     }
@@ -109,3 +116,44 @@ router.delete('/:tourId', async(req, res, next) => {
     next(err);
   }
 })
+
+// PUT /tours/:tourId/users/:userId
+router.put('/:tourId/users/:userId', async (req, res, next) => {
+  const {tourId, userId} = req.params;
+  const {lat, lng} = req.body;
+  try{
+    // const loggedInUser = firebase.auth().currentUser;
+    // if(!loggedInUser || loggedInUser.uid !== userId) {
+    //   res.status(403).send('forbidden');
+    //   return;
+    // }
+    const tour = await db.ref(`/tours/${tourId}`).once('value');
+    if(!tour){
+      res.status(404).send('tour not found');
+      return;
+    }
+
+    // if(tour.val().users.indexOf(loggedInUser.uid) < 0){
+    //   res.status(403).send('forbidden');
+    //   return;
+    // }
+
+    const user = await db.ref(`/users/${userId}`).once('value');
+    if(!user){
+      res.status(404).send('user not found');
+      return;
+    }
+
+    // update the user with a new pair of lat and lng
+    const userVal = user.val();
+    await db.ref(`/users/${userId}`).set({
+      ...userVal,
+      lat,
+      lng
+    });
+
+    res.status(201).send('updated');
+  }catch(err){
+    next(err);
+  }
+});
