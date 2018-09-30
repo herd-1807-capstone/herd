@@ -90,6 +90,7 @@ class SimpleMap extends Component {
         this.setState({
           users: usersArr
         })
+
       }, (error) => {
         console.log('ERROR:', error.code);
       })
@@ -108,7 +109,6 @@ class SimpleMap extends Component {
                         .map(userId => {
                           return users[userId]
                         })
-        // console.log('USERS ARR', usersArr)
         this.setState({
           users: usersArr
         })
