@@ -50,23 +50,27 @@ router.post('/', async(req, res, next) => {
       return;
     }
 
-    const tour = {
-      name
-    };
+    const tour = {name};
 
     if(spots) tour.spots = spots;
+    let membersNotFound = [];
     if(emails) {
       // get all uids of users(emails)
       let userIds = [];
 
       const users = await db.ref('/users').orderByChild('email').once('value');
       for(let email of emails){
+        let found = false;
         finduser:
         for(let u of users){
           if(u.email === email){
             userIds.push(u.uid);
+            found = true;
             break finduser;
           }
+        }
+        if(!found){
+          membersNotFound.push(email);
         }
       }
 
@@ -135,18 +139,24 @@ router.put('/:tourId', async(req, res, next) => {
     const tourVal = tour.val();
     if(name) tourVal.name = name;
     if(spots) tourVal.spots = spots;
+
+    let membersNotFound = [];
     if(emails) {
       // get all uids of users(emails)
       let userIds = [];
-
       const users = await db.ref('/users').orderByChild('email').once('value');
       for(let email of emails){
+        let found = false;
         finduser:
         for(let u of users){
           if(u.email === email){
             userIds.push(u.uid);
+            found = true;
             break finduser;
           }
+        }
+        if(!found){
+          membersNotFound.push(email);
         }
       }
 
@@ -154,7 +164,15 @@ router.put('/:tourId', async(req, res, next) => {
         tour.users = userIds;
       }
     }
+
     await db.ref(`/tours/${tourId}`).set(tourVal);
+
+    if(membersNotFound.length > 0){
+      res.status(201).send(membersNotFound.join(', ') + 'need to sign up first!');
+    }else{
+      res.status(201).send();
+    }
+
   }catch(err){
     next(err);
   }
@@ -165,21 +183,22 @@ router.get('/:tourId/users/:userId', async (req, res, next) => {
   const {tourId, userId} = req.params;
   const {lat, lng} = req.body;
   try{
-    // const loggedInUser = firebase.auth().currentUser;
-    // if(!loggedInUser || loggedInUser.uid !== userId) {
-    //   res.status(403).send('forbidden');
-    //   return;
-    // }
+    const loggedInUser = firebase.auth().currentUser;
+    if(!loggedInUser || loggedInUser.uid !== userId) {
+      res.status(403).send('forbidden');
+      return;
+    }
+
     const tour = await db.ref(`/tours/${tourId}`).once('value');
     if(!tour){
       res.status(404).send('tour not found');
       return;
     }
 
-    // if(tour.val().users.indexOf(loggedInUser.uid) < 0){
-    //   res.status(403).send('forbidden');
-    //   return;
-    // }
+    if(tour.val().users.indexOf(loggedInUser.uid) < 0){
+      res.status(403).send('forbidden');
+      return;
+    }
 
     const user = await db.ref(`/users/${userId}`).once('value');
     if(!user){
