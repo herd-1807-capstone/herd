@@ -25,6 +25,8 @@ router.get('/:tourId', async(req, res, next) => {
       }
 
       res.json(snapshot);
+    }).catch(err => {
+      next(err);
     });
 
   }catch(err){
@@ -51,7 +53,6 @@ router.post('/', async(req, res, next) => {
     }
 
     const tour = {name};
-
     if(spots) tour.spots = spots;
     let membersNotFound = [];
     if(emails) {
@@ -61,6 +62,7 @@ router.post('/', async(req, res, next) => {
       const users = await db.ref('/users').orderByChild('email').once('value');
       for(let email of emails){
         let found = false;
+
         finduser:
         for(let u of users){
           if(u.email === email){
@@ -69,14 +71,11 @@ router.post('/', async(req, res, next) => {
             break finduser;
           }
         }
-        if(!found){
-          membersNotFound.push(email);
-        }
+
+        if(!found) membersNotFound.push(email);
       }
 
-      if(userIds.length > 0){
-        tour.users = userIds;
-      }
+      if(userIds.length > 0) tour.users = userIds;
     }
 
     const tourCreated = await db.ref(`/tours/`).push(tour);
@@ -134,6 +133,7 @@ router.put('/:tourId', async(req, res, next) => {
     }
     if(!tour.val().users.indexOf(user.uid)){
       res.status(403).send('forbidden');
+      return;
     }
 
     const tourVal = tour.val();
@@ -155,14 +155,10 @@ router.put('/:tourId', async(req, res, next) => {
             break finduser;
           }
         }
-        if(!found){
-          membersNotFound.push(email);
-        }
+        if(!found) membersNotFound.push(email);
       }
 
-      if(userIds.length > 0){
-        tour.users = userIds;
-      }
+      if(userIds.length > 0) tour.users = userIds;
     }
 
     await db.ref(`/tours/${tourId}`).set(tourVal);
