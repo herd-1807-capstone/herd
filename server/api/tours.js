@@ -19,7 +19,7 @@ router.get('/:tourId', async(req, res, next) => {
       const members = snapshot.val().users;
 
       // check if current user is either an admin of this tour or a member.
-      if(members.indexOf(user.id) < 0){
+      if(members.indexOf(user.uid) < 0){
         res.status(403).send('forbidden');
         return;
       }
@@ -74,7 +74,7 @@ router.put('/:tourId', async(req, res, next) => {
       res.status(404).send('tour not found');
       return;
     }
-    if(!tour.users.indexOf(user.id)){
+    if(!tour.users.indexOf(user.uid)){
       res.status(403).send('forbidden');
     }
 
@@ -99,7 +99,7 @@ router.delete('/:tourId', async(req, res, next) => {
     }
 
     const tour = db.ref(`/tours/${tourId}`).once('value');
-    if(tour.users.indexOf(user.id) < 0){
+    if(tour.users.indexOf(user.uid) < 0){
       res.status(403).send('forbidden');
       return;
     }
