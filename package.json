@@ -3,13 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "^3.1.1",
+    "@material-ui/icons": "^3.0.1",
     "express-session": "^1.15.6",
     "firebase": "^5.5.2",
     "firebaseui": "^3.4.1",
     "google-map-react": "^1.0.8",
+    "material-design-icons": "^3.0.1",
     "morgan": "^1.9.1",
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
+    "react-firebaseui": "^3.0.7",
+    "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.5"
   },
   "scripts": {
