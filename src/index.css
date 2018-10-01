@@ -4,10 +4,10 @@ body {
   font-family: sans-serif;
 }
 
-#google-map{
-  height: 59vh;
+#google-map {
+  height: 100vh;
 }
-
+/*
 #bottom-sheet{
   position: fixed;
   max-height: 30vh;
@@ -34,4 +34,4 @@ body {
 .carousel .carousel-status{
   color: black;
   text-shadow: none;
-}
+} */
