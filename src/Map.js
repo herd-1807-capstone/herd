@@ -4,7 +4,7 @@ import GeolocationMarker from './GeolocationMarker';
 import GOOGLE_API_KEY from './secrets';
 import firebase from './fire';
 import { Spot, Admin, User } from './Marker';
-import BottomDrawer from './BottomDrawer';
+import BottomSheet from './BottomSheet';
 import axios from 'axios'
 
 
@@ -97,6 +97,7 @@ class SimpleMap extends Component {
   }
   onMapClick(evt) {
     //TODO: add marker to clicked location
+
   }
   centerToCurrentPosition() {
     this.setState(
@@ -251,7 +252,7 @@ class SimpleMap extends Component {
                 }
             </GoogleMapReact>
           </div>
-          <BottomDrawer id = 'bottom-drawer'/>
+          <BottomSheet id = 'bottom-sheet'/>
         </Fragment>
     );
   }

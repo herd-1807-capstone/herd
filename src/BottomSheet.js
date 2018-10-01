@@ -14,7 +14,6 @@ const styles = {
   heading:{
     margin: 0
   }
-
 }
 
 class BottomSheet extends React.Component {
