@@ -146,42 +146,48 @@ router.put('/:tourId', async(req, res, next) => {
     }
 
     // make sure there is a tour with the given tour id and the currentUser has permission to change the tour.
-    const tour = db.ref(`/tours/${tourId}`).once('value');
+    const snapshot = await db.ref(`/tours/${tourId}`).once('value');
+    const tour = snapshot.val();
     if(!tour){
       res.status(404).send('tour not found');
       return;
     }
-    if(!tour.val().users.indexOf(user.uid)){
+    if(!tour.users.indexOf(user.uid)){
       res.status(403).send('forbidden');
       return;
     }
 
-    const tourVal = tour.val();
+    const tourVal = tour;
     if(name) tourVal.name = name;
     if(spots) tourVal.spots = spots;
-
     let membersNotFound = [];
     if(emails) {
       // get all uids of users(emails)
       let userIds = [];
-      const users = await db.ref('/users').orderByChild('email').once('value');
-      for(let email of emails){
-        let found = false;
-        finduser:
-        for(let u of users){
-          if(u.email === email){
-            userIds.push(u.uid);
-            found = true;
-            break finduser;
+
+      const snapshot = await db.ref('/users').orderByChild('email').once('value');
+      const users = Object.values(snapshot.val());
+      if(users){
+        for(let email of emails){
+          let found = false;
+
+          finduser:
+          for(let u of users){
+            if(u.email === email){
+              userIds.push(u.uid);
+              found = true;
+              break finduser;
+            }
           }
+
+          if(!found) membersNotFound.push(email);
         }
-        if(!found) membersNotFound.push(email);
       }
 
-      if(userIds.length > 0) tour.users = userIds;
+      if(userIds.length > 0) tourVal.users = userIds;
     }
 
-    await db.ref(`/tours/${tourId}`).set(tourVal);
+    await db.ref(`/tours/${tourId}`).update(tourVal);
 
     if(membersNotFound.length > 0){
       res.status(201).send(membersNotFound.join(', ') + 'need to sign up first!');
