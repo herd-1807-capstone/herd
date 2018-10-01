@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+
+import Button from '@material-ui/core/Button';
 import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -88,6 +90,7 @@ class MenuBar extends React.Component {
             <Typography variant="title" color="inherit" noWrap>
               Herd - Tour groups management
             </Typography>
+            <Button color="inherit">Log out</Button>
           </Toolbar>
         </AppBar>
         <Hidden mdUp>

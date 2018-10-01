@@ -11,10 +11,17 @@ import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import Announcement from '@material-ui/icons/Announcement';
 import AddAlert from '@material-ui/icons/AddAlert';
+import AllOut from '@material-ui/icons/AllOut';
 import Divider from '@material-ui/core/Divider';
 
 export const userListItems = (
   <div>
+    <ListItem button>
+      <ListItemIcon>
+        <AllOut />
+      </ListItemIcon>
+      <ListItemText primary="Recenter" />
+    </ListItem>
     <ListItem button>
       <ListItemIcon>
         <AddAlert />

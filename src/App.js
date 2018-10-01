@@ -71,7 +71,7 @@ class App extends Component {
           >
             <Grid key="front" item />
             <Grid key="middle" item>
-              <img src={logo} className="App-logo" alt="logo" />
+              {/* <img src={logo} className="App-logo" alt="logo" /> */}
             </Grid>
             <Grid key="end" item>
               <SignIn />
