@@ -55,7 +55,7 @@ router.post('/', async(req, res, next) => {
 
     const tour = {
       name,
-      guideUId: "user1"
+      guideUId: user.uid
     };
 
     if(spots) tour.spots = spots;
