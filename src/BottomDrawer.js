@@ -1,16 +1,20 @@
 import React from 'react';
 import {Carousel} from 'react-responsive-carousel'
-import { Drawer } from '@material-ui/core';
+import { Drawer, Paper } from '@material-ui/core';
 import {withStyles} from '@material-ui/core';
 import PropTypes from 'prop-types'
 
 
 const styles = {
-  paperAnchorBottom: {
-    position:'fixed',
-    maxHeight: '30vh',
+  root:{
+    height: '35vh',
+    position: 'fixed',
     overflowY: 'scroll'
+  },
+  heading:{
+    margin: 0
   }
+
 }
 
 class BottomSheet extends React.Component {
@@ -21,7 +25,7 @@ class BottomSheet extends React.Component {
     };
   }
 
-  toggleDrawer = () => {
+  toggle = () => {
     this.setState({
       open: !this.state.open,
     });
@@ -30,50 +34,13 @@ class BottomSheet extends React.Component {
   render() {
     const {classes} = this.props
     return (
-          <Drawer
-            variant = 'persistent'
-            anchor='bottom'
-            open = {this.state.open}
-            classes={{
-              paperAnchorBottom: classes.paperAnchorBottom}} >
-            <Carousel
-              showArrows={false}
-              width={'100vw'}
-              infiniteLoop={true}
-              useKeyboardArrows ={true}
-              emulateTouch= {true}
-              showIndicators={false}
-              showThumbs={false}
-              centerMode={true}
-              centerSlidePercentage={60}
-              // selectedItem = {num}//TODO: on marker click, pass props of selected
-                          >
-              <div>
-                  <h1>this is the real content</h1>
-              </div>
-              <div>
-                  <h1>this is the real content</h1>
-              </div>
-              <div>
-                  <h1>this is the real content</h1>
-              </div>
-              <div>
-                  <h1>this is the real content</h1>
-              </div>
-              <div>
-                  <h1>this is the real content</h1>
-              </div>
-          </Carousel>
-            <div>
-              <h1>calendar stuff</h1>
-              <h1>calendar stuff</h1>
-              <h1>calendar stuff</h1>
-            </div>
-          </Drawer>
-    );
+        <Paper className={classes.root}>
+          <h1 className = {classes.heading}>Spot1</h1>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc scelerisque purus sed aliquet semper. Nullam eu risus eleifend nisl aliquam tincidunt. Nullam non mi auctor, vulputate felis in, vulputate sem.</p>
+        </Paper>
+      )
   }
 }
-
 BottomSheet.propTypes = {
   classes: PropTypes.object.isRequired
 }

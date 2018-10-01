@@ -6,8 +6,14 @@ import firebase from './fire'
 import {Spot, Admin, User} from './Marker';
 import BottomDrawer from './BottomDrawer';
 import axios from 'axios'
+import { IconButton } from '@material-ui/core';
+import GpsFixedIcon from '@material-ui/icons/GpsFixed'
 
 const db = firebase.database();
+const options = {
+  mapTypeControl: true,
+  streetViewControl: true,
+}
 
 class SimpleMap extends Component {
   static defaultProps = {
@@ -176,6 +182,7 @@ class SimpleMap extends Component {
       })
     }
   }
+
   componentWillUnmount(){
     if ('geolocation' in navigator){
       navigator.geolocation.clearWatch(this.geoWatchId);
@@ -218,6 +225,7 @@ class SimpleMap extends Component {
               defaultCenter={this.props.center}
               defaultZoom={this.props.zoom}
               center={this.state.center}
+              options ={options}
               >
                 <GeolocationMarker
                   key = 'geolocationMarker'
