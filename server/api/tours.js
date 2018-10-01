@@ -90,13 +90,13 @@ router.post('/', async(req, res, next) => {
     const tourCreated = await db.ref(`/tours/`).push(tour);
 
     if(membersNotFound.length > 0){
-      res.status(201).send({
+      res.json({
         ...tour,
         "key": tourCreated.key,
         "message": membersNotFound.join(", ") + " are not registered users."
       });
     }else{
-      res.status(201).send({
+      res.json({
         ...tour,
         "key": tourCreated.key
       });
@@ -121,7 +121,7 @@ router.delete('/:tourId', async(req, res, next) => {
       return;
     }
 
-    const tour = db.ref(`/tours/${tourId}`).once('value');
+    const tour = await db.ref(`/tours/${tourId}`).once('value');
     if(tour.val().users.indexOf(user.uid) < 0){
       res.status(403).send('forbidden');
       return;
