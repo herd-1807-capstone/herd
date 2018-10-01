@@ -9,7 +9,6 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 
 const provider = new firebase.auth.GoogleAuthProvider();
 const auth = firebase.auth();
-const db = firebase.database();
 
 
 
@@ -32,12 +31,6 @@ class SignIn extends Component{
     this.logout = this.logout.bind(this);
   }
 
-
-  
-  componentDidMount(){
-    
-    
-  }
 
   async login(){
     let { user } = await auth.signInWithRedirect(provider);
