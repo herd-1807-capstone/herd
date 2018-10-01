@@ -16,15 +16,16 @@ router.get('/:tourId', async(req, res, next) => {
     }
 
     db.ref(`/tours/${tourId}`).once('value').then(snapshot => {
-      const users = snapshot.val().users;
+      const tour = snapshot.val();
 
+      const users = tour.users;
       // check if current user is either an admin of this tour or a member.
       if(users.indexOf(user.uid) < 0){
         res.status(403).send('forbidden');
         return;
       }
 
-      res.json(snapshot);
+      res.json(tour);
     }).catch(err => {
       next(err);
     });
@@ -52,27 +53,35 @@ router.post('/', async(req, res, next) => {
       return;
     }
 
-    const tour = {name};
+    const tour = {
+      name,
+      guideUId: "user1"
+    };
+
     if(spots) tour.spots = spots;
+
     let membersNotFound = [];
     if(emails) {
       // get all uids of users(emails)
       let userIds = [];
 
-      const users = await db.ref('/users').orderByChild('email').once('value');
-      for(let email of emails){
-        let found = false;
+      const snapshot = await db.ref('/users').orderByChild('email').once('value');
+      const users = Object.values(snapshot.val());
+      if(users){
+        for(let email of emails){
+          let found = false;
 
-        finduser:
-        for(let u of users){
-          if(u.email === email){
-            userIds.push(u.uid);
-            found = true;
-            break finduser;
+          finduser:
+          for(let u of users){
+            if(u.email === email){
+              userIds.push(u.uid);
+              found = true;
+              break finduser;
+            }
           }
-        }
 
-        if(!found) membersNotFound.push(email);
+          if(!found) membersNotFound.push(email);
+        }
       }
 
       if(userIds.length > 0) tour.users = userIds;
@@ -80,7 +89,18 @@ router.post('/', async(req, res, next) => {
 
     const tourCreated = await db.ref(`/tours/`).push(tour);
 
-    res.status(201).send();
+    if(membersNotFound.length > 0){
+      res.status(201).send({
+        ...tour,
+        "key": tourCreated.key,
+        "message": membersNotFound.join(", ") + " are not registered users."
+      });
+    }else{
+      res.status(201).send({
+        ...tour,
+        "key": tourCreated.key
+      });
+    }
   }catch(err){
     next(err);
   }
