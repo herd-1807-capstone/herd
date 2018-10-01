@@ -12,15 +12,17 @@ import IconButton from '@material-ui/core/IconButton';
 import Hidden from '@material-ui/core/Hidden';
 import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
+
 import { userListItems, adminListItems } from './listItem';
 import Map from '../Map';
+import Chat from './Chat';
 
 const drawerWidth = 240;
 
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    height: '10vh',
+    height: '100%',
     zIndex: 1,
     overflow: 'hidden',
     position: 'relative',
@@ -123,6 +125,7 @@ class MenuBar extends React.Component {
         <main className={classes.content}>
           <div className={classes.toolbar} />
           <Map />
+          <Chat />
         </main>
       </div>
     );
