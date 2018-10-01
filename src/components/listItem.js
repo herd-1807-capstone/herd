@@ -4,23 +4,17 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 
-import DashboardIcon from '@material-ui/icons/Dashboard';
-import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
+import RecordVoiceOver from '@material-ui/icons/RecordVoiceOver';
 import PeopleIcon from '@material-ui/icons/People';
-import BarChartIcon from '@material-ui/icons/BarChart';
-import LayersIcon from '@material-ui/icons/Layers';
+import Room from '@material-ui/icons/Room';
+import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import AssignmentIcon from '@material-ui/icons/Assignment';
 import Announcement from '@material-ui/icons/Announcement';
 import AddAlert from '@material-ui/icons/AddAlert';
+import Divider from '@material-ui/core/Divider';
 
 export const userListItems = (
   <div>
-    <ListItem button>
-      <ListItemIcon>
-        <DashboardIcon />
-      </ListItemIcon>
-      <ListItemText primary="Dashboard" />
-    </ListItem>
     <ListItem button>
       <ListItemIcon>
         <AddAlert />
@@ -31,43 +25,62 @@ export const userListItems = (
       <ListItemIcon>
         <PeopleIcon />
       </ListItemIcon>
-      <ListItemText primary="Customers" />
+      <ListItemText primary="Add a Spot" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <BarChartIcon />
+        <VisibilityOff />
       </ListItemIcon>
-      <ListItemText primary="Reports" />
+      <ListItemText primary="Visibility on Map" />
+    </ListItem>
+    <Divider />
+    <ListItem button>
+      <ListItemIcon>
+        <Announcement />
+      </ListItemIcon>
+      <ListItemText primary="Info on a Spot" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <LayersIcon />
+        <RecordVoiceOver />
       </ListItemIcon>
-      <ListItemText primary="Integrations" />
+      <ListItemText primary="Start a Chat" />
     </ListItem>
   </div>
 );
 
 export const adminListItems = (
   <div>
-    <ListSubheader inset>Saved reports</ListSubheader>
+    <ListSubheader inset>Tour guide functions</ListSubheader>
     <ListItem button>
       <ListItemIcon>
         <AssignmentIcon />
       </ListItemIcon>
-      <ListItemText primary="Current month" />
+      <ListItemText primary="Create a Tour" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <AssignmentIcon />
+        <PeopleIcon />
       </ListItemIcon>
-      <ListItemText primary="Last quarter" />
+      <ListItemText primary="Add/Update a Group" />
     </ListItem>
     <ListItem button>
       <ListItemIcon>
-        <AssignmentIcon />
+        <Room />
       </ListItemIcon>
-      <ListItemText primary="Year-end sale" />
+      <ListItemText primary="Add/Update a Spot" />
+    </ListItem>
+    <ListItem button>
+      <ListItemIcon>
+        <Room />
+      </ListItemIcon>
+      <ListItemText primary="Define Boundaries" />
+    </ListItem>
+    <ListItem button>
+      <ListItemIcon>
+        <AddAlert />
+      </ListItemIcon>
+      <ListItemText primary="Group Signal" />
     </ListItem>
   </div>
 );

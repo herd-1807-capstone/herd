@@ -11,6 +11,7 @@ import Hidden from '@material-ui/core/Hidden';
 import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
 import { userListItems, adminListItems } from './listItem';
+import Map from '../Map';
 
 const drawerWidth = 240;
 
@@ -50,7 +51,7 @@ const styles = theme => ({
   },
 });
 
-class ResponsiveDrawer extends React.Component {
+class MenuBar extends React.Component {
   state = {
     mobileOpen: false,
   };
@@ -85,7 +86,7 @@ class ResponsiveDrawer extends React.Component {
               <MenuIcon />
             </IconButton>
             <Typography variant="title" color="inherit" noWrap>
-              Responsive drawer
+              Herd - Tour groups management
             </Typography>
           </Toolbar>
         </AppBar>
@@ -118,18 +119,16 @@ class ResponsiveDrawer extends React.Component {
         </Hidden>
         <main className={classes.content}>
           <div className={classes.toolbar} />
-          {/* <Typography noWrap>
-            {'You think water moves fast? You should see ice.'}
-          </Typography> */}
+          <Map />
         </main>
       </div>
     );
   }
 }
 
-ResponsiveDrawer.propTypes = {
+MenuBar.propTypes = {
   classes: PropTypes.object.isRequired,
   theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, { withTheme: true })(ResponsiveDrawer);
+export default withStyles(styles, { withTheme: true })(MenuBar);

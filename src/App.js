@@ -9,6 +9,7 @@ import SignIn from './SignIn';
 import Login from './Login';
 import Map from './Map';
 import Error from './Error';
+import MenuBar from './components/MenuBar';
 
 const auth = firebase.auth();
 const db = firebase.database();
@@ -81,7 +82,7 @@ class App extends Component {
           <Route path="/signin" component={Login} />
           {this.state.user && (
             <Switch>
-              <Route exact path="/" component={Map} />
+              <Route exact path="/" component={MenuBar} />
               <Route path="/error/:id" component={Error} />
             </Switch>
           )}
