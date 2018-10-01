@@ -37,21 +37,13 @@ class App extends Component {
               uid: user.uid,
               status: "member",
               visible: true,
+              tour: "null",
             }
             // console.log('CREATING USER THE FIRST TIME');
             await db.ref(`/users/${user.uid}`).set(newUser);
           }
-          console.log(user)
+          // console.log(user)
           this.setState({ user, isLoading: false });
-
-          // snapshot = await db.ref('/tours')
-          //                     .orderByChild('user')
-          //                     .equalTo(user.displayName)
-          // console.log(snapshot)
-          // snapshot = await db.ref('/tours').once('value')
-          // let tour = snapshot.map((tour)=>{
-          //   let user = tour.users.map()
-          // })
         } catch (error) {
           console.error(error)
         }
