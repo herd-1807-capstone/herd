@@ -211,13 +211,14 @@ router.get('/:tourId/users/:userId', async (req, res, next) => {
       return;
     }
 
-    const tour = await db.ref(`/tours/${tourId}`).once('value');
+    const snapshot = await db.ref(`/tours/${tourId}`).once('value');
+    const tour = snapshot.val();
     if(!tour){
       res.status(404).send('tour not found');
       return;
     }
 
-    if(tour.val().users.indexOf(loggedInUser.uid) < 0){
+    if(tour.users.indexOf(loggedInUser.uid) < 0){
       res.status(403).send('forbidden');
       return;
     }
@@ -229,14 +230,9 @@ router.get('/:tourId/users/:userId', async (req, res, next) => {
     }
 
     // update the user with a new pair of lat and lng
-    const userVal = user.val();
-    if(lat && lng){
-      // update lat AND lng
-      userVal.lat = lat;
-      userVal.lng = lng;
-    }
-
-    await db.ref(`/users/${userId}`).set(userVal);
+    await db.ref(`/users/${userId}`).update({
+      lat, lng
+    });
 
     res.status(201).send('updated');
   }catch(err){
