@@ -6,7 +6,7 @@ import firebase from './fire';
 import { Spot, Admin, User } from './Marker';
 import BottomSheet from './BottomSheet';
 import axios from 'axios'
-import store, { getAllUsers, getSpotsThunk } from './store';
+import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected } from './store';
 import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
 
@@ -43,14 +43,13 @@ class SimpleMap extends Component {
       maps: null,
     };
     this.onMapClick = this.onMapClick.bind(this);
+    this.onMarkerClick = this.onMarkerClick.bind(this);
     this.setCoords = this.setCoords.bind(this);
     this.watchCurrentPosition = this.watchCurrentPosition.bind(this);
-    this.centerToCurrentPosition = this.centerToCurrentPosition.bind(this);
+    this.centerToPosition = this.centerToPosition.bind(this);
     this.writeCurrentPosition = this.writeCurrentPosition.bind(this);
   }
   async writeCurrentPosition(lat, lng) {
-    // const tourId = (this.state.user && this.state.user.tour) || 'disney_tour';
-    // const userId = firebase.auth().currentUser.uid || 'user1';
     const tourId = this.props.currentUser.tour;
     const userId = this.props.currentUser.uid;
     try {
@@ -101,14 +100,20 @@ class SimpleMap extends Component {
   }
   onMapClick(evt) {
     //TODO: add marker to clicked location
-
+    // console.log(evt);
   }
-  centerToCurrentPosition() {
+  onMarkerClick(...evt){
+    const key = evt[0];
+    const coords = evt[1];
+    this.props.selectSpot(key, coords);
+    this.centerToPosition(coords.lat, coords.lng)
+  }
+  centerToPosition(lat, lng) {
     this.setState(
       {
         center: {
-          lat: this.state.currentPosition.lat,
-          lng: this.state.currentPosition.lng,
+          lat,
+          lng
         },
       },
       () => {
@@ -173,6 +178,8 @@ class SimpleMap extends Component {
               defaultZoom={this.props.zoom}
               center={this.state.center}
               options ={options}
+              onClick = {this.onMapClick}
+              onChildClick={this.onMarkerClick}
               >
                 <GeolocationMarker
                   key = 'geolocationMarker'
@@ -186,7 +193,6 @@ class SimpleMap extends Component {
                 }
             </GoogleMapReact>
           </div>
-          <BottomSheet id = 'bottom-sheet'/>
         </Fragment>
     );
   }
@@ -204,6 +210,12 @@ const mapDispatch = (dispatch) => ({
   },
   getUsers(){
     dispatch(getAllUsers());
+  },
+  addSpot(){
+    dispatch(addSpotThunk());
+  },
+  selectSpot(key){
+    dispatch(setSelected(key));
   }
 })
 export default connect(mapState, mapDispatch)(SimpleMap);

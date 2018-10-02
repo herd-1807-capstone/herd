@@ -5,13 +5,14 @@ body {
 }
 
 #google-map {
-  height: 100vh;
+  height: 60vh;
 }
 
 #bottom-sheet{
   position: fixed;
   max-height: 30vh;
   overflow-y: scroll;
+  width: 100vw;
 }
 
 

@@ -16,13 +16,14 @@ import MenuIcon from '@material-ui/icons/Menu';
 import { userListItems, adminListItems } from './listItem';
 import Map from '../Map';
 import Chat from './Chat';
+import BottomSheet from '../BottomSheet';
 
 const drawerWidth = 240;
 
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    height: '100%',
+    height: '100vh',
     zIndex: 1,
     overflow: 'hidden',
     position: 'relative',
@@ -30,6 +31,7 @@ const styles = theme => ({
     width: '100%',
   },
   appBar: {
+
     position: 'absolute',
     marginLeft: drawerWidth,
     [theme.breakpoints.up('md')]: {
@@ -51,13 +53,14 @@ const styles = theme => ({
   content: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
-    padding: theme.spacing.unit * 3,
+    // padding: theme.spacing.unit * 3,
   },
 });
 
 class MenuBar extends React.Component {
   state = {
     mobileOpen: false,
+    showInfo: true
   };
 
   handleDrawerToggle = () => {
@@ -125,7 +128,7 @@ class MenuBar extends React.Component {
         <main className={classes.content}>
           <div className={classes.toolbar} />
           <Map />
-          <Chat />
+          {this.state.showInfo ? <BottomSheet /> : <Chat /> }
         </main>
       </div>
     );

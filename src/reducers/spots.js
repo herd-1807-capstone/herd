@@ -4,13 +4,29 @@ const db = firebase.database();
 // INITIAL STATE
 const defaultSpots = {
   list: [],
-  selectedSpot: null,
+  selected: null,
   addSpotOnClick: true
 };
+
+//SELECTORS
+export const findSelectedMarker = (key, spots, users) => {
+    let spot = spots.find(spot => {
+        return spot.name === key
+    });
+    let user = users.find(user => {
+        return user.name === key
+    })
+    if (spot) {
+        return {spot}
+    } else if (user) {
+        return {user}
+    }
+}
 
 // ACTION TYPE
 const SET_SPOTS = "SET_SPOTS";
 const ADD_SPOT = "ADD_SPOT";
+const SET_SELECTED = 'SET_SELECTED';
 
 // ACTION CREATORS
 const setSpots = spots => ({
@@ -23,10 +39,16 @@ const addSpot = spot => ({
   spot
 });
 
+export const setSelected = marker => ({
+    type: SET_SELECTED,
+    marker
+})
+
 // THUNK CREATORS
 export const addSpotThunk = spot => async dispatch => {
     //TODO: fire a POST request to backend to add spot.
-    //
+    //dispatch addSpot(spot);
+
 };
 
 export const getSpotsThunk = () => async (dispatch, getState) => {
@@ -59,6 +81,11 @@ export default (state = defaultSpots, action) => {
       return {
           ...state,
           spots: [...state.list, action.spot]
+      }
+    case SET_SELECTED:
+      return {
+          ...state,
+          selected: action.marker
       }
     default:
       return state;
