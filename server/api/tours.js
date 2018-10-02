@@ -35,94 +35,66 @@ router.get('/:tourId', async(req, res, next) => {
   }
 })
 
-// POST /tours
+// POST /tours - create a tour without any spots and users.
 router.post('/', async(req, res, next) => {
   try{
-    const {name, spots, emails} = req.body;
+    const {name} = req.body;
 
-    const user = firebase.auth().currentUser;
-    if(!user){
+    const currUser = firebase.auth().currentUser;
+    if(!currUser){
       res.status(403).send('forbidden');
       return;
     }
 
     // make sure the current user is an admin
-    const tempUser = await db.ref(`/users/${user.uid}`).once('value');
-    if(!tempUser || tempUser.status !== 'admin'){
+    const currUserSnapshot = await db.ref(`/users/${user.uid}`).once('value');
+    const loggedInUser = currUserSnapshot.val();
+    if(!loggedInUser || loggedInUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
 
     const tour = {
       name,
-      guideUId: user.uid
+      guideUId: loggedInUser.uid
     };
-
-    if(spots) tour.spots = spots;
-
-    let membersNotFound = [];
-    if(emails) {
-      // get all uids of users(emails)
-      let userIds = [];
-
-      const snapshot = await db.ref('/users').orderByChild('email').once('value');
-      const users = Object.values(snapshot.val());
-      if(users){
-        for(let email of emails){
-          let found = false;
-
-          finduser:
-          for(let u of users){
-            if(u.email === email){
-              userIds.push(u.uid);
-              found = true;
-              break finduser;
-            }
-          }
-
-          if(!found) membersNotFound.push(email);
-        }
-      }
-
-      if(userIds.length > 0) tour.users = userIds;
-    }
 
     const tourCreated = await db.ref(`/tours/`).push(tour);
 
-    if(membersNotFound.length > 0){
-      res.json({
-        ...tour,
-        "key": tourCreated.key,
-        "message": membersNotFound.join(", ") + " are not registered users."
-      });
-    }else{
-      res.json({
-        ...tour,
-        "key": tourCreated.key
-      });
-    }
+    res.json({
+      ...tour,
+      "key": tourCreated.key
+    });
   }catch(err){
     next(err);
   }
 })
 
-// DELETE
+// DELETE /tours/:tourId
 router.delete('/:tourId', async(req, res, next) => {
   try{
     // first, check logged-in user's privilege i.e., the guide of this tour(tourId)
-    const user = firebase.auth().currentUser;
-    if(!user) {
+    const currUser = firebase.auth().currentUser;
+    if(!currUser) {
       res.status(403).send('forbidden');
       return;
     }
 
-    if(user.status.toLowerCase() !== 'admin'){
+    const userSnapshot = await db.ref(`/users/${currUser.uid}`).once('value');
+    const user = userSnapshot.val();
+    if(user.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
 
-    const tour = await db.ref(`/tours/${tourId}`).once('value');
-    if(tour.val().users.indexOf(user.uid) < 0){
+    const tourSnapshot = await db.ref(`/tours/${tourId}`).once('value');
+    const tour = tourSnapshot.val();
+    if(!tour){
+      res.status(404).send('not found');
+      return;
+    }
+
+    if(tour.users.indexOf(user.uid) < 0){
       res.status(403).send('forbidden');
       return;
     }
@@ -134,71 +106,47 @@ router.delete('/:tourId', async(req, res, next) => {
   }
 })
 
-// PUT
+// PUT /tours/:tourId
 router.put('/:tourId', async(req, res, next) => {
   try{
-    const {name, spots, emails} = req.body;
+    const {name} = req.body;
 
     const user = firebase.auth().currentUser;
-    if(user.status.toLowerCase() !== 'admin'){
+    if(!user){
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
+    const loggedInUser = userSnapshot.val();
+    if(!loggedInUser || loggedInUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
 
     // make sure there is a tour with the given tour id and the currentUser has permission to change the tour.
-    const snapshot = await db.ref(`/tours/${tourId}`).once('value');
-    const tour = snapshot.val();
+    const tourSnapshot = await db.ref(`/tours/${tourId}`).once('value');
+    const tour = tourSnapshot.val();
     if(!tour){
       res.status(404).send('tour not found');
       return;
     }
-    if(!tour.users.indexOf(user.uid)){
+    if(!tour.user || !tour.users.indexOf(user.uid)){
       res.status(403).send('forbidden');
       return;
     }
 
-    const tourVal = tour;
-    if(name) tourVal.name = name;
-    if(spots) tourVal.spots = spots;
-    let membersNotFound = [];
-    if(emails) {
-      // get all uids of users(emails)
-      let userIds = [];
+    await db.ref(`/tours/${tourId}`).update({name});
 
-      const snapshot = await db.ref('/users').orderByChild('email').once('value');
-      const users = Object.values(snapshot.val());
-      if(users){
-        for(let email of emails){
-          let found = false;
-
-          finduser:
-          for(let u of users){
-            if(u.email === email){
-              userIds.push(u.uid);
-              found = true;
-              break finduser;
-            }
-          }
-
-          if(!found) membersNotFound.push(email);
-        }
-      }
-
-      if(userIds.length > 0) tourVal.users = userIds;
-    }
-
-    await db.ref(`/tours/${tourId}`).update(tourVal);
-
-    if(membersNotFound.length > 0){
-      res.status(201).send(membersNotFound.join(', ') + 'need to sign up first!');
-    }else{
-      res.status(201).send();
-    }
-
+    res.status(201).send();
   }catch(err){
     next(err);
   }
 })
+
+// TODO: CRUD on /tours/spots
+
+// TODO: CRUD on /tours/users
 
 // PUT /tours/:tourId/users/:userId - updates user's location i.e., lat and lng of a User instance in db.
 router.put('/:tourId/users/:userId', async (req, res, next) => {
@@ -240,3 +188,31 @@ router.put('/:tourId/users/:userId', async (req, res, next) => {
     next(err);
   }
 });
+
+
+ // let membersNotFound = [];
+    // if(emails) {
+    //   // get all uids of users(emails)
+    //   let userIds = [];
+
+    //   const snapshot = await db.ref('/users').orderByChild('email').once('value');
+    //   const users = Object.values(snapshot.val());
+    //   if(users){
+    //     for(let email of emails){
+    //       let found = false;
+
+    //       finduser:
+    //       for(let u of users){
+    //         if(u.email === email){
+    //           userIds.push(u.uid);
+    //           found = true;
+    //           break finduser;
+    //         }
+    //       }
+
+    //       if(!found) membersNotFound.push(email);
+    //     }
+    //   }
+
+    //   if(userIds.length > 0) tour.users = userIds;
+    // }
