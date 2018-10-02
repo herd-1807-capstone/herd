@@ -4,13 +4,12 @@ import Place from '@material-ui/icons/Place';
 
 
 
-const Spot = ({personal}) => {
+const Spot = () => {
 
   const styles = {
     transform: 'translate(-50%, -100%)',
     fontSize: 40
   }
-  if (personal) return <PlaceOutlined style = {styles} />
   return (
             <Place style = {styles} />
           );
