@@ -7,17 +7,17 @@ module.exports = router;
 router.get('/:userId', async(req, res, next) => {
   const userId = req.params.userId;
   try{
-    const user = firebase.auth().currentUser;
+    const currUser = firebase.auth().currentUser;
 
     // a user must be logged-in to retrieve data.
-    if(!user){
+    if(!currUser){
       res.status(403).send('forbidden');
       return;
     }
 
     db.ref(`/users/${userId}`).once('value')
     .then(snapshot => {
-      if(user.status === 'admin' || user.uid === userId){
+      if(currUser.status === 'admin' || currUser.uid === userId){
         res.json(snapshot);
       }else{
         res.status(403).send('forbidden');
@@ -42,24 +42,20 @@ router.post('/', async(req, res, next) => {
       return;
     }
 
-    // email, lat, lng, name, status, tour, visible
+    // parse info from req.body - email, lat, lng, name, status, tour, visible
     const {email, lat, lng, name, status, tour, visibie} = req.body;
 
     const user = {email, lat, lng, name};
     if(tour) user.tour = tour;
-    if(visible === undefined){
-      user.visible = true;
-    }else{
-      user.visible = visible;
-    }
-    if(!status) {
-      user.status = "member";
-    }else{
-      user.status = status;
-    }
+    if(visible === undefined) visible = true;
+    user.visible = visible;
+
+    if(!status) status = "member";
+    user.status = status;
 
     const userCreated = await db.ref('/users').push(user);
 
+    // return the created user's key to the client
     res.json({
       key: userCreated.key
     });
@@ -72,15 +68,28 @@ router.post('/', async(req, res, next) => {
 router.put('/:userId', async(req, res, next) => {
   const userId = req.params.userId;
   try{
-    const user = firebase.auth().currentUser;
+    const currUser = firebase.auth().currentUser;
 
     // a user must be logged-in to retrieve data.
-    if(!user){
+    if(!currUser){
       res.status(403).send('forbidden');
       return;
     }
 
-    res.json("Need to implement");
+    const {email, lat, lng, name, status, tour, visibie} = req.body;
+
+    const user = {};
+    if(email) user.email = email;
+    if(lat) user.lat = lat;
+    if(lng) user.lng = lng;
+    if(name) user.name = name;
+    if(status) user.status = status;
+    if(tour) user.tour = tour;
+    if(visible !== undefined) user.visible = visible;
+
+    const update = await db.ref(`/users/${userId}`).update(user);
+
+    res.status(201);
   }catch(err){
     next(err);
   }
@@ -90,15 +99,25 @@ router.put('/:userId', async(req, res, next) => {
 router.delete('/:userId', async(req, res, next) => {
   const userId = req.params.userId;
   try{
-    const user = firebase.auth().currentUser;
-
+    const currUser = firebase.auth().currentUser;
     // a user must be logged-in to retrieve data.
-    if(!user){
+    if(!currUser){
       res.status(403).send('forbidden');
       return;
     }
 
-    res.json("Need to implement");
+    const currUserSnapshot = await db.ref(`/users/${currUser.uid}`).once('value');
+    const loggedInUser = currUserSnapshot.val();
+    // make sure the logged-in user is an admin.
+    if(loggedInUser.status !== 'admin'){
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    const user = await db.ref(`/users/${userId}`).once('value');
+    if(user) await db.ref(`/users/${userId}`).remove();
+
+    res.status(201);
   }catch(err){
     next(err);
   }
