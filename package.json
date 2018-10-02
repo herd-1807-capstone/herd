@@ -27,6 +27,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "start-server": "node ./server/index.js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }
