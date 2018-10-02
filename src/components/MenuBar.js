@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import firebase from '../fire';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -17,6 +19,8 @@ import { userListItems, adminListItems } from './listItem';
 import Map from '../Map';
 import Chat from './Chat';
 import BottomSheet from '../BottomSheet';
+
+import { setCurrentUser } from '../store/index'
 
 const drawerWidth = 240;
 
@@ -58,14 +62,25 @@ const styles = theme => ({
 });
 
 class MenuBar extends React.Component {
-  state = {
-    mobileOpen: false,
-    showInfo: true
-  };
+  constructor(props){
+    super(props)
+    
+    this.state = {
+      mobileOpen: false,
+      showInfo: true
+    };
+
+    this.handleLogout = this.handleLogout.bind(this)
+  }
 
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
+
+  async handleLogout(){
+    await firebase.auth().signOut();
+    this.props.logout();
+  }
 
   render() {
     const { classes, theme } = this.props;
@@ -95,7 +110,12 @@ class MenuBar extends React.Component {
             <Typography variant="title" color="inherit" noWrap>
               Herd - Tour groups management
             </Typography>
-            <Button color="inherit">Log out</Button>
+            {this.props.currentUser 
+            ? 
+            <Button color="inherit" onClick={this.handleLogout}>Log out</Button>
+            :
+            null
+            }
           </Toolbar>
         </AppBar>
         <Hidden mdUp>
@@ -140,4 +160,12 @@ MenuBar.propTypes = {
   theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, { withTheme: true })(MenuBar);
+const mapState = (state) => ({
+  currentUser: state.user.currentUser,
+
+})
+
+const mapDispatch = (dispatch) => ({
+  logout: () => dispatch(setCurrentUser({}))
+})
+export default withStyles(styles, { withTheme: true })(connect(mapState, mapDispatch)(MenuBar));
