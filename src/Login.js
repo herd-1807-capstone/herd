@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
 import firebase from './fire';
-
+import { connect } from 'react-redux';
 import { StyledFirebaseAuth } from 'react-firebaseui';
+import { setCurrentUser } from './store';
+import store from './store/index'
+
+const db = firebase.database();
 
 var uiConfig = {
   signInFlow: 'redirect',
@@ -16,6 +20,9 @@ var uiConfig = {
         // is available.
         prompt: 'select_account',
       },
+      callbacks: {
+
+      }
     },
     {
       provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
@@ -53,3 +60,6 @@ export default class Login extends Component {
     );
   }
 }
+
+
+
