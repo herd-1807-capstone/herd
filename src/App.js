@@ -11,7 +11,7 @@ import Login from './Login';
 import Map from './Map';
 import Error from './Error';
 import MenuBar from './components/MenuBar';
-import setCurrentUser from './store/index'
+import { setCurrentUser } from './store/index'
 
 const auth = firebase.auth();
 const db = firebase.database();
@@ -19,10 +19,10 @@ const db = firebase.database();
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      user: null,
-      isLoading: true,
-    };
+    // this.state = {
+    //   user: null,
+    //   isLoading: true,
+    // };
   }
 
 
@@ -32,6 +32,7 @@ class App extends Component {
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
           // console.log('USER EXISTS IN DB???', snapshot)
+          
           if (!snapshot.exists()) {
             let newUser = {
               email: user.email,
@@ -40,14 +41,16 @@ class App extends Component {
               uid: user.uid,
               status: user.status || 'member',
               visible: user.visible || true,
-              tourId: user.tourId || 'null',
+              tour: user.tour || 'null',
             };
             // console.log('CREATING USER THE FIRST TIME');
             await db.ref(`/users/${user.uid}`).set(newUser);
-            this.props.setCurrentUser(newUser)
+            user = newUser
           }
-          // console.log(user)
-          this.setState({ user, isLoading: false });
+          console.log(user)
+          // this.setState({ user, isLoading: false });
+          this.props.setCurrentUser(snapshot.val())
+
         } catch (error) {
           console.error(error);
         }
@@ -55,13 +58,16 @@ class App extends Component {
     });
   }
 
+  
+
   render() {
+    
     return (
       <div className="App">
 
         <Switch>
           <Route path="/signin" component={Login} />
-          {this.state.user && (
+          {this.props.currentUser.hasOwnProperty('email') && (
             <Switch>
               <Route exact path="/" component={MenuBar} />
               <Route path="/error/:id" component={Error} />
@@ -76,7 +82,8 @@ class App extends Component {
 
 const mapState = state => {
   return {
-    user: state.user
+    currentUser: state.user.currentUser,
+    isLoading: state.user.isLoading,
   }
 }
 
