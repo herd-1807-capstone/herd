@@ -4,10 +4,19 @@ import GeolocationMarker from './GeolocationMarker';
 import GOOGLE_API_KEY from './secrets';
 import firebase from './fire';
 import { Spot, Admin, User } from './Marker';
-import BottomDrawer from './BottomDrawer';
-import axios from 'axios';
+import axios from 'axios'
+import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected } from './store';
+import { connect } from 'react-redux';
+import {setCurrentUser} from './reducers/user'
+
 
 const db = firebase.database();
+
+
+const options = {
+  mapTypeControl: true,
+  streetViewControl: true,
+}
 
 class SimpleMap extends Component {
   static defaultProps = {
@@ -29,21 +38,19 @@ class SimpleMap extends Component {
         lat: 28.4177,
         lng: -81.5812,
       },
-      spots: [],
-      users: [],
-      user: null,
       map: null,
       maps: null,
     };
     this.onMapClick = this.onMapClick.bind(this);
+    this.onMarkerClick = this.onMarkerClick.bind(this);
     this.setCoords = this.setCoords.bind(this);
     this.watchCurrentPosition = this.watchCurrentPosition.bind(this);
-    this.centerToCurrentPosition = this.centerToCurrentPosition.bind(this);
+    this.centerToPosition = this.centerToPosition.bind(this);
     this.writeCurrentPosition = this.writeCurrentPosition.bind(this);
   }
   async writeCurrentPosition(lat, lng) {
-    const tourId = (this.state.user && this.state.user.tour) || 'disney_tour';
-    const userId = firebase.auth().currentUser.uid || 'user1';
+    const tourId = this.props.currentUser.tour;
+    const userId = this.props.currentUser.uid;
     try {
       await axios.put(
         `http://localhost:8080/api/tours/${tourId}/users/${userId}`,
@@ -88,17 +95,24 @@ class SimpleMap extends Component {
     }
   }
   hidePosition() {
-    //hide from other users, but not admin, while GPS is active
+    //TODO: hide from other users, but not admin
   }
   onMapClick(evt) {
     //TODO: add marker to clicked location
+    // console.log(evt);
   }
-  centerToCurrentPosition() {
+  onMarkerClick(...evt){
+    const key = evt[0];
+    const coords = evt[1];
+    this.props.selectSpot(key, coords);
+    this.centerToPosition(coords.lat, coords.lng)
+  }
+  centerToPosition(lat, lng) {
     this.setState(
       {
         center: {
-          lat: this.state.currentPosition.lat,
-          lng: this.state.currentPosition.lng,
+          lat,
+          lng
         },
       },
       () => {
@@ -109,110 +123,43 @@ class SimpleMap extends Component {
       }
     );
   }
-  async componentDidMount() {
+  componentDidMount() {
     this.watchCurrentPosition();
-    // let loggedInUser = firebase.auth().currentUser;
-    let loggedInUser = {};
-    loggedInUser.uid = 'user1'; //temporary values
-    let userInfo;
-    let tourId;
-    let userPermission;
-    try {
-      //check whether loggedInUser is authorized to access all users' location
-      let snapshot = await db.ref(`/users/${loggedInUser.uid}`).once('value');
-      userInfo = snapshot.val();
-      tourId = userInfo.tour || 'disney_tour'; //fall back value temporarily
-      userPermission = userInfo.status || 'member';
-      this.setState({ user: userInfo });
-    } catch (error) {
-      console.error(error);
-    }
-
-    //show all 'spots' to everyone
-    const refSpots = db.ref(`/tours/${tourId}/spots`);
-    refSpots.orderByKey().on(
-      'value',
-      snapshot => {
-        let spots = snapshot.val() || [];
-        let spotsArr = Object.keys(spots).map(spotId => {
-          return spots[spotId];
-        });
-        this.setState({
-          spots: spotsArr,
-        });
-      },
-      error => {
-        console.log('ERROR:', error.code);
-      }
-    );
-
-    if (userPermission !== 'admin') {
-      //restrict view to only visible users and except for yourself
-      const refUsers = db.ref('/users');
-      refUsers
-        .orderByChild('tour')
-        .equalTo(tourId)
-        .on(
-          'value',
-          snapshot => {
-            let users = snapshot.val() || [];
-            let usersArr = Object.keys(users)
-              .filter(userId => {
-                //exclude self, include visible only
-                return users[userId].visible && userId !== loggedInUser.uid;
-              })
-              .map(userId => {
-                return users[userId];
-              });
-
-            console.log('USERS ARR', usersArr);
-            this.setState({
-              users: usersArr,
-            });
-          },
-          error => {
-            console.log('ERROR:', error.code);
-          }
-        );
-    } else {
-      //admins can see all users in their tour
-      const refUsers = db.ref('/users');
-      refUsers
-        .orderByChild('tour')
-        .equalTo(tourId)
-        .on(
-          'value',
-          snapshot => {
-            let users = snapshot.val() || [];
-            let usersArr = Object.keys(users)
-              .filter(userId => {
-                return userId !== loggedInUser.uid; //exclude self
-              })
-              .map(userId => {
-                return users[userId];
-              });
-            this.setState({
-              users: usersArr,
-            });
-          },
-          error => {
-            console.log('ERROR:', error.code);
-          }
-        );
-    }
+    this.loadAfterAuthUser();
   }
-  componentWillUnmount() {
-    if ('geolocation' in navigator) {
+  loadAfterAuthUser(){
+    firebase.auth().onAuthStateChanged(async user => {
+      if (user) {
+        // User is signed in.
+        try {
+          //get user's profile
+          let snapshot = await db.ref(`/users/${user.uid}`).once('value');
+          let userInfo = snapshot.val();
+          store.dispatch(setCurrentUser(userInfo));
+          this.props.getSpots();
+          this.props.getUsers();
+        } catch (error) {
+          console.error(error);
+        }
+      } else {
+        // No user is signed in.
+      }
+    });
+  }
+  componentWillUnmount(){
+    if ('geolocation' in navigator){
       navigator.geolocation.clearWatch(this.geoWatchId);
     }
   }
   renderSpots() {
-    return this.state.spots.map(loc => {
+
+    let spots = this.props.spots;
+    return spots.map(loc => {
       return <Spot key={loc.name} lat={loc.lat} lng={loc.lng} />;
     });
   }
   renderUsers() {
-    return this.state.users.map(user => {
+    return this.props.users.map(user => {
       if (user.status === 'admin') {
         return <Admin key={user.name} lat={user.lat} lng={user.lng} />;
       }
@@ -222,27 +169,52 @@ class SimpleMap extends Component {
   render() {
     return (
       // Important! Always set the container height explicitly
-      <Fragment>
-        <div id="google-map">
-          <GoogleMapReact
-            bootstrapURLKeys={{ key: GOOGLE_API_KEY }}
-            defaultCenter={this.props.center}
-            defaultZoom={this.props.zoom}
-            center={this.state.center}
-          >
-            <GeolocationMarker
-              key="geolocationMarker"
-              lat={this.state.currentPosition.lat}
-              lng={this.state.currentPosition.lng}
-            />
-            {this.renderSpots()}
-            {this.renderUsers()}
-          </GoogleMapReact>
-        </div>
-        {/* <BottomDrawer id = 'bottom-drawer'/> */}
-      </Fragment>
+        <Fragment>
+          <div id = 'google-map' >
+            <GoogleMapReact
+              bootstrapURLKeys={{ key: GOOGLE_API_KEY}}
+              defaultCenter={this.props.center}
+              defaultZoom={this.props.zoom}
+              center={this.state.center}
+              options ={options}
+              onClick = {this.onMapClick}
+              onChildClick={this.onMarkerClick}
+              >
+                <GeolocationMarker
+                  key = 'geolocationMarker'
+                  lat={this.state.currentPosition.lat}
+                  lng={this.state.currentPosition.lng} />
+                {
+                  this.renderSpots()
+                }
+                {
+                  this.renderUsers()
+                }
+            </GoogleMapReact>
+          </div>
+        </Fragment>
     );
   }
 }
 
-export default SimpleMap;
+const mapState = ({user, spots})=>({
+  users: user.list,
+  spots: spots.list,
+  currentUser: user.currentUser
+})
+
+const mapDispatch = (dispatch) => ({
+  getSpots(){
+    dispatch(getSpotsThunk());
+  },
+  getUsers(){
+    dispatch(getAllUsers());
+  },
+  addSpot(){
+    dispatch(addSpotThunk());
+  },
+  selectSpot(key){
+    dispatch(setSelected(key));
+  }
+})
+export default connect(mapState, mapDispatch)(SimpleMap);
