@@ -6,22 +6,22 @@ module.exports = router;
 // GET /api/chat/:userId
 router.get('/:userId', async (req, res, next) => {
   try {
-    const userAuth = firebase.auth().currentUser;
-    const userId = req.params.userId;
-    if (userId === userAuth) {
-      const snapshot = await db.ref(`/messages/`).on('value');
-      const messages = snapshot.val();
+    // const userAuth = firebase.auth().currentUser;
+    // const userId = req.params.userId;
+    // if (userId === userAuth) {
+    const snapshot = await db.ref(`/tours/disney_tour/messages/`).once('value');
+    const messages = snapshot.val();
 
-      if (messages) {
-        res.json(messages);
-      } else res.status(404).send('Not Found');
-    } else res.status(403).send('forbidden');
+    if (messages) {
+      res.json(messages);
+    } else res.status(404).send('Not Found');
+    // } else res.status(403).send('forbidden');
   } catch (error) {
-    next(err);
+    next(error);
   }
 });
 
-// POST /chat/:userId
+// POST /api/chat/:userId
 router.post('/:userId', async (req, res, next) => {
   try {
     const userAuth = firebase.auth().currentUser;
