@@ -152,18 +152,26 @@ class SimpleMap extends Component {
     }
   }
   renderSpots() {
-
     let spots = this.props.spots;
     return spots.map(loc => {
-      return <Spot key={loc.name} lat={loc.lat} lng={loc.lng} />;
+      if (loc.name && loc.lat && loc.lng){
+        return <Spot key={loc.name} lat={loc.lat} lng={loc.lng} />;
+      }
+      return null;
     });
   }
   renderUsers() {
     return this.props.users.map(user => {
       if (user.status === 'admin') {
-        return <Admin key={user.name} lat={user.lat} lng={user.lng} />;
+        if (user.name && user.lat && user.lng){
+          return <Admin key={user.name} lat={user.lat} lng={user.lng} />;
+        }
+        return null
       }
-      return <User key={user.name} lat={user.lat} lng={user.lng} />;
+      if (user.name && user.lat && user.lng){
+        return <User key={user.name} lat={user.lat} lng={user.lng} />;
+      }
+      return null
     });
   }
   render() {
