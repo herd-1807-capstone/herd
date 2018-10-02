@@ -1,50 +1,31 @@
 import React from 'react';
-import Place from '@material-ui/icons/PlaceOutlined';
+import PlaceOutlined from '@material-ui/icons/PlaceOutlined';
+import Place from '@material-ui/icons/Place';
 
 
 
-const Spot = () => {
+const Spot = ({personal}) => {
+
   const styles = {
-    marker: {
-      transform: 'translate(-50%, -100%)',
-      fontSize: 36
-    }
+    transform: 'translate(-50%, -100%)',
+    fontSize: 40
   }
+  if (personal) return <PlaceOutlined style = {styles} />
   return (
-            <Place style= {styles.marker}/>
+            <Place style = {styles} />
           );
 }
 
 
 const Admin = () => {
-  const styles = {
-    marker: {
-      backgroundColor: 'red',
-      border: 'solid 3px white',
-      borderRadius: '50%',
-      transform: 'translate(-50%, -50%)',
-      width: 20,
-      height: 20
-    }
-  }
   return (
-            <div style = {styles.marker}> </div>
+            <div className = 'admin-marker' />
           );
 }
 
 const User = () => {
-  const styles = {
-    marker: {
-      backgroundColor: 'green',
-      border: 'solid 3px white',
-      borderRadius: '50%',
-      transform: 'translate(-50%, -50%)',
-      width: 20,
-      height: 20
-    }
-  }
   return (
-            <div style = {styles.marker}> </div>
+            <div className = 'user-marker' />
           );
 }
 

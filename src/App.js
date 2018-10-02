@@ -58,22 +58,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <Grid
-            container
-            direction="row"
-            justify="space-between"
-            alignItems="center"
-          >
-            <Grid key="front" item />
-            <Grid key="middle" item>
-              {/* <img src={logo} className="App-logo" alt="logo" /> */}
-            </Grid>
-            <Grid key="end" item>
-              <SignIn />
-            </Grid>
-          </Grid>
-        </header>
+
         <Switch>
           <Route path="/signin" component={Login} />
           {this.state.user && (

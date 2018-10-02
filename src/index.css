@@ -1,37 +1,35 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: Roboto;
 }
 
 #google-map {
-  height: 100vh;
+  height: 60vh;
 }
-/*
+
 #bottom-sheet{
   position: fixed;
   max-height: 30vh;
   overflow-y: scroll;
+  width: 100vw;
 }
 
 
-.carousel .slide{
-  height: 20vh;
-  background: transparent;
-  color: black;
-  border: solid 5px transparent;
-  padding: 10px;
+.user-marker{
+  background-color: green;
+  border: solid 3px white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
 }
-.carousel .slide .selected{
-  background: transparent;
-  color: black
+.admin-marker{
+  background-color: red;
+  border: solid 3px white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
 }
 
-.control-arrow{
-  color: black;
-}
-
-.carousel .carousel-status{
-  color: black;
-  text-shadow: none;
-} */
