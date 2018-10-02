@@ -3,7 +3,7 @@ const firebase = require('firebase')
 const router = require('express').Router()
 module.exports = router;
 
-// GET
+// GET /users/:userId
 router.get('/:userId', async(req, res, next) => {
   const userId = req.params.userId;
   try{
@@ -31,26 +31,44 @@ router.get('/:userId', async(req, res, next) => {
   }
 });
 
-// POST
+// POST /users
 router.post('/', async(req, res, next) => {
   try{
-    const user = firebase.auth().currentUser;
+    const currUser = firebase.auth().currentUser;
 
     // a user must be logged-in to retrieve data.
-    if(!user){
+    if(!currUser){
       res.status(403).send('forbidden');
       return;
     }
 
+    // email, lat, lng, name, status, tour, visible
+    const {email, lat, lng, name, status, tour, visibie} = req.body;
 
+    const user = {email, lat, lng, name};
+    if(tour) user.tour = tour;
+    if(visible === undefined){
+      user.visible = true;
+    }else{
+      user.visible = visible;
+    }
+    if(!status) {
+      user.status = "member";
+    }else{
+      user.status = status;
+    }
 
-    res.status(201);
+    const userCreated = await db.ref('/users').push(user);
+
+    res.json({
+      key: userCreated.key
+    });
   }catch(err){
     next(err);
   }
 });
 
-// PUT
+// PUT /users/:userId
 router.put('/:userId', async(req, res, next) => {
   const userId = req.params.userId;
   try{
@@ -68,7 +86,7 @@ router.put('/:userId', async(req, res, next) => {
   }
 });
 
-// DELETE
+// DELETE /users/:userId
 router.delete('/:userId', async(req, res, next) => {
   const userId = req.params.userId;
   try{
