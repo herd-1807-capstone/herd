@@ -7,8 +7,9 @@ module.exports = router;
 router.get('/chat/:userId', async (req, res, next) => {
   try {
     const userAuth = firebase.auth().currentUser;
-    const userId = req.params.userId;
-    if (userId !== userAuth) res.status(403).send('forbidden');
+    const fromUserId = req.params.userId;
+    const toUserId = req.body.toUserId;
+    if (fromUserId !== userAuth) res.status(403).send('forbidden');
   } catch (error) {
     next(err);
   }
