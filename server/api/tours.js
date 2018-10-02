@@ -206,6 +206,7 @@ router.put('/:tourId/users/:userId', async (req, res, next) => {
   const {lat, lng} = req.body;
   try{
     const loggedInUser = firebase.auth().currentUser;
+    console.log(loggedInUser);
     if(!loggedInUser || loggedInUser.uid !== userId) {
       res.status(403).send('forbidden');
       return;

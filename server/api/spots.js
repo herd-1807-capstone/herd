@@ -74,7 +74,7 @@ router.delete('/:spotId', async(req, res, next) => {
 });
 
 // UPDATE
-router.update('/:spotId', async(req, res, next) => {
+router.put('/:spotId', async(req, res, next) => {
   try{
 
   }catch(err){
