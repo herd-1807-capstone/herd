@@ -28,7 +28,8 @@
     "start": "react-scripts start && node server",
     "start-dev": "react-scripts start && nodemon server",
     "build": "react-scripts build",
-    "start-server": "node ./server/index.js",
+    "start-all": "nodemon ./server/index.js & react-scripts start",
+    "start-backend": "nodemon ./server/index.js",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }
