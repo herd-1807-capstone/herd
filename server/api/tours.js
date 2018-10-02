@@ -144,35 +144,57 @@ router.put('/:tourId', async(req, res, next) => {
   }
 })
 
-// TODO: CRUD on /tours/spots
+// add a new spot to a tour
+router.post('/:tourId/spots', async(req, res, next) => {
 
-// TODO: CRUD on /tours/users
+});
+
+// update spot details of a tour
+router.put('/:tourId/spots/:spotIndex', async(req, res, next) => {
+
+});
+
+// delete a spot from a tour
+router.delete('/:tourId/spots/:spotIndex', async(req, res, next) => {
+
+});
+
+// add a new member i.e., userId to a tour
+router.post('/:tourId/users', async(req, res, next) => {
+
+});
+
+// delete a user id from a tour
+router.delete('/:tourId/users/:userIndex', async(req, res, next) => {
+
+})
 
 // PUT /tours/:tourId/users/:userId - updates user's location i.e., lat and lng of a User instance in db.
 router.put('/:tourId/users/:userId', async (req, res, next) => {
   const {tourId, userId} = req.params;
   const {lat, lng} = req.body;
   try{
-    // const loggedInUser = firebase.auth().currentUser;
+    const loggedInUser = firebase.auth().currentUser;
 
-    // if(!loggedInUser || loggedInUser.uid !== userId) {
-    //   res.status(403).send('forbidden');
-    //   return;
-    // }
+    if(!loggedInUser || loggedInUser.uid !== userId) {
+      res.status(403).send('forbidden');
+      return;
+    }
 
-    // const snapshot = await db.ref(`/tours/${tourId}`).once('value');
-    // const tour = snapshot.val();
-    // if(!tour){
-    //   res.status(404).send('tour not found');
-    //   return;
-    // }
+    const tourSnapshot = await db.ref(`/tours/${tourId}`).once('value');
+    const tour = tourSnapshot.val();
+    if(!tour){
+      res.status(404).send('tour not found');
+      return;
+    }
 
-    // if(tour.users.indexOf(loggedInUser.uid) < 0){
-    //   res.status(403).send('forbidden');
-    //   return;
-    // }
+    if(tour.users.indexOf(loggedInUser.uid) < 0){
+      res.status(403).send('forbidden');
+      return;
+    }
 
-    const user = await db.ref(`/users/${userId}`).once('value');
+    const userSnapshot = await db.ref(`/users/${userId}`).once('value');
+    const user = userSnapshot.val();
     if(!user){
       res.status(404).send('user not found');
       return;
