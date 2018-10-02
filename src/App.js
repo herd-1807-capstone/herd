@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import firebase from './fire';
 import { connect } from 'react-redux';
@@ -11,7 +11,8 @@ import Login from './Login';
 import Map from './Map';
 import Error from './Error';
 import MenuBar from './components/MenuBar';
-import { setCurrentUser } from './store/index'
+import { setCurrentUser } from './store/index';
+// import Admin from './components/Admin';
 
 const auth = firebase.auth();
 const db = firebase.database();
@@ -34,22 +35,26 @@ class App extends Component {
           // console.log('USER EXISTS IN DB???', snapshot)
           
           if (!snapshot.exists()) {
+            // console.log("Snapshot!!")
+            // console.log(user)
             let newUser = {
               email: user.email,
               name: user.displayName,
               phone: user.phoneNumber,
               uid: user.uid,
-              status: user.status || 'member',
-              visible: user.visible || true,
-              tour: user.tour || 'null',
+              status: 'member',
+              visible: true,
+              tour: 'null',
             };
             // console.log('CREATING USER THE FIRST TIME');
             await db.ref(`/users/${user.uid}`).set(newUser);
             user = newUser
           }
-          console.log(user)
+          // console.log("Outside of Snapshot!!")
+          // console.log(snapshot.val())
           // this.setState({ user, isLoading: false });
-          this.props.setCurrentUser(snapshot.val())
+          // this.props.setCurrentUser(snapshot.val())
+          this.props.setCurrentUser(user)
 
         } catch (error) {
           console.error(error);
@@ -61,7 +66,11 @@ class App extends Component {
   
 
   render() {
-    
+    if(this.props.currentUser === null){
+      return (
+        <Redirect to='/' />
+      )
+    }
     return (
       <div className="App">
 
@@ -71,6 +80,9 @@ class App extends Component {
             <Switch>
               <Route exact path="/" component={MenuBar} />
               <Route path="/error/:id" component={Error} />
+              {/* <Route exact path="/admin" component={Admin} /> */}
+              {/* <Route exact path="/admin/group" component={Group} /> */}
+              {/* <Route path="/admin/group/create" component={CreateGroup} /> */}
             </Switch>
           )}
           <Route component={Login} />
