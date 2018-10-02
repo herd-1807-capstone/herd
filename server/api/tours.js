@@ -340,31 +340,3 @@ router.put('/:tourId/users/:userId', async (req, res, next) => {
     next(err);
   }
 });
-
-
- // let membersNotFound = [];
-    // if(emails) {
-    //   // get all uids of users(emails)
-    //   let userIds = [];
-
-    //   const snapshot = await db.ref('/users').orderByChild('email').once('value');
-    //   const users = Object.values(snapshot.val());
-    //   if(users){
-    //     for(let email of emails){
-    //       let found = false;
-
-    //       finduser:
-    //       for(let u of users){
-    //         if(u.email === email){
-    //           userIds.push(u.uid);
-    //           found = true;
-    //           break finduser;
-    //         }
-    //       }
-
-    //       if(!found) membersNotFound.push(email);
-    //     }
-    //   }
-
-    //   if(userIds.length > 0) tour.users = userIds;
-    // }
