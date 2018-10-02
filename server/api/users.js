@@ -114,9 +114,7 @@ router.delete('/:userId', async(req, res, next) => {
       return;
     }
 
-    const user = await db.ref(`/users/${userId}`).once('value');
-    if(user) await db.ref(`/users/${userId}`).remove();
-
+    await db.ref(`/users/${userId}`).remove();
     res.status(201);
   }catch(err){
     next(err);

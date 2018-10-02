@@ -146,27 +146,157 @@ router.put('/:tourId', async(req, res, next) => {
 
 // add a new spot to a tour
 router.post('/:tourId/spots', async(req, res, next) => {
+  const tourId = req.params.tourId;
+  try{
+    const currUser = firebase.auth().currentUser;
+    if(!currUser){
+      res.status(403).send('forbidden');
+      return;
+    }
 
+    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
+    const loggedInUser = userSnapshot.val();
+    if(!loggedInUser || loggedInUser.status !== 'admin'){
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    const {description, lat, lng, name} = req.body;
+    const spot = {description, lat, lng, name};
+    const spotAdded = await db.ref(`/tours/${tourId}/spots`).push(spot);
+
+    res.json({
+      key: spotAdded.key
+    })
+  }catch(err){
+    next(err);
+  }
 });
 
 // update spot details of a tour
-router.put('/:tourId/spots/:spotIndex', async(req, res, next) => {
+router.put('/:tourId/spots/:spotId', async(req, res, next) => {
+  const {tourId, spotId} = req.params;
+  try{
+    const currUser = firebase.auth().currentUser;
+    if(!currUser){
+      res.status(403).send('forbidden');
+      return;
+    }
 
+    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
+    const loggedInUser = userSnapshot.val();
+    if(!loggedInUser || loggedInUser.status !== 'admin'){
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    const {description, lat, lng, name} = req.body;
+    const spot = {description, lat, lng, name};
+    const spotUpdated = await db.ref(`/tours/${tourId}/spots/${spotId}`).update(spot);
+
+    res.json(201).send();
+  }catch(err){
+    next(err);
+  }
 });
 
 // delete a spot from a tour
-router.delete('/:tourId/spots/:spotIndex', async(req, res, next) => {
+router.delete('/:tourId/spots/:spotId', async(req, res, next) => {
+  const {tourId, spotId} = req.params;
+  try{
+    const currUser = firebase.auth().currentUser;
+    if(!currUser){
+      res.status(403).send('forbidden');
+      return;
+    }
 
+    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
+    const loggedInUser = userSnapshot.val();
+    if(!loggedInUser || loggedInUser.status !== 'admin'){
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    await db.ref(`/tours/${tourId}/spots/${spotId}`).remove();
+    res.status(201);
+  }catch(err){
+    next(err);
+  }
 });
 
 // add a new member i.e., userId to a tour
 router.post('/:tourId/users', async(req, res, next) => {
+  try{
+    const currUser = firebase.auth().currentUser;
+    if(!currUser){
+      res.status(403).send('forbidden');
+      return;
+    }
 
+    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
+    const loggedInUser = userSnapshot.val();
+    if(!loggedInUser || loggedInUser.status !== 'admin'){
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    // First, get the list of userIds of a tour
+    const {userId} = req.body;
+
+    const tourSnapshot = await db.ref(`/tours/${tourId}`).once('value');
+    const tour = tourSnapshot.val();
+    const users = tour.users;
+    // check if current user is either an admin of this tour or a member.
+    if(users.indexOf(user.uid) < 0){
+      res.status(403).send('forbidden');
+      return;
+    }
+    users.push(userId);
+
+    await db.ref(`/tours/${tourId}`).update({users});
+    res.status(201);
+  }catch(err){
+    next(err);
+  }
 });
 
 // delete a user id from a tour
-router.delete('/:tourId/users/:userIndex', async(req, res, next) => {
+router.delete('/:tourId/users/:userId', async(req, res, next) => {
+  try{
+    const currUser = firebase.auth().currentUser;
+    if(!currUser){
+      res.status(403).send('forbidden');
+      return;
+    }
 
+    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
+    const loggedInUser = userSnapshot.val();
+    if(!loggedInUser || loggedInUser.status !== 'admin'){
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    // First, get the list of userIds of a tour
+    const {userId} = req.body;
+    const tourSnapshot = await db.ref(`/tours/${tourId}`).once('value');
+    const tour = tourSnapshot.val();
+    let users = tour.users;
+    // check if current user is either an admin of this tour or a member.
+    if(users.indexOf(user.uid) < 0){
+      res.status(403).send('forbidden');
+      return;
+    }
+
+    // remove the userId from users
+    users = users.filter(user => user !== userId);
+
+    // update the tour with the new list of users.
+    await db.ref(`/tours/${tourId}`).update({users});
+    res.status(201);
+
+  }catch(err){
+    next(err);
+  }
 })
 
 // PUT /tours/:tourId/users/:userId - updates user's location i.e., lat and lng of a User instance in db.
