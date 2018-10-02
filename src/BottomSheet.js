@@ -36,7 +36,7 @@ class BottomSheet extends React.Component {
 
     const {classes, selected, defaultSelected} = this.props
     let type;
-    console.log('SELECTED!!!', selected)
+
     if (!selected){
       return (
         <Paper className={classes.root}>

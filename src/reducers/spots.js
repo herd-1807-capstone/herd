@@ -53,7 +53,6 @@ export const addSpotThunk = spot => async dispatch => {
 
 export const getSpotsThunk = () => async (dispatch, getState) => {
   const loggedInUser = getState().user.currentUser;
-  console.log(loggedInUser);
   const refSpots = db.ref(`/tours/${loggedInUser.tour}/spots`);
 
   refSpots.orderByKey().on(

@@ -24,7 +24,7 @@ export const setSelectedUser = user => ({type: SET_SELECTED_USER, user})
 // THUNK CREATORS
 export const getAllUsers = () => async (dispatch, getState) => {
     const loggedInUser = getState().user.currentUser;
-    console.log('LOGGED IN USER!!', loggedInUser);
+
     const userPermission = loggedInUser.status || 'member' //fallback value
     const tourId = loggedInUser.tour || 'disney_tour' //fallback value
     //non-admin user

@@ -4,7 +4,6 @@ import GeolocationMarker from './GeolocationMarker';
 import GOOGLE_API_KEY from './secrets';
 import firebase from './fire';
 import { Spot, Admin, User } from './Marker';
-import BottomSheet from './BottomSheet';
 import axios from 'axios'
 import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected } from './store';
 import { connect } from 'react-redux';
