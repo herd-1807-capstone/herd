@@ -8,6 +8,7 @@ module.exports = router;
 router.use(async (req, res, next) => {
   try{
     const {access_token} = req.query;
+    
     if(!access_token){
       const error = new Error('Forbidden');
       error.status = 403;
@@ -32,8 +33,8 @@ router.use(async (req, res, next) => {
       next(error);
       return;
     }
-
     req.authUser = authUser;
+    next()
   }catch(err){
     next(err);
   }

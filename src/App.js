@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
 import Grid from '@material-ui/core/Grid';
 import firebase from './fire';
 import { connect } from 'react-redux';
@@ -12,7 +12,9 @@ import Map from './Map';
 import Error from './Error';
 import MenuBar from './components/MenuBar';
 import { setCurrentUser } from './store/index';
-// import Admin from './components/Admin';
+import Admin from './components/Admin';
+import CreateGroup from './components/CreateGroup';
+import ManageGroup from './components/ManageGroup';
 
 const auth = firebase.auth();
 const db = firebase.database();
@@ -35,11 +37,11 @@ class App extends Component {
           // console.log('USER EXISTS IN DB???', snapshot)
           
           if (!snapshot.exists()) {
-            // console.log("Snapshot!!")
+            // console.log("Snapshot does not exists!!")
             // console.log(user)
             let newUser = {
-              email: user.email,
               name: user.displayName,
+              email: user.email,
               phone: user.phoneNumber,
               uid: user.uid,
               status: 'member',
@@ -49,8 +51,26 @@ class App extends Component {
             // console.log('CREATING USER THE FIRST TIME');
             await db.ref(`/users/${user.uid}`).set(newUser);
             user = newUser
+          } else {
+            let theUser = {
+              name: user.displayName,
+              email: user.email,
+              phone: user.phoneNumber,
+              imgUrl: user.photoURL,
+            }
+
+            // console.log(snapshot.val().tour)
+
+            await db.ref(`/users/${user.uid}`).update(theUser)
+            theUser.uid = user.uid
+            theUser.status = snapshot.val().status
+            theUser.visible = snapshot.val().visible
+            theUser.tour = snapshot.val().tour
+            user = theUser
+          //   return firebase.database().ref().update(updates);
+          // }
           }
-          // console.log("Outside of Snapshot!!")
+          // console.log("You are authed!!")
           // console.log(snapshot.val())
           // this.setState({ user, isLoading: false });
           // this.props.setCurrentUser(snapshot.val())
@@ -80,9 +100,9 @@ class App extends Component {
             <Switch>
               <Route exact path="/" component={MenuBar} />
               <Route path="/error/:id" component={Error} />
-              {/* <Route exact path="/admin" component={Admin} /> */}
-              {/* <Route exact path="/admin/group" component={Group} /> */}
-              {/* <Route path="/admin/group/create" component={CreateGroup} /> */}
+              <Route exact path="/admin" component={Admin} />
+              <Route exact path="/admin/group" component={ManageGroup} />
+              <Route path="/admin/group/create" component={CreateGroup} />
             </Switch>
           )}
           <Route component={Login} />
@@ -105,4 +125,4 @@ const mapDispatch = dispatch => {
   }
 }
 
-export default connect(mapState, mapDispatch)(App);
+export default withRouter(connect(mapState, mapDispatch)(App));

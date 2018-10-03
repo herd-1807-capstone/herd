@@ -3,17 +3,22 @@ const firebase = require('firebase')
 const router = require('express').Router()
 module.exports = router;
 
-// GET /users/:userId
-router.get('/:userId', async(req, res, next) => {
+
+router.get('/free', async(req, res, next) => {
   try{
-    const userId = req.params.userId;
-
-    db.ref(`/users/${userId}`).once('value')
-    .then(userSnapshot => {
-      const user = userSnapshot.val();
-
-      if(req.authUser.status === 'admin' || user.uid === userId){
-        res.json(snapshot);
+    db.ref(`/users/`).once('value')
+    .then(usersSnapshot => {
+      const users = Object.values(usersSnapshot.val());
+      if (req.authUser.status === 'admin'){
+        // console.log(users)
+        let selectedUser = users.filter((user)=>{
+          if (!(user.hasOwnProperty('tour')) || user.tour === 'null'){
+            return true
+          } else {
+            return false
+          }
+        })
+        res.json(selectedUser);
       }else{
         res.status(403).send('Forbidden');
         return;
@@ -26,6 +31,69 @@ router.get('/:userId', async(req, res, next) => {
     next(err);
   }
 });
+
+
+
+
+
+// GET /users/:userId
+router.get('/:userId', async(req, res, next) => {
+  try{
+    const userId = req.params.userId;
+    db.ref(`/users/${userId}`).once('value')
+    .then(userSnapshot => {
+      const user = userSnapshot.val();
+
+      if(req.authUser.status === 'admin' || user.uid === userId){
+        res.json(user);
+      }else{
+        res.status(403).send('Forbidden');
+        return;
+      }
+    })
+    .catch(err => {
+      next(err);
+    })
+  }catch(err){
+    next(err);
+  }
+});
+
+router.get('/', async(req, res, next) => {
+  try{
+    let currentUser = req.authUser
+    db.ref(`/users/`)
+      .orderByChild('tour')
+      .equalTo(currentUser.tour)
+      .once('value')
+      .then(usersSnapshot => {
+        const users = Object.values(usersSnapshot.val());
+        if (req.authUser.status === 'admin'){
+          // console.log(users)
+          // let selectedUser = users.filter((user)=>{
+          //   if (!(user.hasOwnProperty('tour'))){
+          //     return true
+          //   } else if (user.tour === currentUser.tour || user.tour === 'null'){
+          //     return true
+          //   } else {
+          //     return false
+          //   }
+          // })
+          res.json(users);
+    }else{
+      res.status(403).send('Forbidden');
+      return;
+    }
+  })
+  .catch(err => {
+    next(err);
+  })
+  }catch(err){
+    next(err);
+  }
+});
+
+
 
 // POST /users
 router.post('/', async(req, res, next) => {
