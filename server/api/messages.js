@@ -1,5 +1,4 @@
-const db = require('../db');
-const firebase = require('firebase');
+const {db} = require('./firebaseadmin');
 const router = require('express').Router();
 module.exports = router;
 
