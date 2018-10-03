@@ -9,11 +9,14 @@ router.get('/:userId', async(req, res, next) => {
     const userId = req.params.userId;
 
     db.ref(`/users/${userId}`).once('value')
-    .then(snapshot => {
-      if(snapshot.status === 'admin' || snapshot.uid === userId){
+    .then(userSnapshot => {
+      const user = userSnapshot.val();
+
+      if(req.authUser.status === 'admin' || user.uid === userId){
         res.json(snapshot);
       }else{
-        res.status(403).send('forbidden');
+        res.status(403).send('Forbidden');
+        return;
       }
     })
     .catch(err => {
@@ -28,9 +31,10 @@ router.get('/:userId', async(req, res, next) => {
 router.post('/', async(req, res, next) => {
   try{
     const authUser = req.authUser;
+
     // make sure the logged-in user is an admin.
     if(authUser.status !== 'admin'){
-      res.status(403).send('forbidden');
+      res.status(403).send('Forbidden');
       return;
     }
 
@@ -58,9 +62,10 @@ router.post('/', async(req, res, next) => {
 router.put('/:userId', async(req, res, next) => {
   try{
     const authUser = req.authUser;
+
     // make sure the logged-in user is an admin.
     if(authUser.status !== 'admin'){
-      res.status(403).send('forbidden');
+      res.status(403).send('Forbidden');
       return;
     }
 
@@ -92,7 +97,7 @@ router.delete('/:userId', async(req, res, next) => {
     const authUser = req.authUser;
     // make sure the logged-in user is an admin.
     if(authUser.status !== 'admin'){
-      res.status(403).send('forbidden');
+      res.status(403).send('Forbidden');
       return;
     }
 
