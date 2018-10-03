@@ -5,19 +5,12 @@ module.exports = router;
 
 // GET /users/:userId
 router.get('/:userId', async(req, res, next) => {
-  const userId = req.params.userId;
   try{
-    const currUser = firebase.auth().currentUser;
-
-    // a user must be logged-in to retrieve data.
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
+    const userId = req.params.userId;
 
     db.ref(`/users/${userId}`).once('value')
     .then(snapshot => {
-      if(currUser.status === 'admin' || currUser.uid === userId){
+      if(snapshot.status === 'admin' || snapshot.uid === userId){
         res.json(snapshot);
       }else{
         res.status(403).send('forbidden');
@@ -34,10 +27,9 @@ router.get('/:userId', async(req, res, next) => {
 // POST /users
 router.post('/', async(req, res, next) => {
   try{
-    const currUser = firebase.auth().currentUser;
-
-    // a user must be logged-in to retrieve data.
-    if(!currUser){
+    const authUser = req.authUser;
+    // make sure the logged-in user is an admin.
+    if(authUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
@@ -56,9 +48,7 @@ router.post('/', async(req, res, next) => {
     const userCreated = await db.ref('/users').push(user);
 
     // return the created user's key to the client
-    res.json({
-      key: userCreated.key
-    });
+    res.json({key: userCreated.key});
   }catch(err){
     next(err);
   }
@@ -66,16 +56,15 @@ router.post('/', async(req, res, next) => {
 
 // PUT /users/:userId
 router.put('/:userId', async(req, res, next) => {
-  const userId = req.params.userId;
   try{
-    const currUser = firebase.auth().currentUser;
-
-    // a user must be logged-in to retrieve data.
-    if(!currUser){
+    const authUser = req.authUser;
+    // make sure the logged-in user is an admin.
+    if(authUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
 
+    const userId = req.params.userId;
     const {email, lat, lng, name, status, tour, visibie} = req.body;
 
     const user = {};
@@ -97,19 +86,12 @@ router.put('/:userId', async(req, res, next) => {
 
 // DELETE /users/:userId
 router.delete('/:userId', async(req, res, next) => {
-  const userId = req.params.userId;
   try{
-    const currUser = firebase.auth().currentUser;
-    // a user must be logged-in to retrieve data.
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
+    const userId = req.params.userId;
 
-    const currUserSnapshot = await db.ref(`/users/${currUser.uid}`).once('value');
-    const loggedInUser = currUserSnapshot.val();
+    const authUser = req.authUser;
     // make sure the logged-in user is an admin.
-    if(loggedInUser.status !== 'admin'){
+    if(authUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }

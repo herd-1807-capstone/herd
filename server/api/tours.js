@@ -5,15 +5,9 @@ module.exports = router;
 
 // GET /tours/:tourId
 router.get('/:tourId', async(req, res, next) => {
-  const tourId = req.params.tourId;
   try{
-    const user = firebase.auth().currentUser;
-
-    // a user must be logged-in to retrieve data.
-    if(!user){
-      res.status(403).send('forbidden');
-      return;
-    }
+    const user = req.authUser;
+    const tourId = req.params.tourId;
 
     db.ref(`/tours/${tourId}`).once('value').then(snapshot => {
       const tour = snapshot.val();
@@ -39,24 +33,16 @@ router.get('/:tourId', async(req, res, next) => {
 router.post('/', async(req, res, next) => {
   try{
     const {name} = req.body;
-
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
+    const authUser = req.authUser;
     // make sure the current user is an admin
-    const currUserSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = currUserSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
+    if(authUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
 
     const tour = {
       name,
-      guideUId: loggedInUser.uid
+      guideUId: authUser.uid
     };
 
     const tourCreated = await db.ref(`/tours/`).push(tour);
@@ -74,15 +60,8 @@ router.post('/', async(req, res, next) => {
 router.delete('/:tourId', async(req, res, next) => {
   try{
     // first, check logged-in user's privilege i.e., the guide of this tour(tourId)
-    const currUser = firebase.auth().currentUser;
-    if(!currUser) {
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${currUser.uid}`).once('value');
-    const user = userSnapshot.val();
-    if(user.status !== 'admin'){
+    const currUser = req.authUser;
+    if(currUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
@@ -111,15 +90,8 @@ router.put('/:tourId', async(req, res, next) => {
   try{
     const {name} = req.body;
 
-    const user = firebase.auth().currentUser;
-    if(!user){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
+    const user = req.authUser;
+    if(user.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
@@ -148,15 +120,8 @@ router.put('/:tourId', async(req, res, next) => {
 router.post('/:tourId/spots', async(req, res, next) => {
   const tourId = req.params.tourId;
   try{
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
+    const currUser = req.authUser;
+    if(currUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
@@ -165,9 +130,7 @@ router.post('/:tourId/spots', async(req, res, next) => {
     const spot = {description, lat, lng, name};
     const spotAdded = await db.ref(`/tours/${tourId}/spots`).push(spot);
 
-    res.json({
-      key: spotAdded.key
-    })
+    res.json({key: spotAdded.key});
   }catch(err){
     next(err);
   }
@@ -177,15 +140,8 @@ router.post('/:tourId/spots', async(req, res, next) => {
 router.put('/:tourId/spots/:spotId', async(req, res, next) => {
   const {tourId, spotId} = req.params;
   try{
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
+    const currUser = req.authUser;
+    if(currUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
@@ -204,15 +160,8 @@ router.put('/:tourId/spots/:spotId', async(req, res, next) => {
 router.delete('/:tourId/spots/:spotId', async(req, res, next) => {
   const {tourId, spotId} = req.params;
   try{
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
+    const currUser = req.authUser;
+    if(currUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
@@ -227,15 +176,8 @@ router.delete('/:tourId/spots/:spotId', async(req, res, next) => {
 // add a new member i.e., userId to a tour
 router.post('/:tourId/users', async(req, res, next) => {
   try{
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
+    const currUser = req.authUser;
+    if(currUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
@@ -263,15 +205,8 @@ router.post('/:tourId/users', async(req, res, next) => {
 // delete a user id from a tour
 router.delete('/:tourId/users/:userId', async(req, res, next) => {
   try{
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
+    const currUser = req.authUser;
+    if(currUser.status !== 'admin'){
       res.status(403).send('forbidden');
       return;
     }
@@ -304,12 +239,7 @@ router.put('/:tourId/users/:userId', async (req, res, next) => {
   const {tourId, userId} = req.params;
   const {lat, lng} = req.body;
   try{
-    const loggedInUser = firebase.auth().currentUser;
-
-    if(!loggedInUser || loggedInUser.uid !== userId) {
-      res.status(403).send('forbidden');
-      return;
-    }
+    const loggedInUser = req.authUser;
 
     const tourSnapshot = await db.ref(`/tours/${tourId}`).once('value');
     const tour = tourSnapshot.val();
