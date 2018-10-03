@@ -7,7 +7,7 @@ module.exports = router;
 // a middleware authenticating a logged-in user and adding that user instance to the request.
 router.use(async (req, res, next) => {
   try{
-    const {access_token} = req.params;
+    const {access_token} = req.query;
     if(!access_token){
       const error = new Error('Forbidden');
       error.status = 403;
