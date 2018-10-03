@@ -12,13 +12,16 @@ router.use(async (req, res, next) => {
       const error = new Error('Forbidden');
       error.status = 403;
       next(error);
+      return;
     }
 
+    console.log("here??");
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     if(!decodedToken){
       const error = new Error('Forbidden');
       error.status = 403;
       next(error);
+      return;
     }
 
     const authUserSnapshot = await db.ref(`/users/${decodedToken.uid}`).once('value');
@@ -28,6 +31,7 @@ router.use(async (req, res, next) => {
       const error = new Error('Forbidden');
       error.status = 403;
       next(error);
+      return;
     }
 
     req.authUser = authUser;
