@@ -16,16 +16,18 @@ router.use(async (req, res, next) => {
 
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     if(!decodedToken){
-      res.status(403).send('forbidden');
-      return;
+      const error = new Error('Forbidden');
+      error.status = 403;
+      next(error);
     }
 
     const authUserSnapshot = await db.ref(`/users/${decodedToken.uid}`).once('value');
     const authUser = authUserSnapshot.val();
     // a user must be logged-in to retrieve data.
     if(!authUser){
-      res.status(403).send('forbidden');
-      return;
+      const error = new Error('Forbidden');
+      error.status = 403;
+      next(error);
     }
 
     req.authUser = authUser;
