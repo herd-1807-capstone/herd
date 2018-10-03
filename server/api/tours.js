@@ -33,10 +33,12 @@ router.get('/:tourId', async(req, res, next) => {
 router.post('/', async(req, res, next) => {
   try{
     const {name} = req.body;
-
+    // console.log("Received create order")
+    // console.log(name)
     const authUser = req.authUser;
     // make sure the current user is an admin
     if(authUser.status !== 'admin'){
+      // console.log("You are not an admin!")
       res.status(403).send('forbidden');
       return;
     }
@@ -46,8 +48,10 @@ router.post('/', async(req, res, next) => {
       guideUId: authUser.uid
     };
 
+    // console.log("Hope to be created")
     const tourCreated = await db.ref(`/tours/`).push(tour);
 
+    // console.log(tourCreated)
     res.json({
       ...tour,
       "key": tourCreated.key
