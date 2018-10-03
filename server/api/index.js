@@ -9,8 +9,9 @@ router.use(async (req, res, next) => {
   try{
     const {idToken} = req.body;
     if(!idToken){
-      res.status(403).send('forbidden');
-      return;
+      const error = new Error('Forbidden');
+      error.status = 403;
+      next(error);
     }
 
     const decodedToken = await admin.auth().verifyIdToken(idToken);
