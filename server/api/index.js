@@ -15,7 +15,6 @@ router.use(async (req, res, next) => {
       return;
     }
 
-    console.log("here??");
     const decodedToken = await admin.auth().verifyIdToken(idToken);
     if(!decodedToken){
       const error = new Error('Forbidden');
@@ -28,7 +27,7 @@ router.use(async (req, res, next) => {
     const authUser = authUserSnapshot.val();
     // a user must be logged-in to retrieve data.
     if(!authUser){
-      const error = new Error('Forbidden');
+      const error = new Error('Auth User Not Found in DB');
       error.status = 403;
       next(error);
       return;
