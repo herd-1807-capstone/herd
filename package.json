@@ -26,11 +26,10 @@
     "redux-thunk": "^2.3.0"
   },
   "scripts": {
-    "start": "react-scripts start && node server",
-    "start-dev": "react-scripts start && nodemon server",
+    "start": "set NODE_ENV=production && react-scripts start",
+    "start-dev": "set NODE_ENV=development && react-scripts start",
     "build": "react-scripts build",
-    "start-all": "nodemon ./server/index.js & react-scripts start",
-    "start-backend": "nodemon ./server/index.js",
+    "start-all": "react-scripts start",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   }

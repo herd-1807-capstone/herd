@@ -8,6 +8,7 @@ import axios from 'axios'
 import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected } from './store';
 import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
+import {API_ROOT} from './api-config';
 
 
 const db = firebase.database();
@@ -53,7 +54,7 @@ class SimpleMap extends Component {
     const userId = this.props.currentUser.uid;
     try {
       await axios.put(
-        `http://localhost:8080/api/tours/${tourId}/users/${userId}`,
+        `${API_ROOT}/tours/${tourId}/users/${userId}`,
         { lat, lng }
       );
     } catch (error) {
