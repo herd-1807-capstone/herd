@@ -14,7 +14,7 @@ import Divider from '@material-ui/core/Divider';
 const UserListItems = props => {
   return (
     <div>
-      <ListItem button>
+      <ListItem button onClick = {props.handleRecenter}>
         <ListItemIcon>
           <AllOut />
         </ListItemIcon>
