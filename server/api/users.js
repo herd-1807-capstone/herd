@@ -6,6 +6,7 @@ module.exports = router;
 
 router.get('/free', async(req, res, next) => {
   try{
+    console.log("free user api hit!")
     db.ref(`/users/`).once('value')
     .then(usersSnapshot => {
       const users = Object.values(usersSnapshot.val());
@@ -63,22 +64,23 @@ router.get('/', async(req, res, next) => {
   try{
     let currentUser = req.authUser
     db.ref(`/users/`)
-      .orderByChild('tour')
-      .equalTo(currentUser.tour)
-      .once('value')
-      .then(usersSnapshot => {
-        const users = Object.values(usersSnapshot.val());
-        if (req.authUser.status === 'admin'){
-          // console.log(users)
-          // let selectedUser = users.filter((user)=>{
+    .orderByChild('tour')
+    .equalTo(currentUser.tour)
+    .once('value')
+    .then(usersSnapshot => {
+      const users = Object.values(usersSnapshot.val());
+      console.log("All user hit!")
+      if (req.authUser.status === 'admin'){
+        // console.log(users)
+        // let selectedUser = users.filter((user)=>{
           //   if (!(user.hasOwnProperty('tour'))){
-          //     return true
-          //   } else if (user.tour === currentUser.tour || user.tour === 'null'){
-          //     return true
-          //   } else {
-          //     return false
-          //   }
-          // })
+            //     return true
+            //   } else if (user.tour === currentUser.tour || user.tour === 'null'){
+              //     return true
+              //   } else {
+                //     return false
+                //   }
+                // })
           res.json(users);
     }else{
       res.status(403).send('Forbidden');

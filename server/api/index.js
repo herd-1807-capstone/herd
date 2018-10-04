@@ -8,8 +8,11 @@ module.exports = router;
 router.use(async (req, res, next) => {
   try{
     const {access_token} = req.query;
-    
+    // console.log("*******************************")
+    // console.log(access_token)
+    // console.log("*******************************")
     if(!access_token){
+      console.log("Some how access_token does not match")
       const error = new Error('Forbidden');
       error.status = 403;
       next(error);
@@ -34,6 +37,7 @@ router.use(async (req, res, next) => {
       return;
     }
     req.authUser = authUser;
+    console.log("End of the line")
     next()
   }catch(err){
     next(err);

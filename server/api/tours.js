@@ -179,9 +179,11 @@ router.delete('/:tourId/spots/:spotId', async(req, res, next) => {
 });
 
 // add a new member i.e., userId to a tour
-router.post('/:tourId/users', async(req, res, next) => {
+router.post('/:tourId/users/', async(req, res, next) => {
   try{
     const authUser = req.authUser;
+
+    console.log("Reach the put user API!!")
     if(authUser.status !== 'admin'){
       res.status(403).send('Forbidden');
       return;
@@ -189,15 +191,16 @@ router.post('/:tourId/users', async(req, res, next) => {
 
     // First, get the list of userIds of a tour
     const {userId} = req.body;
-
+    const { tourId } = req.params
     const tourSnapshot = await db.ref(`/tours/${tourId}`).once('value');
     const tour = tourSnapshot.val();
     const users = tour.users;
     // check if current user is either an admin of this tour or a member.
-    if(!users || users.indexOf(user.uid) < 0){
+    if(!users || users.indexOf(authUser.uid) < 0){
       res.status(403).send('Forbidden');
       return;
     }
+    console.log(userId)
     users.push(userId);
 
     await db.ref(`/tours/${tourId}`).update({users});
