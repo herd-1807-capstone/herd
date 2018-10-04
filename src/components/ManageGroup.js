@@ -19,6 +19,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 
+import {API_ROOT} from '../api-config';
 
 const styles = theme => ({
     root: {
@@ -64,8 +65,8 @@ constructor(props){
 
   async componentDidMount(){
     let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
-    let resGroupys = await axios.get(`http://localhost:8080/api/users?access_token=${access_token}`)
-    let resFreeBirds = await axios.get(`http://localhost:8080/api/users/free?access_token=${access_token}`)
+    let resGroupys = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
+    let resFreeBirds = await axios.get(`${API_ROOT}/users/free?access_token=${access_token}`)
     let groupys = resGroupys.data
     let freeBirds = resFreeBirds.data
     // Promise.all([groupys, freeBirds])
@@ -86,7 +87,7 @@ constructor(props){
       newChecked.push(value);
       // add a member to a tour
       console.log(value)
-        let putUser = await axios.post(`http://localhost:8080/api/tours/${currentUser.tour}/users?access_token=${access_token}`, {userId: value})
+        let putUser = await axios.post(`${API_ROOT}/tours/${currentUser.tour}/users?access_token=${access_token}`, {userId: value})
         console.log(`put user: ${putUser}`)
     } else {
       newChecked.splice(currentIndex, 1);

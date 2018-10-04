@@ -4,13 +4,12 @@ import Place from '@material-ui/icons/Place';
 
 
 
-const Spot = ({personal}) => {
+const Spot = () => {
 
   const styles = {
     transform: 'translate(-50%, -100%)',
     fontSize: 40
   }
-  if (personal) return <PlaceOutlined style = {styles} />
   return (
             <Place style = {styles} />
           );
@@ -23,10 +22,11 @@ const Admin = () => {
           );
 }
 
-const User = () => {
-  return (
-            <div className = 'user-marker' />
-          );
+const User = ({imgUrl, idx}) => {
+  if (imgUrl){
+    return <img className = 'user-marker' src={imgUrl} />
+  }
+  return <img className = 'user-marker' src ={`https://robohash.org/${idx}.png?set=set4`}/>
 }
 
 export {Spot, Admin, User}
