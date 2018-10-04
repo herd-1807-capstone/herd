@@ -14,29 +14,52 @@ import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import firebase from '../fire';
 import Admin from './Admin';
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Typography from '@material-ui/core/Typography';
+
 import {API_ROOT} from '../api-config';
 
 const styles = theme => ({
-  root:{
-    display: 'flex',
-    justifyContent: 'center',
-  },
-  paperBack: {
-    width: '100%',
-    maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
-  },
+    root: {
+        flexGrow: 1,
+        backgroundColor: theme.palette.background.paper,
+    },
+    subRoot:{
+        display: 'flex',
+        justifyContent: 'center',
+    },
+    paperBack: {
+        width: '100%',
+        maxWidth: 360,
+        backgroundColor: theme.palette.background.paper,
+    },
 });
+function TabContainer(props) {
+    return (
+      <Typography component="div" style={{ padding: 8 * 3 }}>
+        {props.children}
+      </Typography>
+    );
+  }
+  
+  TabContainer.propTypes = {
+    children: PropTypes.node.isRequired,
+  };
+  
 
 class ManageGroup extends React.Component {
-    state = {
-        checked: [1]
-    };
+
 constructor(props){
     super(props)
     this.state = {
         groupys: [],
         freeBirds: [],
+        checked: [1],
+        value: 0,
+        access_token: "",
+        changedUser:[]
       }
   }
 
@@ -50,18 +73,34 @@ constructor(props){
     //         .then(function(values) {
     //             this.setState({groupys: values[0], freeBirds: values[1]})
     //         });
-    this.setState({groupys, freeBirds})
+    this.setState({groupys, freeBirds, access_token})
   }
 
-  handleToggle = value => () => {
-    const { checked } = this.state;
+  handleToggle = value => async (evt) => {
+    const { checked, access_token, groupys, freeBirds } = this.state;
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
 
-    if (currentIndex === -1) {
+    const { currentUser } = this.props
+
+    if (evt.target.checked) {
       newChecked.push(value);
+      // add a member to a tour
+      console.log(evt.target.checked)
+      evt.persist()
+      try {
+          let putTour = await axios.post(`${API_ROOT}/tours/${currentUser.tour}/users?access_token=${access_token}`, {userId: value})
+          console.log(`Put the tour!!!${putTour}`)
+          let putUser = await axios.put(`${API_ROOT}/users/${value}?access_token=${access_token}`, {tour: currentUser.tour})
+          console.log("update user", putUser)
+          console.log(currentUser.tour)
+          
+      } catch (error) {
+          console.error(error)
+      }
     } else {
       newChecked.splice(currentIndex, 1);
+      //remove a member from a tour
     }
 
     this.setState({
@@ -69,23 +108,39 @@ constructor(props){
     });
   };
 
+  handleChange = (event, value) => {
+    this.setState({ value });
+  };
+
+
   render() {
     const { classes } = this.props;
+    const { value } = this.state;
     console.log(this.state.groupys)
     console.log(this.state.freeBirds)
+
     return (
-      <div className={classes.root}>
+      <div className={classes.subRoot}>
         <Paper className={classes.paperBack} elevation={3}>
-        <List>
+        <div className={classes.root}>
+        <AppBar position="static">
+          <Tabs value={value} onChange={this.handleChange}>
+            <Tab label="Group Members" />
+            <Tab label="No Group Members" />
+          </Tabs>
+        </AppBar>
+        {value === 0 && <TabContainer>
+            <List>
           {this.state.groupys.map(user => (
             <div key={user.uid}>
             <ListItem key={user.uid} dense button className={classes.listItem}>
               {/* <Avatar alt="Remy Sharp" src="/static/images/remy.jpg" /> */}
               <AccountCircle />
-              <ListItemText primary={`${user.name}`} />
+              <ListItemText primary={`${user.uid}`} />
               <ListItemSecondaryAction>
                 <Checkbox
-                  onChange={this.handleToggle(user.uid)}
+                  onChange={this.handleToggle(user.name)}
+                  checked={user.hasOwnProperty('tour') && (user.tour !== 'null')}
                 />
               </ListItemSecondaryAction>
             </ListItem>
@@ -93,9 +148,9 @@ constructor(props){
             </div>
           ))}
         </List>
-
-
-        <List>
+            </TabContainer>}
+        {value === 1 && <TabContainer>
+            <List>
           {this.state.freeBirds.map(user => (
             <div key={user.uid}>
             <ListItem key={user.uid} dense button className={classes.listItem}>
@@ -105,6 +160,7 @@ constructor(props){
               <ListItemSecondaryAction>
                 <Checkbox
                   onChange={this.handleToggle(user.uid)}
+                  checked={user.hasOwnProperty('tour') && (user.tour !== 'null')}
                 />
               </ListItemSecondaryAction>
             </ListItem>
@@ -112,6 +168,12 @@ constructor(props){
             </div>
           ))}
         </List>
+        </TabContainer>}
+      </div>
+
+
+
+        
         </Paper>
       </div>
     );
