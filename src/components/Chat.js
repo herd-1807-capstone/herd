@@ -25,13 +25,13 @@ const styles = theme => ({
 });
 
 class Chat extends Component {
-  state = { open: false, value: 'Dione' };
+  state = { open: false, value: '', selectedUid: '' };
 
   handleClickOpen = () => {
     this.setState({ open: true });
   };
-  handleClose = value => {
-    this.setState({ value, open: false });
+  handleClose = (value, selectedUid) => {
+    this.setState({ value, selectedUid, open: false });
   };
 
   render() {

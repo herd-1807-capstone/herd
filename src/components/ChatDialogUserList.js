@@ -37,7 +37,6 @@ class ChatDialogUserList extends Component {
     };
   }
 
-  // TODO
   componentWillReceiveProps(nextProps) {
     if (nextProps.value !== this.props.value) {
       this.setState({ value: nextProps.value });
@@ -53,18 +52,22 @@ class ChatDialogUserList extends Component {
   };
 
   handleOk = () => {
-    this.props.onClose(this.state.value);
+    this.props.onClose(this.state.value, this.state.selectedUid);
   };
 
   handleChange = (event, value) => {
-    this.setState({ value });
+    const selectedUid = this.props.userlist.filter(
+      user => user.name === value
+    )[0].uid;
+    this.setState({ value, selectedUid });
   };
 
   async componentDidMount() {
     await this.props.getUsers;
     const userlist = this.props.userlist;
     const value = userlist[0].name;
-    this.setState({ value, userlist });
+    const selectedUid = userlist[0].uid;
+    this.setState({ value, selectedUid, userlist });
   }
 
   render() {
