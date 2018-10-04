@@ -76,19 +76,28 @@ constructor(props){
     this.setState({groupys, freeBirds, access_token})
   }
 
-  handleToggle = value => async () => {
+  handleToggle = value => async (evt) => {
     const { checked, access_token, groupys, freeBirds } = this.state;
     const currentIndex = checked.indexOf(value);
     const newChecked = [...checked];
 
     const { currentUser } = this.props
 
-    if (currentIndex === -1) {
+    if (evt.target.checked) {
       newChecked.push(value);
       // add a member to a tour
-      console.log(value)
-        let putUser = await axios.post(`${API_ROOT}/tours/${currentUser.tour}/users?access_token=${access_token}`, {userId: value})
-        console.log(`put user: ${putUser}`)
+      console.log(evt.target.checked)
+      evt.persist()
+      try {
+          let putTour = await axios.post(`${API_ROOT}/tours/${currentUser.tour}/users?access_token=${access_token}`, {userId: value})
+          console.log(`Put the tour!!!${putTour}`)
+          let putUser = await axios.put(`${API_ROOT}/users/${value}?access_token=${access_token}`, {tour: currentUser.tour})
+          console.log("update user", putUser)
+          console.log(currentUser.tour)
+          
+      } catch (error) {
+          console.error(error)
+      }
     } else {
       newChecked.splice(currentIndex, 1);
       //remove a member from a tour
