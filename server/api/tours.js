@@ -94,8 +94,8 @@ router.delete('/:tourId', async(req, res, next) => {
 router.put('/:tourId', async(req, res, next) => {
   try{
     const {name} = req.body;
-
     const authUser = req.authUser;
+
     if(authUser.status !== 'admin'){
       res.status(403).send('Forbidden');
       return;
@@ -112,6 +112,7 @@ router.put('/:tourId', async(req, res, next) => {
       res.status(403).send('Forbidden');
       return;
     }
+
 
     await db.ref(`/tours/${tourId}`).update({name});
 
@@ -259,6 +260,7 @@ router.put('/:tourId/users/:userId', async (req, res, next) => {
     }
 
     const userSnapshot = await db.ref(`/users/${userId}`).once('value');
+
     const user = userSnapshot.val();
     if(!user){
       res.status(404).send('User Not Found');

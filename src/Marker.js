@@ -22,10 +22,11 @@ const Admin = () => {
           );
 }
 
-const User = () => {
-  return (
-            <div className = 'user-marker' />
-          );
+const User = ({imgUrl, idx}) => {
+  if (imgUrl){
+    return <img className = 'user-marker' src={imgUrl} />
+  }
+  return <img className = 'user-marker' src ={`https://robohash.org/${idx}.png?set=set4`}/>
 }
 
 export {Spot, Admin, User}

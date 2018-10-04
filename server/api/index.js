@@ -1,5 +1,4 @@
 const db = require('../db')
-const firebase = require('firebase');
 const admin = require('./firebaseadmin');
 const router = require('express').Router();
 module.exports = router;
@@ -8,7 +7,7 @@ module.exports = router;
 router.use(async (req, res, next) => {
   try{
     const {access_token} = req.query;
-    
+
     if(!access_token){
       const error = new Error('Forbidden');
       error.status = 403;

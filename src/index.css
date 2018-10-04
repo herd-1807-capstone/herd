@@ -17,13 +17,21 @@ body {
 
 
 .user-marker{
-  background-color: green;
-  border: solid 3px white;
+  background-color: white;
+
+  border: solid 2px white;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
+  -webkit-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
 }
+
+
+
+
 .admin-marker{
   background-color: red;
   border: solid 3px white;
@@ -31,5 +39,17 @@ body {
   transform: translate(-50%, -50%);
   width: 20px;
   height: 20px;
+}
+
+#geolocation-marker{
+  background-color: #448AFF;
+  border: solid 2px white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  -webkit-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
 }
 
