@@ -62,3 +62,8 @@ typings/
 
 secrets.js
 server/api/firebase-admin.json
+.firebase/
+.firebaserc
+build/
+database.rules.json
+firebase.json

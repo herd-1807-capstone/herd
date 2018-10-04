@@ -14,6 +14,7 @@ import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import firebase from '../fire';
 import Admin from './Admin';
+import {API_ROOT} from '../api-config';
 
 const styles = theme => ({
   root:{
@@ -41,8 +42,8 @@ constructor(props){
 
   async componentDidMount(){
     let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
-    let resGroupys = await axios.get(`http://localhost:8080/api/users?access_token=${access_token}`)
-    let resFreeBirds = await axios.get(`http://localhost:8080/api/users/free?access_token=${access_token}`)
+    let resGroupys = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
+    let resFreeBirds = await axios.get(`${API_ROOT}/users/free?access_token=${access_token}`)
     let groupys = resGroupys.data
     let freeBirds = resFreeBirds.data
     // Promise.all([groupys, freeBirds])

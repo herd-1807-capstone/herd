@@ -9,8 +9,7 @@ import { connect } from 'react-redux';
 import { setCurrentUser } from '../reducers/user';
 import { Route, withRouter } from 'react-router-dom';
 import ManageGroup from './ManageGroup';
-
-
+import {API_ROOT} from '../api-config';
 
 const styles = {
   outer:{
@@ -56,7 +55,7 @@ class CreateGroup extends Component {
       evt.persist()
       let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
       // console.log(access_token)
-      let createResult = await axios.post(`http://localhost:8080/api/tours?access_token=${access_token}`, {
+      let createResult = await axios.post(`${API_ROOT}/tours?access_token=${access_token}`, {
                           "name": this.state.tourName,
                           })
       console.log(createResult)
@@ -65,7 +64,7 @@ class CreateGroup extends Component {
         this.props.updateUser(newCurrentUser)
         this.props.history.push('/admin/group')
       } else {
-        return (<h1>{createResult.statusText}</h1>)      
+        return (<h1>{createResult.statusText}</h1>)
       }
     }
   }
@@ -137,7 +136,7 @@ class CreateGroup extends Component {
           </Grid>
           </form>
         </Grid>
-        
+
       </div>
     );
   }
