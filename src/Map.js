@@ -100,6 +100,11 @@ class SimpleMap extends Component {
       );
 
     }
+    if (prevProps.recenter !== this.props.recenter){
+      if (this.props.recenter){
+        this.centerToPosition(this.state.currentPosition.lat, this.state.currentPosition.lng);
+      }
+    }
   }
   clearWatchPosition() {
     //disable GPS monitoring
