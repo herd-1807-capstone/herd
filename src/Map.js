@@ -59,7 +59,7 @@ class SimpleMap extends Component {
     try {
       const idToken = await firebase.auth().currentUser.getIdToken();
       await axios.put(
-        `http://localhost:8080/api/tours/${tourId}/users/${userId}?access_token=${idToken}`,
+        `/api/tours/${tourId}/users/${userId}?access_token=${idToken}`,
         { lat, lng }
       );
     } catch (error) {
