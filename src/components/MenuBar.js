@@ -68,11 +68,13 @@ class MenuBar extends React.Component {
     this.state = {
       mobileOpen: false,
       showInfo: true,
+      recenter: false
     };
 
     this.handleLogout = this.handleLogout.bind(this);
     this.handleChatStart = this.handleChatStart.bind(this);
     this.handleInfoSpot = this.handleInfoSpot.bind(this);
+    this.handleRecenter = this.handleRecenter.bind(this);
   }
 
   handleDrawerToggle = () => {
@@ -91,6 +93,12 @@ class MenuBar extends React.Component {
   handleInfoSpot() {
     this.setState({ showInfo: true });
   }
+  handleRecenter(evt){
+    console.log(evt)
+    this.setState({recenter: true}, ()=>{
+      this.setState({recenter: false})
+    })
+  }
   render() {
     const { classes, theme } = this.props;
 
@@ -102,6 +110,7 @@ class MenuBar extends React.Component {
           <UserListItems
             handleChatStart={this.handleChatStart}
             handleInfoSpot={this.handleInfoSpot}
+            handleRecenter={this.handleRecenter}
           />
         </List>
         <Divider />
@@ -162,7 +171,7 @@ class MenuBar extends React.Component {
         </Hidden>
         <main className={classes.content}>
           <div className={classes.toolbar} />
-          <Map />
+          <Map recenter={this.state.recenter}/>
           {this.state.showInfo ? <BottomSheet /> : <Chat />}
         </main>
       </div>

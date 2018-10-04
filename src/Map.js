@@ -8,6 +8,7 @@ import axios from 'axios'
 import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected } from './store';
 import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
+import {API_ROOT} from './api-config';
 
 
 const db = firebase.database();
@@ -32,7 +33,9 @@ class SimpleMap extends Component {
       currentPosition: {
         lat: 28.4177,
         lng: -81.5812,
+        accuracy: 0,
       },
+
       zoom: 18,
       center: {
         lat: 28.4177,
@@ -40,6 +43,7 @@ class SimpleMap extends Component {
       },
       map: null,
       maps: null,
+      addMarker: false,
     };
     this.onMapClick = this.onMapClick.bind(this);
     this.onMarkerClick = this.onMarkerClick.bind(this);
@@ -47,13 +51,16 @@ class SimpleMap extends Component {
     this.watchCurrentPosition = this.watchCurrentPosition.bind(this);
     this.centerToPosition = this.centerToPosition.bind(this);
     this.writeCurrentPosition = this.writeCurrentPosition.bind(this);
+    this.renderAccuracyCircle = this.renderAccuracyCircle.bind(this);
+    this.onApiLoaded = this.onApiLoaded.bind(this);
   }
   async writeCurrentPosition(lat, lng) {
     const tourId = this.props.currentUser.tour;
     const userId = this.props.currentUser.uid;
     try {
+      const idToken = await firebase.auth().currentUser.getIdToken();
       await axios.put(
-        `http://localhost:8080/api/tours/${tourId}/users/${userId}`,
+        `${API_ROOT}/tours/${tourId}/users/${userId}?access_token=${idToken}`,
         { lat, lng }
       );
     } catch (error) {
@@ -68,13 +75,18 @@ class SimpleMap extends Component {
       console.log('geolocation is not available');
     }
   }
-  async setCoords({ coords }) {
+  setCoords(position) {
+    const {coords} = position;
     this.setState({
       currentPosition: {
         lat: coords.latitude,
         lng: coords.longitude,
+        accuracy: coords.accuracy
       },
     });
+    if (this.circle){
+      this.updateAccuracyCircle();
+    }
   }
   componentDidUpdate(prevProps, prevState) {
     let changedLat =
@@ -86,6 +98,12 @@ class SimpleMap extends Component {
         this.state.currentPosition.lat,
         this.state.currentPosition.lng
       );
+
+    }
+    if (prevProps.recenter !== this.props.recenter){
+      if (this.props.recenter){
+        this.centerToPosition(this.state.currentPosition.lat, this.state.currentPosition.lng);
+      }
     }
   }
   clearWatchPosition() {
@@ -100,6 +118,9 @@ class SimpleMap extends Component {
   onMapClick(evt) {
     //TODO: add marker to clicked location
     // console.log(evt);
+    this.setState({
+      addMarker: true
+    })
   }
   onMarkerClick(...evt){
     const key = evt[0];
@@ -151,19 +172,54 @@ class SimpleMap extends Component {
       navigator.geolocation.clearWatch(this.geoWatchId);
     }
   }
+  onApiLoaded({map, maps}){
+    this.setState({map, maps})
+    this.renderAccuracyCircle(map, maps);
+  }
+  renderAccuracyCircle(map, maps){
+    const {lat, lng, accuracy } = this.state.currentPosition
+    this.circle = new maps.Circle({
+      center: {lat, lng},
+      radius: accuracy,
+      map: map,
+      fillColor: 'blue',//color,
+      fillOpacity: 0.1,//opacity from 0.0 to 1.0,
+      strokeColor: 'blue',//stroke color,
+      strokeOpacity: 0.1,//opacity from 0.0 to 1.0
+     });
+  }
+  updateAccuracyCircle(){
+    const {lat, lng, accuracy } = this.state.currentPosition
+    this.circle.setCenter({lat, lng})
+    this.circle.setRadius(accuracy);
+  }
   renderSpots() {
-
     let spots = this.props.spots;
     return spots.map(loc => {
-      return <Spot key={loc.name} lat={loc.lat} lng={loc.lng} />;
+      if (loc.name && loc.lat && loc.lng){
+        return <Spot key={loc.name} lat={loc.lat} lng={loc.lng} />;
+      }
+      return null;
     });
   }
   renderUsers() {
-    return this.props.users.map(user => {
+    return this.props.users.map((user, index)=> {
       if (user.status === 'admin') {
-        return <Admin key={user.name} lat={user.lat} lng={user.lng} />;
+        if (user.name && user.lat && user.lng){
+          return <Admin key={user.name} lat={user.lat} lng={user.lng} />;
+        }
+        return null
       }
-      return <User key={user.name} lat={user.lat} lng={user.lng} />;
+      if (user.name && user.lat && user.lng){
+
+        return(<User
+                  key={user.name}
+                  lat={user.lat}
+                  lng={user.lng}
+                  imgUrl={user.imgUrl}
+                  idx={index} />);
+      }
+      return null
     });
   }
   render() {
@@ -179,6 +235,8 @@ class SimpleMap extends Component {
               options ={options}
               onClick = {this.onMapClick}
               onChildClick={this.onMarkerClick}
+              onGoogleApiLoaded={this.onApiLoaded}
+              yesIWantToUseGoogleMapApiInternals = {true}
               >
                 <GeolocationMarker
                   key = 'geolocationMarker'

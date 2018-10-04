@@ -1,3 +1,8 @@
+::after{
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+-moz-box-sizing: border-box;    /* Firefox, other Gecko */
+box-sizing: border-box;
+}
 body {
   margin: 0;
   padding: 0;
@@ -17,13 +22,21 @@ body {
 
 
 .user-marker{
-  background-color: green;
-  border: solid 3px white;
+  background-color: white;
+
+  border: solid 2px white;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
+  width: 30px;
+  height: 30px;
+  -webkit-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
 }
+
+
+
+
 .admin-marker{
   background-color: red;
   border: solid 3px white;
@@ -33,3 +46,58 @@ body {
   height: 20px;
 }
 
+#geolocation-marker{
+  background-color: #448AFF;
+  border: solid 2px white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  -webkit-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
+    -moz-box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
+    box-shadow: 2px 2px 5px 0px rgba(0, 0, 0, 1);
+  transition: border-width 0.6s linear;
+}
+
+@keyframes stretch {
+  0% {
+    height: 20px;
+  width: 20px;
+    background-color: blue;
+    border-radius: 50%;
+    border: 1px solid white;
+    transform: translate(-50%, -50%);
+  }
+  25%{
+    height: 20px;
+    width: 20px;
+    background-color: blue;
+    border-radius: 50%;
+    border: 2px solid white;
+    transform: translate(-50%, -50%);
+  }
+  50% {
+    height: 20px;
+  width: 20px;
+    background-color: blue;
+    border-radius: 50%;
+    border: 3px solid white;
+    transform: translate(-50%, -50%);
+  }
+  75% {
+    height: 20px;
+  width: 20px;
+    background-color: blue;
+    border-radius: 50%;
+    border: 4px solid white;
+    transform: translate(-50%, -50%);
+  }
+  100% {
+ height: 20px;
+  width: 20px;
+    background-color: blue;
+    border-radius: 50%;
+    border: 5px solid white;
+    transform: translate(-50%, -50%);
+  }
+}
