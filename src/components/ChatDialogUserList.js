@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
+
 import Button from '@material-ui/core/Button';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -11,22 +12,8 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-const options = [
-  'None',
-  'Atria',
-  'Callisto',
-  'Dione',
-  'Ganymede',
-  'Hangouts Call',
-  'Luna',
-  'Oberon',
-  'Phobos',
-  'Pyxis',
-  'Sedna',
-  'Titania',
-  'Triton',
-  'Umbriel',
-];
+import { setCurrentUser, getAllUsers } from '../reducers/user';
+
 const styles = theme => ({
   root: {
     width: '100%',
@@ -43,7 +30,10 @@ class ChatDialogUserList extends Component {
   constructor(props) {
     super();
     this.state = {
-      value: props.value,
+      value: '',
+      selectedUid: '',
+      userlist: [],
+      currentuser: '',
     };
   }
 
@@ -70,9 +60,16 @@ class ChatDialogUserList extends Component {
     this.setState({ value });
   };
 
+  async componentDidMount() {
+    await this.props.getUsers;
+    const userlist = this.props.userlist;
+    const value = userlist[0].name;
+    this.setState({ value, userlist });
+  }
+
   render() {
     const { value, ...other } = this.props;
-    const list = this.props.userlist;
+    const list = this.state.userlist;
     return (
       <Dialog
         disableBackdropClick
@@ -88,17 +85,17 @@ class ChatDialogUserList extends Component {
             ref={ref => {
               this.radioGroupRef = ref;
             }}
-            aria-label="Ringtone"
-            name="ringtone"
+            aria-label="UserList"
+            name="userlist"
             value={this.state.value}
             onChange={this.handleChange}
           >
             {list.map(item => (
               <FormControlLabel
-                value={option}
-                key={option}
+                key={item.uid}
+                value={item.name}
                 control={<Radio />}
-                label={option}
+                label={item.name}
               />
             ))}
           </RadioGroup>
@@ -126,9 +123,18 @@ const mapState = ({ user }) => ({
   currentuser: user.currentUser,
 });
 
+const mapDispatch = dispatch => ({
+  getUsers() {
+    dispatch(getAllUsers());
+  },
+  getCurrentUser() {
+    dispatch(setCurrentUser());
+  },
+});
+
 export default withStyles(styles)(
   connect(
     mapState,
-    null
+    mapDispatch
   )(ChatDialogUserList)
 );

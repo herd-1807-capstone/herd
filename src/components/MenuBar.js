@@ -126,11 +126,11 @@ class MenuBar extends React.Component {
             <Typography variant="title" color="inherit" noWrap>
               Herd - Tour groups management
             </Typography>
-            {/* {this.props.currentUser ? (
+            {this.props.currentUser ? (
               <Button color="inherit" onClick={this.handleLogout}>
                 Log out
               </Button>
-            ) : null} */}
+            ) : null}
           </Toolbar>
         </AppBar>
         <Hidden mdUp>
