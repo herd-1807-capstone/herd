@@ -3,7 +3,7 @@ const firebase = require('firebase');
 const router = require('express').Router();
 module.exports = router;
 
-// GET /api/chat/:userId
+// GET /api/chat/:userId ===> MIGRATE TO FRONT END FOR REAL TIME TREATMENT
 router.get('/:userId', async (req, res, next) => {
   try {
     // const userAuth = firebase.auth().currentUser;
@@ -21,27 +21,43 @@ router.get('/:userId', async (req, res, next) => {
   }
 });
 
+const transformObj = (obj, str1, str2) => {
+  const list = Object.keys(obj);
+  const newArray = list.map(item => {
+    return { key: item, ...obj[item] };
+  });
+  return newArray.filter(
+    item =>
+      (item.fromId === str1 && item.toId === str2) ||
+      (item.fromId === str2 && item.toId === str1)
+  );
+};
+
 // POST /api/chat/:userId
 router.post('/:userId', async (req, res, next) => {
   try {
-    const userAuth = firebase.auth().currentUser;
+    // const userAuth = firebase.auth().currentUser;
     const fromId = req.params.userId;
     const { toId, text } = req.body;
 
-    if (fromUserId === userAuth) {
-      const newMessage = { fromId, text, toId };
-      const newKey = await db
-        .ref()
-        .child(`messages`)
-        .push().key;
-      const messages = {};
-      messages[`/messages/${newKey}`] = newMessage;
+    // if (fromId === userAuth) {
+    const newMessage = { fromId, text, toId };
+    const newKey = await db
+      .ref('/tours/disney_tour')
+      .child(`messages`)
+      .push().key;
 
-      res.status(201).json(messages);
+    const message = {};
+    message[`${newKey}`] = newMessage;
+    await db.ref('/tours/disney_tour/messages/').update(message);
 
-      return db.ref().update(messages);
-    } else res.status(403).send('forbidden');
+    const snapshot = await db.ref(`/tours/disney_tour/messages/`).once('value');
+    const allMessages = transformObj(snapshot.val(), fromId, toId);
+
+    res.status(201).json(allMessages);
+
+    // } else res.status(403).send('forbidden!');
   } catch (error) {
-    next(err);
+    next(error);
   }
 });

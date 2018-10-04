@@ -24,18 +24,18 @@ var uiConfig = {
 
       }
     },
-    {
-      provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-      scopes: ['public_profile', 'email', 'user_likes', 'user_friends'],
-      customParameters: {
-        // Forces password re-entry.
-        auth_type: 'reauthenticate',
-      },
-    },
-    firebase.auth.TwitterAuthProvider.PROVIDER_ID,
-    firebase.auth.GithubAuthProvider.PROVIDER_ID,
+    // {
+    //   provider: firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+    //   scopes: ['public_profile', 'email', 'user_likes', 'user_friends'],
+    //   customParameters: {
+    //     // Forces password re-entry.
+    //     auth_type: 'reauthenticate',
+    //   },
+    // },
+    // firebase.auth.TwitterAuthProvider.PROVIDER_ID,
+    // firebase.auth.GithubAuthProvider.PROVIDER_ID,
     firebase.auth.EmailAuthProvider.PROVIDER_ID,
-    firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+    // firebase.auth.PhoneAuthProvider.PROVIDER_ID,
   ],
   // Terms of service url.
   // tosUrl: '<your-tos-url>',

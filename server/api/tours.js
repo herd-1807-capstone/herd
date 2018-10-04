@@ -5,22 +5,16 @@ module.exports = router;
 
 // GET /tours/:tourId
 router.get('/:tourId', async(req, res, next) => {
-  const tourId = req.params.tourId;
   try{
-    const user = firebase.auth().currentUser;
+    const user = req.authUser;
 
-    // a user must be logged-in to retrieve data.
-    if(!user){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    db.ref(`/tours/${tourId}`).once('value').then(snapshot => {
-      const tour = snapshot.val();
+    const tourId = req.params.tourId;
+    db.ref(`/tours/${tourId}`).once('value').then(tourSnapshot => {
+      const tour = tourSnapshot.val();
 
       const users = tour.users;
       // check if current user is either an admin of this tour or a member.
-      if(users.indexOf(user.uid) < 0){
+      if(!users || users.indexOf(user.uid) < 0){
         res.status(403).send('forbidden');
         return;
       }
@@ -39,28 +33,25 @@ router.get('/:tourId', async(req, res, next) => {
 router.post('/', async(req, res, next) => {
   try{
     const {name} = req.body;
-
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
+    // console.log("Received create order")
+    // console.log(name)
+    const authUser = req.authUser;
     // make sure the current user is an admin
-    const currUserSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = currUserSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
+    if(authUser.status !== 'admin'){
+      // console.log("You are not an admin!")
       res.status(403).send('forbidden');
       return;
     }
 
     const tour = {
       name,
-      guideUId: loggedInUser.uid
+      guideUId: authUser.uid
     };
 
+    // console.log("Hope to be created")
     const tourCreated = await db.ref(`/tours/`).push(tour);
 
+    // console.log(tourCreated)
     res.json({
       ...tour,
       "key": tourCreated.key
@@ -74,28 +65,21 @@ router.post('/', async(req, res, next) => {
 router.delete('/:tourId', async(req, res, next) => {
   try{
     // first, check logged-in user's privilege i.e., the guide of this tour(tourId)
-    const currUser = firebase.auth().currentUser;
-    if(!currUser) {
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${currUser.uid}`).once('value');
-    const user = userSnapshot.val();
-    if(user.status !== 'admin'){
-      res.status(403).send('forbidden');
+    const authUser = req.authUser;
+    if(authUser.status !== 'admin'){
+      res.status(403).send('Forbidden');
       return;
     }
 
     const tourSnapshot = await db.ref(`/tours/${tourId}`).once('value');
     const tour = tourSnapshot.val();
     if(!tour){
-      res.status(404).send('not found');
+      res.status(404).send('Not Found');
       return;
     }
 
-    if(tour.users.indexOf(user.uid) < 0){
-      res.status(403).send('forbidden');
+    if(!tour.users || tour.users.indexOf(user.uid) < 0){
+      res.status(403).send('Forbidden');
       return;
     }
 
@@ -111,16 +95,9 @@ router.put('/:tourId', async(req, res, next) => {
   try{
     const {name} = req.body;
 
-    const user = firebase.auth().currentUser;
-    if(!user){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
-      res.status(403).send('forbidden');
+    const authUser = req.authUser;
+    if(authUser.status !== 'admin'){
+      res.status(403).send('Forbidden');
       return;
     }
 
@@ -128,17 +105,17 @@ router.put('/:tourId', async(req, res, next) => {
     const tourSnapshot = await db.ref(`/tours/${tourId}`).once('value');
     const tour = tourSnapshot.val();
     if(!tour){
-      res.status(404).send('tour not found');
+      res.status(404).send('Tour Not Found');
       return;
     }
-    if(!tour.user || !tour.users.indexOf(user.uid)){
-      res.status(403).send('forbidden');
+    if(!tour.users || !tour.users.indexOf(user.uid) < 0){
+      res.status(403).send('Forbidden');
       return;
     }
 
     await db.ref(`/tours/${tourId}`).update({name});
 
-    res.status(201).send();
+    res.status(201);
   }catch(err){
     next(err);
   }
@@ -148,16 +125,9 @@ router.put('/:tourId', async(req, res, next) => {
 router.post('/:tourId/spots', async(req, res, next) => {
   const tourId = req.params.tourId;
   try{
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
-      res.status(403).send('forbidden');
+    const authUser = req.authUser;
+    if(authUser.status !== 'admin'){
+      res.status(403).send('Forbidden');
       return;
     }
 
@@ -165,9 +135,7 @@ router.post('/:tourId/spots', async(req, res, next) => {
     const spot = {description, lat, lng, name};
     const spotAdded = await db.ref(`/tours/${tourId}/spots`).push(spot);
 
-    res.json({
-      key: spotAdded.key
-    })
+    res.json({key: spotAdded.key});
   }catch(err){
     next(err);
   }
@@ -177,16 +145,9 @@ router.post('/:tourId/spots', async(req, res, next) => {
 router.put('/:tourId/spots/:spotId', async(req, res, next) => {
   const {tourId, spotId} = req.params;
   try{
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
-      res.status(403).send('forbidden');
+    const authUser = req.authUser;
+    if(authUser.status !== 'admin'){
+      res.status(403).send('Forbidden');
       return;
     }
 
@@ -194,7 +155,7 @@ router.put('/:tourId/spots/:spotId', async(req, res, next) => {
     const spot = {description, lat, lng, name};
     const spotUpdated = await db.ref(`/tours/${tourId}/spots/${spotId}`).update(spot);
 
-    res.json(201).send();
+    res.status(201);
   }catch(err){
     next(err);
   }
@@ -204,16 +165,9 @@ router.put('/:tourId/spots/:spotId', async(req, res, next) => {
 router.delete('/:tourId/spots/:spotId', async(req, res, next) => {
   const {tourId, spotId} = req.params;
   try{
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
-      res.status(403).send('forbidden');
+    const authUser = req.authUser;
+    if(authUser.status !== 'admin'){
+      res.status(403).send('Forbidden');
       return;
     }
 
@@ -227,16 +181,9 @@ router.delete('/:tourId/spots/:spotId', async(req, res, next) => {
 // add a new member i.e., userId to a tour
 router.post('/:tourId/users', async(req, res, next) => {
   try{
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
-      res.status(403).send('forbidden');
+    const authUser = req.authUser;
+    if(authUser.status !== 'admin'){
+      res.status(403).send('Forbidden');
       return;
     }
 
@@ -247,8 +194,8 @@ router.post('/:tourId/users', async(req, res, next) => {
     const tour = tourSnapshot.val();
     const users = tour.users;
     // check if current user is either an admin of this tour or a member.
-    if(users.indexOf(user.uid) < 0){
-      res.status(403).send('forbidden');
+    if(!users || users.indexOf(user.uid) < 0){
+      res.status(403).send('Forbidden');
       return;
     }
     users.push(userId);
@@ -263,16 +210,9 @@ router.post('/:tourId/users', async(req, res, next) => {
 // delete a user id from a tour
 router.delete('/:tourId/users/:userId', async(req, res, next) => {
   try{
-    const currUser = firebase.auth().currentUser;
-    if(!currUser){
-      res.status(403).send('forbidden');
-      return;
-    }
-
-    const userSnapshot = await db.ref(`/users/${user.uid}`).once('value');
-    const loggedInUser = userSnapshot.val();
-    if(!loggedInUser || loggedInUser.status !== 'admin'){
-      res.status(403).send('forbidden');
+    const authUser = req.authUser;
+    if(authUser.status !== 'admin'){
+      res.status(403).send('Forbidden');
       return;
     }
 
@@ -282,7 +222,7 @@ router.delete('/:tourId/users/:userId', async(req, res, next) => {
     const tour = tourSnapshot.val();
     let users = tour.users;
     // check if current user is either an admin of this tour or a member.
-    if(users.indexOf(user.uid) < 0){
+    if(!users || users.indexOf(user.uid) < 0){
       res.status(403).send('forbidden');
       return;
     }
@@ -304,29 +244,24 @@ router.put('/:tourId/users/:userId', async (req, res, next) => {
   const {tourId, userId} = req.params;
   const {lat, lng} = req.body;
   try{
-    const loggedInUser = firebase.auth().currentUser;
-
-    if(!loggedInUser || loggedInUser.uid !== userId) {
-      res.status(403).send('forbidden');
-      return;
-    }
+    const authUser = req.authUser;
 
     const tourSnapshot = await db.ref(`/tours/${tourId}`).once('value');
     const tour = tourSnapshot.val();
     if(!tour){
-      res.status(404).send('tour not found');
+      res.status(404).send('Tour Not Found');
       return;
     }
 
-    if(tour.users.indexOf(loggedInUser.uid) < 0){
-      res.status(403).send('forbidden');
+    if(!tour.users || tour.users.indexOf(authUser.uid) < 0){
+      res.status(403).send('Forbidden');
       return;
     }
 
     const userSnapshot = await db.ref(`/users/${userId}`).once('value');
     const user = userSnapshot.val();
     if(!user){
-      res.status(404).send('user not found');
+      res.status(404).send('User Not Found');
       return;
     }
 
