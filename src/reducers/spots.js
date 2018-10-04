@@ -1,4 +1,6 @@
 import firebase from "../fire";
+import axios from "axios";
+import { API_ROOT } from "../api-config";
 const db = firebase.database();
 
 // INITIAL STATE
@@ -45,10 +47,18 @@ export const setSelected = marker => ({
 })
 
 // THUNK CREATORS
-export const addSpotThunk = spot => async dispatch => {
-    //TODO: fire a POST request to backend to add spot.
-    //dispatch addSpot(spot);
+export const addSpotThunk = spot => async (dispatch, getState) => {
+    try {
+      console.log(spot);
+      const tourId = getState().user.currentUser.tour;
+      console.log(tourId);
+      const idToken = await firebase.auth().currentUser.getIdToken()
+      await axios.post(`${API_ROOT}/tours/${tourId}/spots?access_token=${idToken}`, spot);
 
+      dispatch(addSpot(spot));
+    } catch (error) {
+      console.error(error);
+    }
 };
 
 export const getSpotsThunk = () => async (dispatch, getState) => {

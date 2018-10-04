@@ -10,8 +10,8 @@ import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
 import {API_ROOT} from './api-config';
 import Modal from '@material-ui/core/Modal';
-import { Paper, TextField } from '@material-ui/core';
 
+import AddMarkerForm from './AddMarkerForm'
 const db = firebase.database();
 
 
@@ -125,8 +125,8 @@ class SimpleMap extends Component {
     console.log(evt.lat, evt.lng);
     this.setState({
       addMarkerWindow: true,
-      // addMarkerLat: evt.lat,
-      // addMarkerLng: evt.lng,
+      addMarkerLat: evt.lat,
+      addMarkerLng: evt.lng,
     })
   }
   handleClose(){
@@ -265,13 +265,16 @@ class SimpleMap extends Component {
             open={this.state.addMarkerWindow}
             // onBackdropClick={this.handleClose}
             onClose={this.handleClose}
+            style={{alignItems:'center',justifyContent:'center'}}
             >
-            <div>
+            {/* <div>
               some placeholder content
-            </div>
-            {/* <AddMarkerForm lat={this.state.addMarkerLat}
+            </div> */}
+            <AddMarkerForm
+
+            lat={this.state.addMarkerLat}
             lng={this.state.addMarkerLng}
-            /> */}
+            />
           </Modal>
           </div>
 
