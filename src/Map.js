@@ -9,7 +9,8 @@ import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected } from './
 import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
 import {API_ROOT} from './api-config';
-
+import Modal from '@material-ui/core/Modal';
+import { Paper, TextField } from '@material-ui/core';
 
 const db = firebase.database();
 
@@ -43,7 +44,9 @@ class SimpleMap extends Component {
       },
       map: null,
       maps: null,
-      addMarker: false,
+      addMarkerWindow: false,
+      addMarkerLat: null,
+      addMarkerLng: null
     };
     this.onMapClick = this.onMapClick.bind(this);
     this.onMarkerClick = this.onMarkerClick.bind(this);
@@ -53,6 +56,7 @@ class SimpleMap extends Component {
     this.writeCurrentPosition = this.writeCurrentPosition.bind(this);
     this.renderAccuracyCircle = this.renderAccuracyCircle.bind(this);
     this.onApiLoaded = this.onApiLoaded.bind(this);
+    this.handleClose = this.handleClose.bind(this);
   }
   async writeCurrentPosition(lat, lng) {
     const tourId = this.props.currentUser.tour;
@@ -117,9 +121,17 @@ class SimpleMap extends Component {
   }
   onMapClick(evt) {
     //TODO: add marker to clicked location
-    // console.log(evt);
+    console.log(evt);
+    console.log(evt.lat, evt.lng);
     this.setState({
-      addMarker: true
+      addMarkerWindow: true,
+      // addMarkerLat: evt.lat,
+      // addMarkerLng: evt.lng,
+    })
+  }
+  handleClose(){
+    this.setState({
+      addMarkerWindow: false
     })
   }
   onMarkerClick(...evt){
@@ -249,7 +261,21 @@ class SimpleMap extends Component {
                   this.renderUsers()
                 }
             </GoogleMapReact>
+          <Modal
+            open={this.state.addMarkerWindow}
+            // onBackdropClick={this.handleClose}
+            onClose={this.handleClose}
+            >
+            <div>
+              some placeholder content
+            </div>
+            {/* <AddMarkerForm lat={this.state.addMarkerLat}
+            lng={this.state.addMarkerLng}
+            /> */}
+          </Modal>
           </div>
+
+
         </Fragment>
     );
   }
