@@ -38,11 +38,11 @@ class AdminListItems extends Component {
           </ListItemIcon>
           <ListItemText primary="Define Boundaries" />
         </ListItem>
-        <ListItem button>
+        <ListItem button onClick={this.props.showAnnouncementModal}>
           <ListItemIcon>
             <AddAlert />
           </ListItemIcon>
-          <ListItemText primary="Group Signal" />
+          <ListItemText primary="Announment" />
         </ListItem>
       </div>
     );
