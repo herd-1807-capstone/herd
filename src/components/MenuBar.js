@@ -20,16 +20,13 @@ import AdminListItems from './AdminListItems';
 import Map from '../Map';
 import Chat from './Chat';
 import BottomSheet from '../BottomSheet';
-<<<<<<< HEAD
 import AnnouncementCreateModal from './AnnouncementCreateModal';
 import { setCurrentUser, sendTourAnnouncement } from '../store/index';
-=======
 import GpsFixed from '@material-ui/icons/GpsFixed';
 import PeopleIcon from '@material-ui/icons/People';
 import SpotsIcon from '@material-ui/icons/Place';
 
 import { setCurrentUser } from '../store/index';
->>>>>>> 0d9f841318c0a2a599003f1899502649d5366eb5
 
 const drawerWidth = 240;
 
