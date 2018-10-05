@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { getConversation } from '../reducers/chat';
+
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -25,13 +28,16 @@ const styles = theme => ({
 });
 
 class Chat extends Component {
-  state = { open: false, value: '', selectedUid: '' };
+  state = { value: '', selectedUid: '', open: false };
 
   handleClickOpen = () => {
     this.setState({ open: true });
   };
   handleClose = (value, selectedUid) => {
-    this.setState({ value, selectedUid, open: false });
+    this.setState({ value, selectedUid, open: false }, () =>
+      this.props.fetchConversation(this.state.selectedUid)
+    );
+    console.log('props after conversation', this.props);
   };
 
   render() {
@@ -51,7 +57,7 @@ class Chat extends Component {
           onClose={this.handleClose}
           value={this.state.value}
         />
-        <ChatView />
+        <ChatView conversation={this.props.conversation} />
         <ChatForm />
       </div>
     );
@@ -61,4 +67,21 @@ class Chat extends Component {
 Button.propTypes = {
   classes: PropTypes.object.isRequired,
 };
-export default withStyles(styles)(Chat);
+
+const mapState = ({ chat, user }) => ({
+  conversation: chat.conversation,
+  currentUser: user.currentUser,
+});
+
+const mapDispatch = dispatch => ({
+  fetchConversation(toId) {
+    dispatch(getConversation(toId));
+  },
+});
+
+export default withStyles(styles)(
+  connect(
+    mapState,
+    mapDispatch
+  )(Chat)
+);

@@ -9,7 +9,11 @@ import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected } from './
 import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
 import {API_ROOT} from './api-config';
+import Modal from '@material-ui/core/Modal';
 
+import AddMarkerForm from './AddMarkerForm'
+
+import Paper from '@material-ui/core/Paper';
 
 const db = firebase.database();
 
@@ -43,7 +47,9 @@ class SimpleMap extends Component {
       },
       map: null,
       maps: null,
-      addMarker: false,
+      addMarkerWindow: false,
+      addMarkerLat: null,
+      addMarkerLng: null
     };
     this.onMapClick = this.onMapClick.bind(this);
     this.onMarkerClick = this.onMarkerClick.bind(this);
@@ -53,6 +59,7 @@ class SimpleMap extends Component {
     this.writeCurrentPosition = this.writeCurrentPosition.bind(this);
     this.renderAccuracyCircle = this.renderAccuracyCircle.bind(this);
     this.onApiLoaded = this.onApiLoaded.bind(this);
+    this.handleClose = this.handleClose.bind(this);
   }
   async writeCurrentPosition(lat, lng) {
     const tourId = this.props.currentUser.tour;
@@ -116,17 +123,35 @@ class SimpleMap extends Component {
     //TODO: hide from other users, but not admin
   }
   onMapClick(evt) {
-    //TODO: add marker to clicked location
-    // console.log(evt);
+
+    if(this.props.currentUser && this.props.currentUser.status === 'admin'){
+      this.setState({
+        addMarkerWindow: true,
+        addMarkerLat: evt.lat,
+        addMarkerLng: evt.lng,
+      })
+    }
+  }
+  handleClose(){
     this.setState({
-      addMarker: true
+      addMarkerWindow: false
     })
   }
+
   onMarkerClick(...evt){
+
     const key = evt[0];
     const coords = evt[1];
     this.props.selectSpot(key, coords);
-    this.centerToPosition(coords.lat, coords.lng)
+    this.centerToPosition(coords.lat, coords.lng);
+    if (this.state.maps){
+      this.infoWindow = new this.state.maps.InfoWindow({
+        content: key,
+        position: coords,
+      });
+
+      this.infoWindow.open(this.state.map)
+    }
   }
   centerToPosition(lat, lng) {
     this.setState(
@@ -249,7 +274,24 @@ class SimpleMap extends Component {
                   this.renderUsers()
                 }
             </GoogleMapReact>
+          <Modal
+            open={this.state.addMarkerWindow}
+            // onBackdropClick={this.handleClose}
+            onClose={this.handleClose}
+            // style={{alignItems:'center',justifyContent:'center'}}
+            >
+            {/* <div>
+              some placeholder content
+            </div> */}
+            <AddMarkerForm
+            handleClose= {this.handleClose}
+            lat={this.state.addMarkerLat}
+            lng={this.state.addMarkerLng}
+            />
+          </Modal>
           </div>
+
+
         </Fragment>
     );
   }
@@ -258,7 +300,8 @@ class SimpleMap extends Component {
 const mapState = ({user, spots})=>({
   users: user.list,
   spots: spots.list,
-  currentUser: user.currentUser
+  currentUser: user.currentUser,
+  selected: spots.selected
 })
 
 const mapDispatch = (dispatch) => ({

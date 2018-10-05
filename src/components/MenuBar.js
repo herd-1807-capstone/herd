@@ -20,8 +20,16 @@ import AdminListItems from './AdminListItems';
 import Map from '../Map';
 import Chat from './Chat';
 import BottomSheet from '../BottomSheet';
+<<<<<<< HEAD
 import AnnouncementCreateModal from './AnnouncementCreateModal';
 import { setCurrentUser, sendTourAnnouncement } from '../store/index';
+=======
+import GpsFixed from '@material-ui/icons/GpsFixed';
+import PeopleIcon from '@material-ui/icons/People';
+import SpotsIcon from '@material-ui/icons/Place';
+
+import { setCurrentUser } from '../store/index';
+>>>>>>> 0d9f841318c0a2a599003f1899502649d5366eb5
 
 const drawerWidth = 240;
 
@@ -69,7 +77,12 @@ class MenuBar extends React.Component {
       mobileOpen: false,
       showInfo: true,
       recenter: false,
+<<<<<<< HEAD
       showMsgModal: false
+=======
+      usersModal: false,
+      spotsModal: false,
+>>>>>>> 0d9f841318c0a2a599003f1899502649d5366eb5
     };
 
     this.handleLogout = this.handleLogout.bind(this);
@@ -78,7 +91,11 @@ class MenuBar extends React.Component {
     this.handleRecenter = this.handleRecenter.bind(this);
     this.sendTourAnnouncement = this.sendTourAnnouncement.bind(this);
   }
-
+  modalToggle = (type) => () =>{
+    this.setState({
+      [type]: !this.state[type]
+    })
+  }
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
@@ -134,7 +151,6 @@ class MenuBar extends React.Component {
           <UserListItems
             handleChatStart={this.handleChatStart}
             handleInfoSpot={this.handleInfoSpot}
-            handleRecenter={this.handleRecenter}
           />
         </List>
         <Divider />
@@ -159,6 +175,15 @@ class MenuBar extends React.Component {
             <Typography variant="title" color="inherit" noWrap>
               Herd - Tour groups management
             </Typography>
+            <IconButton onClick ={this.handleRecenter}>
+              <GpsFixed />
+            </IconButton>
+            <IconButton onClick = {this.modalToggle('users')}>
+              <PeopleIcon />
+            </IconButton>
+            <IconButton onClick = {this.modalToggle('spots')}>
+              <SpotsIcon />
+            </IconButton>
             {this.props.currentUser ? (
               <Button color="inherit" onClick={this.handleLogout}>
                 Log out
