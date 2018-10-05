@@ -26,8 +26,6 @@ import GpsFixed from '@material-ui/icons/GpsFixed';
 import PeopleIcon from '@material-ui/icons/People';
 import SpotsIcon from '@material-ui/icons/Place';
 
-import { setCurrentUser } from '../store/index';
-
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -74,12 +72,9 @@ class MenuBar extends React.Component {
       mobileOpen: false,
       showInfo: true,
       recenter: false,
-<<<<<<< HEAD
-      showMsgModal: false
-=======
+      showMsgModal: false,
       usersModal: false,
       spotsModal: false,
->>>>>>> 0d9f841318c0a2a599003f1899502649d5366eb5
     };
 
     this.handleLogout = this.handleLogout.bind(this);
