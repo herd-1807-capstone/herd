@@ -83,6 +83,9 @@ constructor(props){
             .then(([resGroupysdata, resFreeBirdsdata]) => {
         let groupys = resGroupysdata.data
         let freeBirds = resFreeBirdsdata.data
+        if(groupys && groupys[0].hasOwnProperty('tour') && groupys.length !== 0 && groupys[0].tour === 'null'){
+            groupys = []
+        }
     this.setState({...this.state, 
                     groupys, 
                     freeBirds, 
@@ -176,6 +179,10 @@ constructor(props){
   }
 
   handleCancel = () => {
+    console.log(this.state.changedUser.length)
+    if(this.state.changedUser.length === 0){
+        this.props.history.push('/admin')
+    }
     let oldGroupys = this.state.cacheGroupys.map((user)=>{
         user.tour = this.props.currentUser.tour
         return user
@@ -186,7 +193,8 @@ constructor(props){
     })
     this.setState({...this.state, 
                     groupys: oldGroupys, 
-                    freeBirds: oldFreeBirds
+                    freeBirds: oldFreeBirds,
+                    changedUser: [],
                 })
   }
 
