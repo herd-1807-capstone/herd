@@ -108,7 +108,7 @@ class AddMarkerForm extends React.Component {
               <div className = {classes.buttons}>
                 <Button
                 className = {classes.buttonItems}
-                  onClick={handleClose}
+                  onClick={handleClose('addMarkerWindow')}
                   variant = 'outlined'
                   size = 'small'
                   color = 'secondary' >

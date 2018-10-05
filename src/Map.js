@@ -12,8 +12,8 @@ import {API_ROOT} from './api-config';
 import Modal from '@material-ui/core/Modal';
 
 import AddMarkerForm from './AddMarkerForm'
-
-import Paper from '@material-ui/core/Paper';
+import {SpotsListWindow, UsersListWindow} from './ListWindow';
+import {setGoogleMap} from './reducers/googlemap';
 
 const db = firebase.database();
 
@@ -49,7 +49,7 @@ class SimpleMap extends Component {
       maps: null,
       addMarkerWindow: false,
       addMarkerLat: null,
-      addMarkerLng: null
+      addMarkerLng: null,
     };
     this.onMapClick = this.onMapClick.bind(this);
     this.onMarkerClick = this.onMarkerClick.bind(this);
@@ -132,9 +132,9 @@ class SimpleMap extends Component {
       })
     }
   }
-  handleClose(){
+  handleClose=(type)=>()=>{
     this.setState({
-      addMarkerWindow: false
+      [type]: false
     })
   }
 
@@ -199,6 +199,7 @@ class SimpleMap extends Component {
   }
   onApiLoaded({map, maps}){
     this.setState({map, maps})
+    this.props.setMap(map, maps);
     this.renderAccuracyCircle(map, maps);
   }
   renderAccuracyCircle(map, maps){
@@ -248,6 +249,7 @@ class SimpleMap extends Component {
     });
   }
   render() {
+    const {usersListWindow, spotsListWindow, handleListClose} = this.props;
     return (
       // Important! Always set the container height explicitly
         <Fragment>
@@ -275,19 +277,35 @@ class SimpleMap extends Component {
                 }
             </GoogleMapReact>
           <Modal
+            key='add-marker-window'
             open={this.state.addMarkerWindow}
             // onBackdropClick={this.handleClose}
-            onClose={this.handleClose}
+            onClose={this.handleClose('addMarkerWindow')}
             // style={{alignItems:'center',justifyContent:'center'}}
             >
-            {/* <div>
-              some placeholder content
-            </div> */}
             <AddMarkerForm
             handleClose= {this.handleClose}
             lat={this.state.addMarkerLat}
             lng={this.state.addMarkerLng}
             />
+          </Modal>
+          <Modal
+            key='users-list-window'
+            open={usersListWindow || false}
+            onClose={handleListClose('usersListWindow') || null}
+            >
+            <UsersListWindow
+              handleClose = {handleListClose || null}
+              />
+          </Modal>
+          <Modal
+            key='spots-list-window'
+            open={spotsListWindow || false}
+            onClose={handleListClose('spotsListWindow') || null}
+            >
+            <SpotsListWindow
+              handleClose = {handleListClose || null}
+              />
           </Modal>
           </div>
 
@@ -297,11 +315,13 @@ class SimpleMap extends Component {
   }
 }
 
-const mapState = ({user, spots})=>({
+const mapState = ({user, spots, googlemap})=>({
   users: user.list,
   spots: spots.list,
   currentUser: user.currentUser,
-  selected: spots.selected
+  selected: spots.selected,
+  map: googlemap.map,
+  maps: googlemap.maps
 })
 
 const mapDispatch = (dispatch) => ({
@@ -316,6 +336,9 @@ const mapDispatch = (dispatch) => ({
   },
   selectSpot(key){
     dispatch(setSelected(key));
+  },
+  setMap(map, maps){
+    dispatch(setGoogleMap(map, maps));
   }
 })
 export default connect(mapState, mapDispatch)(SimpleMap);

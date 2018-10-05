@@ -72,8 +72,8 @@ class MenuBar extends React.Component {
       mobileOpen: false,
       showInfo: true,
       recenter: false,
-      usersModal: false,
-      spotsModal: false,
+      usersListWindow: false,
+      spotsListWindow: false,
     };
 
     this.handleLogout = this.handleLogout.bind(this);
@@ -81,9 +81,14 @@ class MenuBar extends React.Component {
     this.handleInfoSpot = this.handleInfoSpot.bind(this);
     this.handleRecenter = this.handleRecenter.bind(this);
   }
-  modalToggle = (type) => () =>{
+  modalOpen = (type) => () =>{
     this.setState({
-      [type]: !this.state[type]
+      [type]: true
+    })
+  }
+  handleListClose = (type) => () => {
+    this.setState({
+      [type]: false
     })
   }
   handleDrawerToggle = () => {
@@ -146,10 +151,10 @@ class MenuBar extends React.Component {
             <IconButton onClick ={this.handleRecenter}>
               <GpsFixed />
             </IconButton>
-            <IconButton onClick = {this.modalToggle('users')}>
+            <IconButton onClick = {this.modalOpen('usersListWindow')}>
               <PeopleIcon />
             </IconButton>
-            <IconButton onClick = {this.modalToggle('spots')}>
+            <IconButton onClick = {this.modalOpen('spotsListWindow')}>
               <SpotsIcon />
             </IconButton>
             {this.props.currentUser ? (
@@ -188,7 +193,12 @@ class MenuBar extends React.Component {
         </Hidden>
         <main className={classes.content}>
           <div className={classes.toolbar} />
-          <Map recenter={this.state.recenter}/>
+          <Map
+            recenter={this.state.recenter}
+            usersListWindow={this.state.usersListWindow}
+            spotsListWindow={this.state.spotsListWindow}
+            handleListClose = {this.handleListClose}
+            />
           {this.state.showInfo ? <BottomSheet /> : <Chat />}
         </main>
       </div>
