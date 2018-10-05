@@ -16,3 +16,4 @@ const store = createStore(reducer, composeWithDevTools(middleware))
 export default store
 export * from '../reducers/user'
 export * from '../reducers/spots'
+export * from '../reducers/announcement'
