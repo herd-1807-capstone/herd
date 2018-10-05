@@ -27,7 +27,7 @@ const styles = theme => ({
 });
 
 class ChatDialogUserList extends Component {
-  constructor(props) {
+  constructor() {
     super();
     this.state = {
       value: '',
