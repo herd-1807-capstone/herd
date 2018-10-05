@@ -117,6 +117,7 @@ class MenuBar extends React.Component {
       const message = evt.target.message.value;
 
       this.props.sendTourAnnouncement(message);
+      this.hideAnnouncementModal();
     } catch(err){
       console.log(err);
     }
