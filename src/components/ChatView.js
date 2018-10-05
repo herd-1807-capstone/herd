@@ -4,12 +4,11 @@ import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import ListSubheader from '@material-ui/core/ListSubheader';
 
 const styles = theme => ({
   root: {
     width: '100%',
-    maxWidth: 400,
+    maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
     position: 'relative',
     overflow: 'auto',
@@ -25,14 +24,16 @@ const styles = theme => ({
 });
 
 function ChatView(props) {
-  const { classes } = props;
+  const { classes, conversation } = props;
 
   return (
     <List className={classes.root}>
       <ul className={classes.ul}>
-        {[0, 1, 2].map(item => (
-          <ListItem key={`item-${sectionId}-${item}`}>
-            <ListItemText primary={`Item ${item}`} />
+        {conversation.map(item => (
+          <ListItem key={item.key}>
+            <ListItemText
+              primary={`${item.fromName}=> ${item.toName}: ${item.text}`}
+            />
           </ListItem>
         ))}
       </ul>

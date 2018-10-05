@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { getConversation } from '../reducers/chat';
+
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import ChatView from './ChatView';
 import ChatForm from './ChatForm';
 import ChatDialogUserList from './ChatDialogUserList';
+import { get } from 'https';
 
 const styles = theme => ({
   root: {
@@ -25,17 +29,18 @@ const styles = theme => ({
 });
 
 class Chat extends Component {
-  state = { open: false, value: '', selectedUid: '' };
+  state = { value: '', selectedUid: '', open: false };
 
   handleClickOpen = () => {
     this.setState({ open: true });
   };
   handleClose = (value, selectedUid) => {
     this.setState({ value, selectedUid, open: false });
+    this.props.fetchConversation(selectedUid);
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, conversation } = this.props;
     return (
       <div>
         <Button
@@ -51,7 +56,7 @@ class Chat extends Component {
           onClose={this.handleClose}
           value={this.state.value}
         />
-        <ChatView />
+        <ChatView conversation={this.props.conversation} />
         <ChatForm />
       </div>
     );
@@ -61,4 +66,21 @@ class Chat extends Component {
 Button.propTypes = {
   classes: PropTypes.object.isRequired,
 };
-export default withStyles(styles)(Chat);
+
+const mapState = ({ chat, user }) => ({
+  conversation: chat.conversation,
+  currentUser: user.currentUser,
+});
+
+const mapDispatch = toId => dispatch => ({
+  fetchConversation() {
+    dispatch(getConversation(toId));
+  },
+});
+
+export default withStyles(styles)(
+  connect(
+    mapState,
+    mapDispatch
+  )(Chat)
+);
