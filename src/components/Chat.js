@@ -37,9 +37,7 @@ class Chat extends Component {
     this.setState({ value, selectedUid, open: false }, () =>
       this.props.fetchConversation(this.state.selectedUid)
     );
-    console.log('====================================');
-    console.log('props', this.props);
-    console.log('====================================');
+    console.log('props after conversation', this.props);
   };
 
   render() {
@@ -75,8 +73,8 @@ const mapState = ({ chat, user }) => ({
   currentUser: user.currentUser,
 });
 
-const mapDispatch = toId => dispatch => ({
-  fetchConversation() {
+const mapDispatch = dispatch => ({
+  fetchConversation(toId) {
     dispatch(getConversation(toId));
   },
 });
