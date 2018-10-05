@@ -40,6 +40,9 @@ const styles = theme => ({
         margin: 2*theme.spacing.unit,
         width: 70,
     },
+    extendedIcon: {
+        marginRight: theme.spacing.unit,
+    }
 });
 function TabContainer(props) {
     return (
@@ -74,15 +77,12 @@ constructor(props){
 
   async componentDidMount(){
     let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
-    let resGroupys = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
-    let resFreeBirds = await axios.get(`${API_ROOT}/users/free?access_token=${access_token}`)
-    let groupys = resGroupys.data
-    let freeBirds = resFreeBirds.data
-    // Promise.all([groupys, freeBirds])
-    //         .then(function(values) {
-    //             this.setState({groupys: values[0], freeBirds: values[1]})
-    //         });
-
+    let resGroupys = axios.get(`${API_ROOT}/users?access_token=${access_token}`)
+    let resFreeBirds = axios.get(`${API_ROOT}/users/free?access_token=${access_token}`)
+    Promise.all([resGroupys, resFreeBirds])
+            .then(([resGroupysdata, resFreeBirdsdata]) => {
+        let groupys = resGroupysdata.data
+        let freeBirds = resFreeBirdsdata.data
     this.setState({...this.state, 
                     groupys, 
                     freeBirds, 
@@ -90,10 +90,21 @@ constructor(props){
                     cacheGroupys: [...groupys],
                     cacheFreeBirds: [...freeBirds]
         })
+    });
+    
+    // let groupys = resGroupys.data
+    // let freeBirds = resFreeBirds.data
+    // this.setState({...this.state, 
+    //                 groupys, 
+    //                 freeBirds, 
+    //                 access_token,
+    //                 cacheGroupys: [...groupys],
+    //                 cacheFreeBirds: [...freeBirds]
+    //     })
   }
 
   handleToggle = user => async (evt) => {
-    const { checked, access_token, groupys, freeBirds, changedUser } = this.state;
+    const { groupys, freeBirds, changedUser } = this.state;
     // const currentIndex = checked.indexOf(user);
     // const newChecked = [...checked];
 
@@ -101,34 +112,14 @@ constructor(props){
     let newGroupys = []
     let newfreeBirds = []
     if (evt.target.checked) {
-        
-    //   newChecked.push(user);
-    //   // add a member to a tour
-    //   console.log(evt.target.checked)
-    //   evt.persist()
-    //   try {
-    //       let putTour = await axios.post(`${API_ROOT}/tours/${currentUser.tour}/users?access_token=${access_token}`, {userId: user.uid})
-    //       console.log(`Put the tour!!!${putTour}`)
-    //       let putUser = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: currentUser.tour})
-    //       console.log("update user", putUser)
-    //       console.log(currentUser.tour)
-        // console.log("Check!")
+
         newfreeBirds = freeBirds.filter((fUser)=>{
             return fUser.uid !== user.uid
         })
         user.tour = currentUser.tour
         newGroupys = [...groupys, user]
-          
-    //   } catch (error) {
-    //       console.error(error)
-    //   }
+
     } else {
-        
-    //   newChecked.splice(currentIndex, 1);
-      //remove a member from a tour
-      //
-      // Need to work on
-        
         // console.log("Uncheck!")
         newGroupys = groupys.filter((gUser)=>{
             return gUser.uid !== user.uid

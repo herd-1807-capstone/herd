@@ -1,10 +1,16 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withRouter, Link, Redirect } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import axios from 'axios'
 import firebase from '../fire';
 // import './component.css'
 
+import TextField from '@material-ui/core/TextField';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
@@ -16,30 +22,34 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 
 
-import ManageGroup from './ManageGroup'
+// import ManageGroup from './ManageGroup'
 import {API_ROOT} from '../api-config';
 
-const LinkToCreateGroup = () => <Link to='/admin/group' />
-
+// const LinkToCreateGroup = () => <Link to='/admin/group' />
 
 const style = theme => ({
     button: {
-      margin: theme.spacing.unit,
-      },
-      extendedIcon: {
+        margin: 3*theme.spacing.unit,
+        width: 135,
+    },
+    extendedIcon: {
         marginRight: theme.spacing.unit,
-      },
-      card: {
-        maxWidth: 745,
-      },
-      media: {
+    },
+    card: {
+        maxWidth: 5245,
+    },
+    media: {
         height: 240,
-      },
-      tourDisplay: {
+    },
+    tourDisplay: {
         margin: 60,
         display: 'flex',
         justifyContent: 'center',
-      }
+    },
+    dialog: {
+        display: 'flex',
+        justifyContent: 'center',
+    }
   })
 
 class Admin extends Component{
@@ -52,12 +62,30 @@ class Admin extends Component{
                 imgUrl: "/defaultGroup.png",
                 description: 'This is a fake information for a unreal tour group!',
                 creator: "",
-            }
+            },
+            open: false,
         }
+        this.handleDelete = this.handleDelete.bind(this)
     }
 
-    handleRedirect(){
-        <Redirect to='/admin/group' />
+    handleClickOpen = () => {
+        this.setState({ open: true });
+    };
+    
+    handleClose = () => {
+        this.setState({ open: false });
+    };
+
+    handleDelete(evt){
+        let msg = document.getElementById('deleteTour').value
+        console.log("delete")
+        console.log(msg)
+        if(msg !== '' && msg === this.state.tour.name){
+            //delete the group, set group members' tour info all to 'null' in users
+            console.log("OMG! You deleted a group!")
+        } else {
+            this.setState({ open: false });
+        }
     }
 
     async componentDidMount(){
@@ -102,14 +130,74 @@ class Admin extends Component{
                         </Typography>
                         </CardContent>
                     </CardActionArea>
-                    </Card>
+
+                <div>
+                    <Button variant="contained" 
+                            color="primary"  
+                            className={classes.button} 
+                            onClick={this.handleClickOpen}
+                    >Delete</Button>
+
+                    <Button variant="contained" 
+                            color="primary"  
+                            className={classes.button} 
+                            component={Link} 
+                            to='/'
+                    >Back</Button>
                 </div>
+                    </Card>
+                <div className={classes.dialog}>
+                    <Dialog
+                    open={this.state.open}
+                    onClose={this.handleClose}
+                    aria-labelledby="form-dialog-title"
+                    >
+                    <DialogTitle id="form-dialog-title"><h4>Delete this tour group?</h4></DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                        <h4>Once the tour group deleted, all the data of this group will lose.</h4>
+                        <h4>The action CAN NOT be undone.</h4>
+                        <h4>Type in the group name to confirm delete.</h4>
+                        </DialogContentText>
+                        <TextField
+                        autoFocus
+                        margin="dense"
+                        id="deleteTour"
+                        label="Type in Tour Name To Delete"
+                        fullWidth
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={this.handleDelete} color="primary">
+                        Delete
+                        </Button>
+                        <Button onClick={this.handleClose} color="primary">
+                        Cancel
+                        </Button>
+                    </DialogActions>
+                    </Dialog>
+                </div>
+            </div>
             )
         }
         // console.log(currentUser.hasOwnProperty('tour'))
         return(
-            <div>
-                <Button variant="contained" color="primary"  className={classes.button} component={Link} to='/admin/group'>Create Group</Button>
+            <div className={classes.tourDisplay}>
+                <div>
+                    <Button variant="contained" 
+                            color="primary"  
+                            className={classes.button} 
+                            component={Link} 
+                            to='/admin/group'
+                    >Create Group</Button>
+
+                    <Button variant="contained" 
+                            color="primary"  
+                            className={classes.button} 
+                            component={Link} 
+                            to='/'
+                    >Home</Button>
+                </div>
             </div>
         )
     }
