@@ -8,7 +8,6 @@ import Button from '@material-ui/core/Button';
 import ChatView from './ChatView';
 import ChatForm from './ChatForm';
 import ChatDialogUserList from './ChatDialogUserList';
-import { get } from 'https';
 
 const styles = theme => ({
   root: {
@@ -35,12 +34,16 @@ class Chat extends Component {
     this.setState({ open: true });
   };
   handleClose = (value, selectedUid) => {
-    this.setState({ value, selectedUid, open: false });
-    this.props.fetchConversation(selectedUid);
+    this.setState({ value, selectedUid, open: false }, () =>
+      this.props.fetchConversation(this.state.selectedUid)
+    );
+    console.log('====================================');
+    console.log('props', this.props);
+    console.log('====================================');
   };
 
   render() {
-    const { classes, conversation } = this.props;
+    const { classes } = this.props;
     return (
       <div>
         <Button

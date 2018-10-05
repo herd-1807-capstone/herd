@@ -20,6 +20,10 @@ export const getConversation = toId => async dispatch => {
     const response = await axios.get(
       `${API_ROOT}/chat/${toId}?access_token=${idToken}`
     );
+    console.log('====================================');
+    console.log(response);
+    console.log(idToken);
+    console.log('====================================');
     const conversation = response.data;
     dispatch(setConversation(conversation));
   } catch (error) {
@@ -29,12 +33,12 @@ export const getConversation = toId => async dispatch => {
 
 // Reducer for Chat
 
-const initialState = {};
+const initialState = { conversation: [] };
 
 export default (state = initialState, action) => {
   switch (action.type) {
     case GET_CONVERSATION:
-      return { ...state, conversation: action.conversation };
+      return { conversation: action.conversation };
 
     default:
       return state;
