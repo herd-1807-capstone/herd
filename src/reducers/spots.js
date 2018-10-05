@@ -49,9 +49,9 @@ export const setSelected = marker => ({
 // THUNK CREATORS
 export const addSpotThunk = spot => async (dispatch, getState) => {
     try {
-      console.log(spot);
+
       const tourId = getState().user.currentUser.tour;
-      console.log(tourId);
+
       const idToken = await firebase.auth().currentUser.getIdToken()
       await axios.post(`${API_ROOT}/tours/${tourId}/spots?access_token=${idToken}`, spot);
 

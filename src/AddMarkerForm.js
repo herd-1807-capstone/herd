@@ -20,7 +20,7 @@ function getModalStyle() {
 const styles = theme => ({
   paper: {
     position: 'absolute',
-    width: theme.spacing.unit * 50,
+    // width: theme.spacing.unit * 50,
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     padding: theme.spacing.unit * 4,
@@ -32,7 +32,16 @@ const styles = theme => ({
     justifyContent: 'space-between',
   },
   items:{
-    marginTop: 10
+    marginTop: 10,
+    width: '60vw'
+  },
+  buttons:{
+    marginTop: 10,
+    display: 'flex',
+    justifyContent: 'flex-end'
+  },
+  buttonItems:{
+    margin: 10
   }
 });
 
@@ -67,7 +76,7 @@ class AddMarkerForm extends React.Component {
     this.setState({success:true})
   }
   render() {
-    const { classes, lat, lng } = this.props;
+    const { classes, handleClose } = this.props;
     if(this.state.success) return (
       <div style = {getModalStyle()} className={classes.paper}>
         <h1 className = 'success'>Spot saved!</h1>
@@ -96,14 +105,24 @@ class AddMarkerForm extends React.Component {
                 name = 'description'
                 label = 'Description'
                 multiline = {true}/>
-              <Button
-              className = {classes.items}
-                type = 'submit'
-                variant = 'outlined'
-                size = 'small'
-                color = 'primary' >
-                Save
-              </Button>
+              <div className = {classes.buttons}>
+                <Button
+                className = {classes.buttonItems}
+                  onClick={handleClose}
+                  variant = 'outlined'
+                  size = 'small'
+                  color = 'secondary' >
+                  Cancel
+                </Button>
+                <Button
+                  className = {classes.buttonItems}
+                  type = 'submit'
+                  variant = 'outlined'
+                  size = 'small'
+                  color = 'primary' >
+                  Save
+                </Button>
+              </div>
             </form>
           </div>
 
