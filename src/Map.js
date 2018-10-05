@@ -10,9 +10,9 @@ import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
 import {API_ROOT} from './api-config';
 import Modal from '@material-ui/core/Modal';
-import GpsFixed from '@material-ui/icons/GpsFixed'
+
 import AddMarkerForm from './AddMarkerForm'
-import { IconButton } from '@material-ui/core';
+
 import Paper from '@material-ui/core/Paper';
 
 const db = firebase.database();
@@ -278,7 +278,7 @@ class SimpleMap extends Component {
             open={this.state.addMarkerWindow}
             // onBackdropClick={this.handleClose}
             onClose={this.handleClose}
-            style={{alignItems:'center',justifyContent:'center'}}
+            // style={{alignItems:'center',justifyContent:'center'}}
             >
             {/* <div>
               some placeholder content

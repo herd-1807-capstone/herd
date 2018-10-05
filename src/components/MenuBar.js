@@ -20,6 +20,9 @@ import AdminListItems from './AdminListItems';
 import Map from '../Map';
 import Chat from './Chat';
 import BottomSheet from '../BottomSheet';
+import GpsFixed from '@material-ui/icons/GpsFixed';
+import PeopleIcon from '@material-ui/icons/People';
+import SpotsIcon from '@material-ui/icons/Place';
 
 import { setCurrentUser } from '../store/index';
 
@@ -68,7 +71,9 @@ class MenuBar extends React.Component {
     this.state = {
       mobileOpen: false,
       showInfo: true,
-      recenter: false
+      recenter: false,
+      usersModal: false,
+      spotsModal: false,
     };
 
     this.handleLogout = this.handleLogout.bind(this);
@@ -76,7 +81,11 @@ class MenuBar extends React.Component {
     this.handleInfoSpot = this.handleInfoSpot.bind(this);
     this.handleRecenter = this.handleRecenter.bind(this);
   }
-
+  modalToggle = (type) => () =>{
+    this.setState({
+      [type]: !this.state[type]
+    })
+  }
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
@@ -94,7 +103,7 @@ class MenuBar extends React.Component {
     this.setState({ showInfo: true });
   }
   handleRecenter(evt){
-    console.log(evt)
+
     this.setState({recenter: true}, ()=>{
       this.setState({recenter: false})
     })
@@ -110,7 +119,6 @@ class MenuBar extends React.Component {
           <UserListItems
             handleChatStart={this.handleChatStart}
             handleInfoSpot={this.handleInfoSpot}
-            handleRecenter={this.handleRecenter}
           />
         </List>
         <Divider />
@@ -135,6 +143,15 @@ class MenuBar extends React.Component {
             <Typography variant="title" color="inherit" noWrap>
               Herd - Tour groups management
             </Typography>
+            <IconButton onClick ={this.handleRecenter}>
+              <GpsFixed />
+            </IconButton>
+            <IconButton onClick = {this.modalToggle('users')}>
+              <PeopleIcon />
+            </IconButton>
+            <IconButton onClick = {this.modalToggle('spots')}>
+              <SpotsIcon />
+            </IconButton>
             {this.props.currentUser ? (
               <Button color="inherit" onClick={this.handleLogout}>
                 Log out
