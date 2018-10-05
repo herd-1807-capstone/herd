@@ -86,7 +86,7 @@ class ListWindow extends React.Component {
           </div>
             : <ListItemText primary={item.name} />
           }
-            { type === 'usersListWindow' && item.visible ? null:
+            { type === 'usersListWindow' && (item.visible || item.lat && item.lng) ? null:
             <Hidden />
           }
             </ListItem>
