@@ -5,7 +5,7 @@ import GOOGLE_API_KEY from './secrets';
 import firebase from './fire';
 import { Spot, Admin, User } from './Marker';
 import axios from 'axios'
-import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected } from './store';
+import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected, findSelectedMarker } from './store';
 import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
 import {API_ROOT} from './api-config';
@@ -45,8 +45,6 @@ class SimpleMap extends Component {
         lat: 28.4177,
         lng: -81.5812,
       },
-      map: null,
-      maps: null,
       addMarkerWindow: false,
       addMarkerLat: null,
       addMarkerLng: null,
@@ -142,16 +140,12 @@ class SimpleMap extends Component {
 
     const key = evt[0];
     const coords = evt[1];
-    this.props.selectSpot(key, coords);
-    this.centerToPosition(coords.lat, coords.lng);
-    if (this.state.maps){
-      this.infoWindow = new this.state.maps.InfoWindow({
-        content: key,
-        position: coords,
-      });
-
-      this.infoWindow.open(this.state.map)
-    }
+    let marker = findSelectedMarker(key, this.props.spots, this.props.users);
+    this.infoWindow.setContent((marker && marker.name) || key);
+    this.infoWindow.setPosition(coords)
+    this.props.selectSpot(marker);
+    this.props.map.panTo(coords);
+    this.infoWindow.open(this.props.map);
   }
   centerToPosition(lat, lng) {
     this.setState(
@@ -198,9 +192,9 @@ class SimpleMap extends Component {
     }
   }
   onApiLoaded({map, maps}){
-    this.setState({map, maps})
     this.props.setMap(map, maps);
     this.renderAccuracyCircle(map, maps);
+    this.infoWindow = new this.props.maps.InfoWindow();
   }
   renderAccuracyCircle(map, maps){
     const {lat, lng, accuracy } = this.state.currentPosition
@@ -222,8 +216,8 @@ class SimpleMap extends Component {
   renderSpots() {
     let spots = this.props.spots;
     return spots.map(loc => {
-      if (loc.name && loc.lat && loc.lng){
-        return <Spot key={loc.name} lat={loc.lat} lng={loc.lng} />;
+      if (loc.uid && loc.lat && loc.lng){
+        return <Spot key={loc.uid} lat={loc.lat} lng={loc.lng} />;
       }
       return null;
     });
@@ -231,15 +225,15 @@ class SimpleMap extends Component {
   renderUsers() {
     return this.props.users.map((user, index)=> {
       if (user.status === 'admin') {
-        if (user.name && user.lat && user.lng){
-          return <Admin key={user.name} lat={user.lat} lng={user.lng} />;
+        if (user.uid && user.lat && user.lng){
+          return <Admin key={user.uid} lat={user.lat} lng={user.lng} />;
         }
         return null
       }
-      if (user.name && user.lat && user.lng){
+      if (user.uid && user.lat && user.lng){
 
         return(<User
-                  key={user.name}
+                  key={user.uid}
                   lat={user.lat}
                   lng={user.lng}
                   imgUrl={user.imgUrl}
@@ -334,8 +328,8 @@ const mapDispatch = (dispatch) => ({
   addSpot(){
     dispatch(addSpotThunk());
   },
-  selectSpot(key){
-    dispatch(setSelected(key));
+  selectSpot(marker){
+    dispatch(setSelected(marker));
   },
   setMap(map, maps){
     dispatch(setGoogleMap(map, maps));

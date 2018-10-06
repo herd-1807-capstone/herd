@@ -72,8 +72,8 @@ class AddMarkerForm extends React.Component {
       lat,
       lng
     }
-    await this.props.saveSpot(spot);
-    this.setState({success:true})
+    let res = await this.props.saveSpot(spot);
+    if (res) this.setState({success:true})
   }
   render() {
     const { classes, handleClose } = this.props;

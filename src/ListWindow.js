@@ -9,8 +9,8 @@ import { connect } from 'react-redux';
 import { IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close'
 import StarIcon from '@material-ui/icons/Star'
-import {setSelected} from './reducers/spots';
-import Hidden from '@material-ui/core/Hidden';
+import {setSelected, findSelectedMarker} from './reducers/spots';
+import InvisibleIcon from '@material-ui/icons/VisibilityOffOutlined';
 
 function getModalStyle() {
   const top = 50;
@@ -26,8 +26,10 @@ function getModalStyle() {
 const styles = theme => ({
   root: {
     position: 'absolute',
-    width: '100%',
+    width: '70vw',
     maxWidth: 360,
+    overflowY: 'scroll',
+    maxHeight: '60vh',
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     padding: theme.spacing.unit * 4,
@@ -43,13 +45,13 @@ const styles = theme => ({
 
 class ListWindow extends React.Component {
 
-  panToSelected = (selected) => () => {
-    this.props.setSelected(selected.name);
+  panToSelected = (selected, type) => () => {
+    const {handleClose, setSelected, maps} = this.props
+    setSelected(selected);
     if (selected.lat && selected.lng ){
+      handleClose(type);
       const {lat, lng} = selected;
-      console.log('GOOGLE MAPSSS INSTANCE', this.props.maps);
-      console.log('MAPS STUFF')
-      this.props.maps.panTo({lat, lng});
+      maps.panTo({lat, lng});
     }
   }
   render() {
@@ -70,14 +72,13 @@ class ListWindow extends React.Component {
         </div>
         <List>
           {list.map(item=> (
-
             <ListItem
-            key={item.name}
-            dense
-            button
-            onClick = {this.panToSelected(item)}
+              key={item.uid}
+              dense
+              button
+              onClick = {this.panToSelected(item, type)}
             className={classes.listItem}>
-              <Avatar alt={item.name} src={item.imageUrl || '#'} />
+              <Avatar alt={item.name} src={item.imgUrl || '#'} />
           {type === 'usersListWindow' &&
             item.status === 'admin' ?
           <div className={classes.title}>
@@ -86,9 +87,9 @@ class ListWindow extends React.Component {
           </div>
             : <ListItemText primary={item.name} />
           }
-            { type === 'usersListWindow' && (item.visible || item.lat && item.lng) ? null:
-            <Hidden />
-          }
+            {
+              type === 'usersListWindow' && (!item.visible || !item.lat || !item.lng)? <InvisibleIcon /> : null
+            }
             </ListItem>
 
           ))}
