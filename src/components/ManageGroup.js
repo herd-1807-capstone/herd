@@ -71,6 +71,7 @@ constructor(props){
         cacheGroupys:[],
         cacheFreeBirds: [],
       }
+    
     this.handleSave = this.handleSave.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
   }
