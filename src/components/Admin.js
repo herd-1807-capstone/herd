@@ -93,12 +93,15 @@ class Admin extends Component{
         const { currentUser, updateCurrentUser } = this.props
         if(msg !== '' && msg === this.state.tour.name){
             //delete the group, set group members' tour info all to 'null' in users
+            let resGroupMember = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
+            let groupMember = resGroupMember.data
             console.log("OMG! You deleted a group!")
-            let groupMember = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
+            console.log(groupMember)
             axios.delete(`${API_ROOT}/tours/${currentUser.tour}?access_token=${access_token}`)
             let allDelete = []
             for(let i = 0; i < groupMember.length; i++){
                 let deleteFromUser = axios.put(`${API_ROOT}/users/${groupMember[i].uid}?access_token=${access_token}`, {tour: 'null'})
+                console.log(`Send to ${groupMember[i].name}`)
                 allDelete.push(deleteFromUser)
             }
             console.log(`Current User is ${currentUser}`)

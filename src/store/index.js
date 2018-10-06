@@ -6,12 +6,14 @@ import user from '../reducers/user';
 import spots from '../reducers/spots';
 import chat from '../reducers/chat';
 import tour from '../reducers/tour';
+import googlemap from '../reducers/googlemap';
 
 const reducer = combineReducers({
   tour,
   user,
   spots,
   chat,
+  googlemap
 });
 const middleware = applyMiddleware(thunkMiddleware);
 
