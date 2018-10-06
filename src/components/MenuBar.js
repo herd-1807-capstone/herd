@@ -88,11 +88,13 @@ class MenuBar extends React.Component {
       [type]: true
     })
   }
+
   handleListClose = (type) => () => {
     this.setState({
       [type]: false
     })
   }
+
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
@@ -173,7 +175,7 @@ class MenuBar extends React.Component {
               <MenuIcon />
             </IconButton>
             <Typography variant="title" color="inherit" noWrap>
-              Herd - Tour groups management
+              Herd - Tour Groups Management
             </Typography>
             <IconButton onClick ={this.handleRecenter}>
               <GpsFixed />
@@ -190,6 +192,8 @@ class MenuBar extends React.Component {
               </Button>
             ) : null}
           </Toolbar>
+          <Divider />
+          <div style={{backgroundColor:"light-pink"}}>{this.props.announcement}</div>
         </AppBar>
         <Hidden mdUp>
           <Drawer
@@ -256,6 +260,7 @@ MenuBar.propTypes = {
 
 const mapState = state => ({
   currentUser: state.user.currentUser,
+  announcement: state.tour.announcement,
 });
 
 const mapDispatch = dispatch => ({

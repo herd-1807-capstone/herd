@@ -1,23 +1,25 @@
 import axios from 'axios';
-import firebase from '../fire';
 import {API_ROOT} from '../api-config';
+import firebase from '../fire';
+const db = firebase.database();
 
 // initial state
 const defaultTour = {
   announcement:""
 }
 
-// action_type
-const GET_ANNOUNCEMENT = "GET_ANNOUNCEMENT";
+// action types
+const SET_ANNOUNCEMENT = "SET_ANNOUNCEMENT"
 
-// action creator
-export const getAnnouncement = announcement => (
+// action creators
+export const setAnnouncement = announcement => (
   {
-    type: GET_ANNOUNCEMENT,
+    type: SET_ANNOUNCEMENT,
     announcement
   }
 )
 
+// thunks
 export const sendTourAnnouncement = (announcement, tourId) => async (dispatch, getState) => {
   try{
     const idToken = await firebase.auth().currentUser.getIdToken();
@@ -33,15 +35,30 @@ export const sendTourAnnouncement = (announcement, tourId) => async (dispatch, g
     const tourId = loggedInUser.tour;
     await axios.put(`${API_ROOT}/tours/${tourId}?access_token=${idToken}`, {announcement});
 
-    dispatch(getAnnouncement(announcement))
+    dispatch(setAnnouncement(announcement))
   }catch(err){
     console.log("Unable to get permission to notify.", err);
   }
 };
 
+export const getAnnouncement = () => async (dispatch, getState) => {
+  try{
+    const loggedInUser = getState().user.currentUser;
+    db.ref(`/tours/${loggedInUser.tour}/announcement`).on('value', async (snapshot) => {
+      console.log("so getting psa now");
+      const announcement = await snapshot.val();
+      console.log("here's psa", announcement);
+      dispatch(setAnnouncement(announcement));
+      console.log("all set!");
+    });
+  }catch(err){
+    console.log(err);
+  }
+}
+
 export default(state = defaultTour, action) => {
   switch(action.type){
-    case GET_ANNOUNCEMENT:
+    case SET_ANNOUNCEMENT:
       return {...state, announcement: action.announcement};
     default:
       return state;
