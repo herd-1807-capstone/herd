@@ -10,10 +10,7 @@ import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
 import {API_ROOT} from './api-config';
 import Modal from '@material-ui/core/Modal';
-
 import AddMarkerForm from './AddMarkerForm'
-
-import Paper from '@material-ui/core/Paper';
 
 const db = firebase.database();
 

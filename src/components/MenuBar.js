@@ -124,8 +124,11 @@ class MenuBar extends React.Component {
       evt.preventDefault();
 
       const message = evt.target.message.value;
+      // before calling the send function, check if message is not empty.
+      if(message && message.length > 0){
+        this.props.sendTourAnnouncement(message);
+      }
 
-      this.props.sendTourAnnouncement(message);
       this.hideAnnouncementModal();
     } catch(err){
       console.log(err);
