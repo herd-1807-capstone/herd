@@ -58,7 +58,10 @@ class Chat extends Component {
           value={this.state.value}
         />
         <ChatView conversation={this.props.conversation} />
-        <ChatForm />
+        <ChatForm
+          receiver={this.state.value}
+          receiverId={this.state.selectedUid}
+        />
       </div>
     );
   }

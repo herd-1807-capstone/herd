@@ -1,14 +1,22 @@
 import firebase from '../fire';
 const db = firebase.database();
+import axios from 'axios';
 
 // Actions
 const GET_CONVERSATION = 'GET_CONVERSATION';
+const ADD_MESSAGE = 'ADD_MESSAGE';
 
 // Action Creators
 
 export const setConversation = conversation => ({
   type: GET_CONVERSATION,
   conversation,
+});
+
+export const addMessage = (toId, text) => ({
+  type: ADD_MESSAGE,
+  toId,
+  text,
 });
 
 // Thunk creators
@@ -62,6 +70,9 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case GET_CONVERSATION:
       return { conversation: action.conversation };
+
+    case ADD_MESSAGE:
+      return;
 
     default:
       return state;
