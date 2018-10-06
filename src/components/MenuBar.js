@@ -20,11 +20,11 @@ import AdminListItems from './AdminListItems';
 import Map from '../Map';
 import Chat from './Chat';
 import BottomSheet from '../BottomSheet';
+import AnnouncementCreateModal from './AnnouncementCreateModal';
+import { setCurrentUser, sendTourAnnouncement } from '../store/index';
 import GpsFixed from '@material-ui/icons/GpsFixed';
 import PeopleIcon from '@material-ui/icons/People';
 import SpotsIcon from '@material-ui/icons/Place';
-
-import { setCurrentUser } from '../store/index';
 
 const drawerWidth = 240;
 
@@ -72,18 +72,26 @@ class MenuBar extends React.Component {
       mobileOpen: false,
       showInfo: true,
       recenter: false,
-      usersModal: false,
-      spotsModal: false,
+      usersListWindow: false,
+      spotsListWindow: false,
+      showMsgModal: false,
     };
 
     this.handleLogout = this.handleLogout.bind(this);
     this.handleChatStart = this.handleChatStart.bind(this);
     this.handleInfoSpot = this.handleInfoSpot.bind(this);
     this.handleRecenter = this.handleRecenter.bind(this);
+    this.sendTourAnnouncement = this.sendTourAnnouncement.bind(this);
   }
-  modalToggle = (type) => () =>{
+  modalOpen = (type) => () =>{
     this.setState({
-      [type]: !this.state[type]
+      [type]: true,
+      mobileOpen: false
+    })
+  }
+  handleListClose = (type) => () => {
+    this.setState({
+      [type]: false
     })
   }
   handleDrawerToggle = () => {
@@ -96,20 +104,42 @@ class MenuBar extends React.Component {
   }
 
   handleChatStart() {
-    this.setState({ showInfo: false });
+    this.setState({ showInfo: false, mobileOpen: false });
   }
 
   handleInfoSpot() {
-    this.setState({ showInfo: true });
+    this.setState({ showInfo: true, mobileOpen: false });
   }
-  handleRecenter(evt){
 
+  handleRecenter(evt){
     this.setState({recenter: true}, ()=>{
       this.setState({recenter: false})
     })
   }
+
+  showAnnouncementModal = () => {
+    this.setState({showMsgModal: true, mobileOpen: false});
+  }
+
+  hideAnnouncementModal = () => {
+    this.setState({showMsgModal: false});
+  }
+
+  sendTourAnnouncement(evt){
+    try{
+      evt.preventDefault();
+
+      const message = evt.target.message.value;
+
+      this.props.sendTourAnnouncement(message);
+      this.hideAnnouncementModal();
+    } catch(err){
+      console.log(err);
+    }
+  }
+
   render() {
-    const { classes, theme } = this.props;
+    const { classes, theme, currentUser } = this.props;
 
     const drawer = (
       <div>
@@ -123,7 +153,12 @@ class MenuBar extends React.Component {
         </List>
         <Divider />
         <List>
-          <AdminListItems />
+          {currentUser.hasOwnProperty('status') && currentUser.status === 'admin' 
+          ?
+          <AdminListItems showAnnouncementModal={this.showAnnouncementModal} props={this.props} />
+          :
+          null
+          }
         </List>
       </div>
     );
@@ -146,10 +181,10 @@ class MenuBar extends React.Component {
             <IconButton onClick ={this.handleRecenter}>
               <GpsFixed />
             </IconButton>
-            <IconButton onClick = {this.modalToggle('users')}>
+            <IconButton onClick = {this.modalOpen('usersListWindow')}>
               <PeopleIcon />
             </IconButton>
-            <IconButton onClick = {this.modalToggle('spots')}>
+            <IconButton onClick = {this.modalOpen('spotsListWindow')}>
               <SpotsIcon />
             </IconButton>
             {this.props.currentUser ? (
@@ -188,9 +223,30 @@ class MenuBar extends React.Component {
         </Hidden>
         <main className={classes.content}>
           <div className={classes.toolbar} />
-          <Map recenter={this.state.recenter}/>
+          <Map
+            recenter={this.state.recenter}
+            usersListWindow={this.state.usersListWindow}
+            spotsListWindow={this.state.spotsListWindow}
+            handleListClose = {this.handleListClose}
+            />
           {this.state.showInfo ? <BottomSheet /> : <Chat />}
         </main>
+
+        <AnnouncementCreateModal show={this.state.showMsgModal} handleClose={this.hideAnnouncementModal}>
+          <form onSubmit={this.sendTourAnnouncement}>
+            <div>
+              <p id="modal-error" />
+            </div>
+            <div>
+              <label htmlFor="message">Announcement To Send:</label>
+              <input name="message" type="text" />
+            </div>
+            <Button variant="outlined" color="primary" size="small" type="submit">Send
+            </Button>
+            <Button color="primary" variant="outlined" size="small" aria-label="Add" onClick={this.hideAnnouncementModal} type="button">Cancel</Button>
+          </form>
+        </AnnouncementCreateModal>
+
       </div>
     );
   }
@@ -207,7 +263,9 @@ const mapState = state => ({
 
 const mapDispatch = dispatch => ({
   logout: () => dispatch(setCurrentUser({})),
+  sendTourAnnouncement: (message, tourId) => dispatch(sendTourAnnouncement(message)),
 });
+
 export default withStyles(styles, { withTheme: true })(
   connect(
     mapState,

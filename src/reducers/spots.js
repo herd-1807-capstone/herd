@@ -13,15 +13,15 @@ const defaultSpots = {
 //SELECTORS
 export const findSelectedMarker = (key, spots, users) => {
     let spot = spots.find(spot => {
-        return spot.name === key
+        return spot.uid === key
     });
     let user = users.find(user => {
-        return user.name === key
+        return user.uid === key
     })
     if (spot) {
-        return {spot}
+        return {...spot, type: 'spot'}
     } else if (user) {
-        return {user}
+        return {...user, type: 'user'}
     }
 }
 
@@ -29,8 +29,17 @@ export const findSelectedMarker = (key, spots, users) => {
 const SET_SPOTS = "SET_SPOTS";
 const ADD_SPOT = "ADD_SPOT";
 const SET_SELECTED = 'SET_SELECTED';
+const REMOVE_SPOT = "REMOVE_SPOT";
+
+
 
 // ACTION CREATORS
+
+export const removeSpot = spotId => ({
+  type: REMOVE_SPOT,
+  spotId
+})
+
 const setSpots = spots => ({
   type: SET_SPOTS,
   spots
@@ -53,15 +62,17 @@ export const addSpotThunk = spot => async (dispatch, getState) => {
       const tourId = getState().user.currentUser.tour;
 
       const idToken = await firebase.auth().currentUser.getIdToken()
-      await axios.post(`${API_ROOT}/tours/${tourId}/spots?access_token=${idToken}`, spot);
-
-      dispatch(addSpot(spot));
+      const {data} = await axios.post(`${API_ROOT}/tours/${tourId}/spots?access_token=${idToken}`, spot);
+      if (data.key){
+        dispatch(addSpot(spot));
+        return data.key;
+      }
     } catch (error) {
       console.error(error);
     }
 };
 
-export const getSpotsThunk = () => async (dispatch, getState) => {
+export const getSpotsThunk = () => (dispatch, getState) => {
   const loggedInUser = getState().user.currentUser;
   const refSpots = db.ref(`/tours/${loggedInUser.tour}/spots`);
 
@@ -70,7 +81,7 @@ export const getSpotsThunk = () => async (dispatch, getState) => {
     snapshot => {
       let spotsObj = snapshot.val() || [];
       let spots = Object.keys(spotsObj).map(spotId => {
-        return spotsObj[spotId];
+        return {...spotsObj[spotId], uid: spotId, type: 'spot'};
       });
 
       dispatch(setSpots(spots));
@@ -89,12 +100,19 @@ export default (state = defaultSpots, action) => {
     case ADD_SPOT:
       return {
           ...state,
-          spots: [...state.list, action.spot]
+          list: [...state.list, action.spot]
       }
     case SET_SELECTED:
       return {
           ...state,
           selected: action.marker
+      }
+    case REMOVE_SPOT:
+      return {
+        ...state,
+        list: state.list.filter(spot => {
+          return spot.uid !== action.spotId
+        })
       }
     default:
       return state;

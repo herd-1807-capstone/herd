@@ -4,6 +4,8 @@ import { withRouter, Link } from 'react-router-dom'
 import axios from 'axios'
 import firebase from '../fire';
 // import './component.css'
+import {API_ROOT} from '../api-config';
+import { access } from 'fs';
 
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -20,10 +22,12 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
+import { setCurrentUser } from '../reducers/user'
 
+const db = firebase.database();
 
 // import ManageGroup from './ManageGroup'
-import {API_ROOT} from '../api-config';
+
 
 // const LinkToCreateGroup = () => <Link to='/admin/group' />
 
@@ -64,7 +68,10 @@ class Admin extends Component{
                 creator: "",
             },
             open: false,
+            deleteCount: 0,
+            access_token: '',
         }
+        
         this.handleDelete = this.handleDelete.bind(this)
     }
 
@@ -76,15 +83,35 @@ class Admin extends Component{
         this.setState({ open: false });
     };
 
-    handleDelete(evt){
+    async handleDelete(evt){
+        if(this.state.deleteCount === 3) {
+            this.props.history.push('/')
+        }
+        
         let msg = document.getElementById('deleteTour').value
-        console.log("delete")
-        console.log(msg)
+
+        const { access_token, deleteCount } = this.state
+        const { currentUser, updateCurrentUser } = this.props
         if(msg !== '' && msg === this.state.tour.name){
             //delete the group, set group members' tour info all to 'null' in users
+            let resGroupMember = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
+            let groupMember = resGroupMember.data
             console.log("OMG! You deleted a group!")
+            axios.delete(`${API_ROOT}/tours/${currentUser.tour}?access_token=${access_token}`)
+            let allDelete = []
+            for(let i = 0; i < groupMember.length; i++){
+                let deleteFromUser = axios.put(`${API_ROOT}/users/${groupMember[i].uid}?access_token=${access_token}`, {tour: 'null'})
+                console.log(`Send to ${groupMember[i].name}`)
+                allDelete.push(deleteFromUser)
+            }
+            console.log(`Current User is ${currentUser}`)
+            Promise.all(allDelete)
+                    .then(([...userResult])=>{
+                        updateCurrentUser({...currentUser, tour: 'null'})
+                    })
+
         } else {
-            this.setState({ open: false });
+            this.setState({ open: false, deleteCount: deleteCount+1 });
         }
     }
 
@@ -93,23 +120,28 @@ class Admin extends Component{
       // console.log(access_token)
         let tourInfo = await axios.get(`${API_ROOT}/tours/${this.props.currentUser.tour}?access_token=${access_token}`)
         tourInfo = tourInfo.data
+        if(!tourInfo.hasOwnProperty('name')){
+            let newUser = {...this.props.currentUser}
+            newUser.tour = 'null'
+            this.props.updateCurrentUser(newUser)
+        }
         let { tour } = this.state
-        console.log(tourInfo)
+
         this.setState({...this.state, 
             tour:{
                 name: tourInfo.name || tour.name,
                 imgUrl: tourInfo.imgUrl || tour.imgUrl,
                 description: tourInfo.description || tour.description,
                 creator: tourInfo.guideUId || tour.creator,
-            }})
+            }, access_token })
     }
 
     render(){
-        console.log("In the admin")
         const { classes, currentUser } = this.props
+        // console.log(currentUser)
         const { tour } = this.state
-        if(currentUser.hasOwnProperty('tour')){
-            console.log("has current user")
+        if(currentUser.hasOwnProperty('tour') && currentUser.tour !== 'null'){
+            // console.log("has current user")
             return(
                 <div className={classes.tourDisplay}>
                     <Card className={classes.card}>
@@ -157,7 +189,7 @@ class Admin extends Component{
                         <DialogContentText>
                         <h4>Once the tour group deleted, all the data of this group will lose.</h4>
                         <h4>The action CAN NOT be undone.</h4>
-                        <h4>Type in the group name to confirm delete.</h4>
+                        <h4>Type in the group name <ins>{this.state.tour.name}</ins> to confirm delete.</h4>
                         </DialogContentText>
                         <TextField
                         autoFocus
@@ -188,7 +220,7 @@ class Admin extends Component{
                             color="primary"  
                             className={classes.button} 
                             component={Link} 
-                            to='/admin/group'
+                            to='/admin/group/create'
                     >Create Group</Button>
 
                     <Button variant="contained" 
@@ -209,8 +241,10 @@ const mapState = (state) => ({
     currentUser: state.user.currentUser,
 })
 
-const mapDispatch = (dispatch) => {
-
+const mapDispatch = dispatch => {
+    return {
+        updateCurrentUser: (user) => dispatch(setCurrentUser(user)),
+    }
 }
 
 Admin.propTypes = {
@@ -218,4 +252,4 @@ classes: PropTypes.object.isRequired,
 }
 
 
-export default withRouter(withStyles(style)(connect(mapState, null)(Admin)))
+export default withRouter(withStyles(style)(connect(mapState, mapDispatch)(Admin)))

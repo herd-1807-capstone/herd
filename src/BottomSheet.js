@@ -1,10 +1,10 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 
 import { Paper } from '@material-ui/core';
 import {withStyles} from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { findSelectedMarker} from './reducers/spots'
+import Button from '@material-ui/core/Button'
 
 const styles = {
   root:{
@@ -15,6 +15,11 @@ const styles = {
   },
   heading:{
     margin: 0
+  },
+  buttons:{
+    display:'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end'
   }
 }
 
@@ -32,42 +37,78 @@ class BottomSheet extends React.Component {
     });
   };
 
+  handleRemove = () =>{
+    // this.props.removeSpot
+  }
+
+  handleEdit = () => {
+
+  }
   render() {
 
-    const {classes, selected, defaultSelected} = this.props
-    let type;
+    const {classes, selected, defaultSelected, currentUser} = this.props
 
-    if (!selected){
+    console.log(selected);
+    if (!selected && defaultSelected){
       return (
         <Paper className={classes.root}>
           <h1 className = {classes.heading}>{defaultSelected.name}</h1>
           <p>{defaultSelected.description}</p>
+          {
+           currentUser.status === 'admin' ?
+          <div className = {classes.buttons}>
+            <Button
+              color='secondary'
+              variant= "outlined"
+              onClick={this.handleDelete}
+              >
+              Remove
+            </Button>
+            <Button
+              color='primary'
+              variant= "outlined"
+              onClick={this.handleEdit}
+              >
+              Edit
+            </Button>
+          </div> : null}
         </Paper>
       )
     }
-    if (selected.spot) type = 'spot';
-    if (selected.user) type = 'user';
-
-    if (type === 'spot' && selected.spot && selected.spot.name){
-    return (
-        <Paper className={classes.root}>
-          <h1 className = {classes.heading}>{selected.spot.name}</h1>
-          <p>{selected.spot.description}</p>
-        </Paper>
-      )}
-    if (type === 'user' && selected.user && selected.user.name){
-      return (
-        <Paper className={classes.root}>
-          <h1 className = {classes.heading}>{selected.user.name}</h1>
-          <p>{selected.user.status}</p>
-          <p>{selected.user.email}</p>
-        </Paper>
-      )
+    else if (selected && selected.name){
+        return (<Paper className={classes.root}>
+           <h1 className = {classes.heading}>{selected.name || selected.uid}</h1>
+         {selected && selected.type === 'spot' ?
+         (<Fragment>
+            <p>{selected.description}</p>
+         </Fragment>) :
+          (<Fragment>
+            <p>{selected.status}</p>
+            <p>{selected.email}</p>
+          </Fragment>)}
+          {
+           currentUser.status === 'admin' ?
+          <div className = {classes.buttons}>
+            <Button
+              color='secondary'
+              variant= "outlined"
+              onClick={this.handleDelete}
+              >
+              Remove
+            </Button>
+            <Button
+              color='primary'
+              variant= "outlined"
+              onClick={this.handleEdit}
+              >
+              Edit
+            </Button>
+          </div> : null}
+        </Paper>)
     }
     return (
       <Paper className={classes.root}>
-        <h1 className = {classes.heading}>{defaultSelected.name}</h1>
-        <p>{defaultSelected.description}</p>
+        <p>Nothing to see here.</p>
       </Paper>
     )
   }
@@ -77,8 +118,10 @@ BottomSheet.propTypes = {
 }
 
 const mapState = ({spots, user}) => ({
-  selected: spots.selected && findSelectedMarker(spots.selected, spots.list, user.list),
-  defaultSelected: spots.list[0] || {name: 'Spot 1', description: 'spot'}
+  selected: spots.selected,
+  defaultSelected: spots.list[0],
+  currentUser: user.currentUser,
+  spots: spots.list
 })
 
 export default withStyles(styles)(connect(mapState)(BottomSheet));

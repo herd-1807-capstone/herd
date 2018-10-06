@@ -22,11 +22,11 @@ const setAllUsers = users => ({type: SET_ALL_USERS, users})
 export const setSelectedUser = user => ({type: SET_SELECTED_USER, user})
 
 // THUNK CREATORS
-export const getAllUsers = () => async (dispatch, getState) => {
+export const getAllUsers = () => (dispatch, getState) => {
     const loggedInUser = getState().user.currentUser;
 
-    const userPermission = loggedInUser.status || 'member' //fallback value
-    const tourId = loggedInUser.tour || 'disney_tour' //fallback value
+    const userPermission = loggedInUser.status
+    const tourId = loggedInUser.tour
     //non-admin user
 
     if (userPermission !== 'admin'){
@@ -43,7 +43,7 @@ export const getAllUsers = () => async (dispatch, getState) => {
                     return usersObj[userId].visible && userId !== loggedInUser.uid;
                   })
                   .map(userId => {
-                    return usersObj[userId];
+                    return {...usersObj[userId], uid: userId, type:'user'};
                   });
                 dispatch(setAllUsers(users));
               },
@@ -66,7 +66,7 @@ export const getAllUsers = () => async (dispatch, getState) => {
                 return userId !== loggedInUser.uid; //exclude self
               })
               .map(userId => {
-                return usersObj[userId];
+                return {...usersObj[userId], uid: userId, type:'user'}
               });
             dispatch(setAllUsers(users));
           },
@@ -83,17 +83,17 @@ export const getAllUsers = () => async (dispatch, getState) => {
 
 // REDUCER
 export default (state = defaultUser, action) => {
-
-    switch (action.type) {
-        case SET_CURRENT_USER:
-            return {...state, currentUser: action.user}
-        case CHANGE_LOADING_STATE:
-            return {...state, isLoading: !state.isLoading}
-        case SET_ALL_USERS:
-            return {...state, list: action.users}
-        case SET_SELECTED_USER:
-            return {...state, selectedUser: action.user}
-        default:
-            return state
-    }
+  
+  switch (action.type) {
+      case SET_CURRENT_USER:
+          return {...state, currentUser: action.user}
+      case CHANGE_LOADING_STATE:
+          return {...state, isLoading: !state.isLoading}
+      case SET_ALL_USERS:
+          return {...state, list: action.users}
+      case SET_SELECTED_USER:
+          return {...state, selectedUser: action.user}
+      default:
+          return state
+  }
 }

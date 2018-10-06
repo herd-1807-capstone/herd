@@ -53,14 +53,17 @@ class CreateGroup extends Component {
     if(newName){
       // console.log(this.state)
       evt.persist()
+      const { tourName, imgUrl, address, description } = this.state
       let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
       // console.log(access_token)
       let createResult = await axios.post(`${API_ROOT}/tours?access_token=${access_token}`, {
-                          "name": this.state.tourName,
+                          "name": tourName,
+                          "imgUrl": imgUrl,
+                          "description": description,
                           })
-      console.log(createResult)
+      // console.log(createResult.data)
       if(createResult.status === 200){
-        let newCurrentUser = {...this.props.currentUser, tour: this.state.tourName}
+        let newCurrentUser = {...this.props.currentUser, tour: createResult.data.key}
         this.props.updateUser(newCurrentUser)
         this.props.history.push('/admin/group')
       } else {
@@ -77,6 +80,12 @@ class CreateGroup extends Component {
   }
 
   render(){
+    const { currentUser } = this.props
+    console.log(currentUser.tour)
+    if(currentUser && currentUser.hasOwnProperty('tour') && currentUser.tour !== 'null'){
+      this.props.history.push('/admin/group')
+    }
+
     return (
       <div>
         <Typography style={styles.header} variant="title" gutterBottom>
