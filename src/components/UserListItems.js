@@ -8,7 +8,6 @@ import PeopleIcon from '@material-ui/icons/People';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Announcement from '@material-ui/icons/Announcement';
 import AddAlert from '@material-ui/icons/AddAlert';
-import AllOut from '@material-ui/icons/AllOut';
 import Divider from '@material-ui/core/Divider';
 
 const UserListItems = props => {

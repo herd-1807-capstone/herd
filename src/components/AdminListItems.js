@@ -6,7 +6,6 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 
 import PeopleIcon from '@material-ui/icons/People';
 import Room from '@material-ui/icons/Room';
-import AssignmentIcon from '@material-ui/icons/Assignment';
 import AddAlert from '@material-ui/icons/AddAlert';
 
 class AdminListItems extends Component {
