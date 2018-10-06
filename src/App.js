@@ -10,8 +10,6 @@ import { setCurrentUser } from './store/index';
 import Admin from './components/Admin';
 import CreateGroup from './components/CreateGroup';
 import ManageGroup from './components/ManageGroup';
-import axios from 'axios';
-import { API_ROOT } from './api-config';
 
 const auth = firebase.auth();
 const db = firebase.database();
@@ -22,14 +20,12 @@ class App extends Component {
       if (user) {
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          // console.log('USER EXISTS IN DB???', snapshot)
 
           const userRef = db.ref(`/users/${user.uid}`)
 
 
           if (!snapshot.exists()) {
-            // console.log("Snapshot does not exists!!")
-            // console.log(user)
+
             let newUser = {
               name: user.displayName,
               email: user.email,
@@ -40,7 +36,7 @@ class App extends Component {
               tour: 'null',
               loggedIn: true,
             };
-            // console.log('CREATING USER THE FIRST TIME');
+
             await db.ref(`/users/${user.uid}`).set(newUser);
             newUser = await db.ref(`/users/${user.uid}`).once('value');
             user = newUser.val();
@@ -52,24 +48,16 @@ class App extends Component {
               imgUrl: user.photoURL,
               loggedIn: true
             }
-
-            // console.log(snapshot.val().tour)
-
             await db.ref(`/users/${user.uid}`).update(theUser)
-            // const {data} = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${idToken}`, theUser);
 
             theUser.uid = user.uid
             theUser.status = snapshot.val().status
             theUser.visible = snapshot.val().visible
             theUser.tour = snapshot.val().tour
             user = theUser
-          //   return firebase.database().ref().update(updates);
-          // }
+
           }
-          // console.log("You are authed!!")
-          // console.log(snapshot.val())
-          // this.setState({ user, isLoading: false });
-          // this.props.setCurrentUser(snapshot.val())
+
           this.props.setCurrentUser(user)
           userRef.onDisconnect().update({loggedIn: false});
         } catch (error) {
