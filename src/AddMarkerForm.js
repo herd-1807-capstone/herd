@@ -72,8 +72,8 @@ class AddMarkerForm extends React.Component {
       lat,
       lng
     }
-    await this.props.saveSpot(spot);
-    this.setState({success:true})
+    let res = await this.props.saveSpot(spot);
+    if (res) this.setState({success:true})
   }
   render() {
     const { classes, handleClose } = this.props;
@@ -108,7 +108,7 @@ class AddMarkerForm extends React.Component {
               <div className = {classes.buttons}>
                 <Button
                 className = {classes.buttonItems}
-                  onClick={handleClose}
+                  onClick={handleClose('addMarkerWindow')}
                   variant = 'outlined'
                   size = 'small'
                   color = 'secondary' >
