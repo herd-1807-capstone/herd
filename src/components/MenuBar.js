@@ -75,6 +75,7 @@ class MenuBar extends React.Component {
       usersListWindow: false,
       spotsListWindow: false,
       showMsgModal: false,
+      showPSA: 'block', // block or none
     };
 
     this.handleLogout = this.handleLogout.bind(this);
@@ -82,18 +83,22 @@ class MenuBar extends React.Component {
     this.handleInfoSpot = this.handleInfoSpot.bind(this);
     this.handleRecenter = this.handleRecenter.bind(this);
     this.sendTourAnnouncement = this.sendTourAnnouncement.bind(this);
+    this.hidePSABar = this.hidePSABar.bind(this);
   }
+
   modalOpen = (type) => () =>{
     this.setState({
       [type]: true,
       mobileOpen: false
     })
   }
+
   handleListClose = (type) => () => {
     this.setState({
       [type]: false
     })
   }
+
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
@@ -130,12 +135,21 @@ class MenuBar extends React.Component {
       evt.preventDefault();
 
       const message = evt.target.message.value;
+      // before calling the send function, check if message is not empty.
+      if(message && message.length > 0){
+        this.props.sendTourAnnouncement(message);
+      }
 
-      this.props.sendTourAnnouncement(message);
       this.hideAnnouncementModal();
     } catch(err){
       console.log(err);
     }
+  }
+
+  hidePSABar(){
+    this.setState({
+      showPSA: 'none'
+    })
   }
 
   render() {
@@ -153,7 +167,7 @@ class MenuBar extends React.Component {
         </List>
         <Divider />
         <List>
-          {currentUser.hasOwnProperty('status') && currentUser.status === 'admin' 
+          {currentUser.hasOwnProperty('status') && currentUser.status === 'admin'
           ?
           <AdminListItems showAnnouncementModal={this.showAnnouncementModal} props={this.props} />
           :
@@ -176,7 +190,7 @@ class MenuBar extends React.Component {
               <MenuIcon />
             </IconButton>
             <Typography variant="title" color="inherit" noWrap>
-              Herd - Tour groups management
+              Herd - Tour Groups Management
             </Typography>
             <IconButton onClick ={this.handleRecenter}>
               <GpsFixed />
@@ -193,6 +207,11 @@ class MenuBar extends React.Component {
               </Button>
             ) : null}
           </Toolbar>
+          <Divider />
+          <div style={{backgroundColor: "#37BC9B", display: this.state.showPSA}}>
+            {`[PSA] ${this.props.announcement}`}
+            <span style={{float:"right", paddingRight:'10px'}}><a href="#" style={{textDecoration:'none', color: 'white'}} onClick={this.hidePSABar}>x</a></span>
+          </div>
         </AppBar>
         <Hidden mdUp>
           <Drawer
@@ -259,6 +278,7 @@ MenuBar.propTypes = {
 
 const mapState = state => ({
   currentUser: state.user.currentUser,
+  announcement: state.tour.announcement,
 });
 
 const mapDispatch = dispatch => ({

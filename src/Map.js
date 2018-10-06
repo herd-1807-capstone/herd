@@ -5,12 +5,11 @@ import GOOGLE_API_KEY from './secrets';
 import firebase from './fire';
 import { Spot, Admin, User } from './Marker';
 import axios from 'axios'
-import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected, findSelectedMarker } from './store';
+import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected, findSelectedMarker, getAnnouncement } from './store';
 import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
 import {API_ROOT} from './api-config';
 import Modal from '@material-ui/core/Modal';
-
 import AddMarkerForm from './AddMarkerForm'
 import {SpotsListWindow, UsersListWindow} from './ListWindow';
 import {setGoogleMap} from './reducers/googlemap';
@@ -163,10 +162,12 @@ class SimpleMap extends Component {
       }
     );
   }
+
   componentDidMount() {
     this.watchCurrentPosition();
     this.loadAfterAuthUser();
   }
+
   loadAfterAuthUser(){
     firebase.auth().onAuthStateChanged(async user => {
       if (user) {
@@ -181,11 +182,20 @@ class SimpleMap extends Component {
         } catch (error) {
           console.error(error);
         }
+
+        try{
+          // check if announcement has been added.
+          store.dispatch(getAnnouncement());
+          this.props.getAnnouncement();
+        }catch(err){
+          console.log(err.stack);
+        }
       } else {
         // No user is signed in.
       }
     });
   }
+
   componentWillUnmount(){
     if ('geolocation' in navigator){
       navigator.geolocation.clearWatch(this.geoWatchId);
@@ -333,6 +343,9 @@ const mapDispatch = (dispatch) => ({
   },
   setMap(map, maps){
     dispatch(setGoogleMap(map, maps));
+  },
+  getAnnouncement(){
+    dispatch(getAnnouncement());
   }
 })
 export default connect(mapState, mapDispatch)(SimpleMap);

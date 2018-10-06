@@ -5,7 +5,6 @@ import axios from 'axios'
 import firebase from '../fire';
 // import './component.css'
 import {API_ROOT} from '../api-config';
-import { access } from 'fs';
 
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -18,18 +17,10 @@ import { withStyles } from '@material-ui/core/styles';
 import PropTypes from 'prop-types';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
-import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import { setCurrentUser } from '../reducers/user'
-
-const db = firebase.database();
-
-// import ManageGroup from './ManageGroup'
-
-
-// const LinkToCreateGroup = () => <Link to='/admin/group' />
 
 const style = theme => ({
     button: {
@@ -57,7 +48,7 @@ const style = theme => ({
   })
 
 class Admin extends Component{
-    
+
     constructor(props){
         super(props)
         this.state = {
@@ -71,14 +62,14 @@ class Admin extends Component{
             deleteCount: 0,
             access_token: '',
         }
-        
+
         this.handleDelete = this.handleDelete.bind(this)
     }
 
     handleClickOpen = () => {
         this.setState({ open: true });
     };
-    
+
     handleClose = () => {
         this.setState({ open: false });
     };
@@ -87,7 +78,7 @@ class Admin extends Component{
         if(this.state.deleteCount === 3) {
             this.props.history.push('/')
         }
-        
+
         let msg = document.getElementById('deleteTour').value
 
         const { access_token, deleteCount } = this.state
@@ -127,7 +118,7 @@ class Admin extends Component{
         }
         let { tour } = this.state
 
-        this.setState({...this.state, 
+        this.setState({...this.state,
             tour:{
                 name: tourInfo.name || tour.name,
                 imgUrl: tourInfo.imgUrl || tour.imgUrl,
@@ -164,16 +155,16 @@ class Admin extends Component{
                     </CardActionArea>
 
                 <div>
-                    <Button variant="contained" 
-                            color="primary"  
-                            className={classes.button} 
+                    <Button variant="contained"
+                            color="primary"
+                            className={classes.button}
                             onClick={this.handleClickOpen}
                     >Delete</Button>
 
-                    <Button variant="contained" 
-                            color="primary"  
-                            className={classes.button} 
-                            component={Link} 
+                    <Button variant="contained"
+                            color="primary"
+                            className={classes.button}
+                            component={Link}
                             to='/'
                     >Back</Button>
                 </div>
@@ -216,17 +207,17 @@ class Admin extends Component{
         return(
             <div className={classes.tourDisplay}>
                 <div>
-                    <Button variant="contained" 
-                            color="primary"  
-                            className={classes.button} 
-                            component={Link} 
+                    <Button variant="contained"
+                            color="primary"
+                            className={classes.button}
+                            component={Link}
                             to='/admin/group/create'
                     >Create Group</Button>
 
-                    <Button variant="contained" 
-                            color="primary"  
-                            className={classes.button} 
-                            component={Link} 
+                    <Button variant="contained"
+                            color="primary"
+                            className={classes.button}
+                            component={Link}
                             to='/'
                     >Home</Button>
                 </div>
