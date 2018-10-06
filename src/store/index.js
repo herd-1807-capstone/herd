@@ -17,6 +17,7 @@ const middleware = applyMiddleware(thunkMiddleware);
 
 const store = createStore(reducer, composeWithDevTools(middleware));
 
-export default store;
-export * from '../reducers/user';
-export * from '../reducers/spots';
+export default store
+export * from '../reducers/user'
+export * from '../reducers/spots'
+export * from '../reducers/announcement'

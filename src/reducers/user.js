@@ -83,17 +83,18 @@ export const getAllUsers = () => (dispatch, getState) => {
 
 // REDUCER
 export default (state = defaultUser, action) => {
-
-    switch (action.type) {
-        case SET_CURRENT_USER:
-            return {...state, currentUser: action.user}
-        case CHANGE_LOADING_STATE:
-            return {...state, isLoading: !state.isLoading}
-        case SET_ALL_USERS:
-            return {...state, list: action.users}
-        case SET_SELECTED_USER:
-            return {...state, selectedUser: action.user}
-        default:
-            return state
-    }
+  console.log("Inside reducer")
+  console.log(action)
+  switch (action.type) {
+      case SET_CURRENT_USER:
+          return {...state, currentUser: action.user}
+      case CHANGE_LOADING_STATE:
+          return {...state, isLoading: !state.isLoading}
+      case SET_ALL_USERS:
+          return {...state, list: action.users}
+      case SET_SELECTED_USER:
+          return {...state, selectedUser: action.user}
+      default:
+          return state
+  }
 }
