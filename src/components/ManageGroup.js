@@ -171,7 +171,7 @@ constructor(props){
             console.log(currentUser.tour)
             console.log("Check!")
         }
-
+        this.setState({...this.state, changedUser: []})
         
     } catch (error) {
         console.error(error)
