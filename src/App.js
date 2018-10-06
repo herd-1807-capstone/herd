@@ -20,11 +20,12 @@ class App extends Component {
       if (user) {
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          // console.log('USER EXISTS IN DB???', snapshot)
+
+          const userRef = db.ref(`/users/${user.uid}`)
+
 
           if (!snapshot.exists()) {
-            // console.log("Snapshot does not exists!!")
-            // console.log(user)
+
             let newUser = {
               name: user.displayName,
               email: user.email,
@@ -33,40 +34,38 @@ class App extends Component {
               status: 'member',
               visible: true,
               tour: 'null',
+              loggedIn: true,
             };
-            // console.log('CREATING USER THE FIRST TIME');
+
             await db.ref(`/users/${user.uid}`).set(newUser);
-            user = newUser
+            newUser = await db.ref(`/users/${user.uid}`).once('value');
+            user = newUser.val();
           } else {
             let theUser = {
               name: user.displayName,
               email: user.email,
               phone: user.phoneNumber,
               imgUrl: user.photoURL,
+              loggedIn: true
             }
-
-            // console.log(snapshot.val().tour)
-
             await db.ref(`/users/${user.uid}`).update(theUser)
+
             theUser.uid = user.uid
             theUser.status = snapshot.val().status
             theUser.visible = snapshot.val().visible
             theUser.tour = snapshot.val().tour
             user = theUser
-          //   return firebase.database().ref().update(updates);
-          // }
-          }
-          // console.log("You are authed!!")
-          // console.log(snapshot.val())
-          // this.setState({ user, isLoading: false });
-          // this.props.setCurrentUser(snapshot.val())
-          this.props.setCurrentUser(user)
 
+          }
+
+          this.props.setCurrentUser(user)
+          userRef.onDisconnect().update({loggedIn: false});
         } catch (error) {
           console.error(error);
         }
       }
     });
+
   }
 
 

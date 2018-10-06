@@ -39,6 +39,7 @@ export const getAllUsers = () => (dispatch, getState) => {
                 let usersObj = snapshot.val() || [];
                 let users = Object.keys(usersObj)
                   .filter(userId => {
+
                     //exclude self, include visible only
                     return usersObj[userId].visible && userId !== loggedInUser.uid;
                   })
@@ -83,7 +84,7 @@ export const getAllUsers = () => (dispatch, getState) => {
 
 // REDUCER
 export default (state = defaultUser, action) => {
-  
+
   switch (action.type) {
       case SET_CURRENT_USER:
           return {...state, currentUser: action.user}

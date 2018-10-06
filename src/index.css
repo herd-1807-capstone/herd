@@ -102,3 +102,30 @@ body {
 .display-none {
   display: none;
 }
+
+.online{
+  background-color: rgb(20, 221, 20);
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+}
+
+.user-marker-offline{
+  opacity: 0.5;
+  background-color: white;
+  border: solid 2px white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+}
+
+.admin-marker-offline{
+  background-color: red;
+  border: solid 3px white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  opacity: 0.5;
+}

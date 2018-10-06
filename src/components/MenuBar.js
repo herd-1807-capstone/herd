@@ -105,6 +105,7 @@ class MenuBar extends React.Component {
 
   async handleLogout() {
     await firebase.auth().signOut();
+    await firebase.database().ref(`/users/${this.props.currentUser.uid}`).update({loggedIn: false});
     this.props.logout();
   }
 
@@ -264,7 +265,6 @@ class MenuBar extends React.Component {
               <Button color="primary" variant="outlined" size="small" aria-label="Add" onClick={this.hideAnnouncementModal} type="button">Cancel</Button>
           </form>
         </AnnouncementCreateModal>
-
       </div>
     );
   }
