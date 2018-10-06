@@ -45,11 +45,8 @@ export const getAnnouncement = () => async (dispatch, getState) => {
   try{
     const loggedInUser = getState().user.currentUser;
     db.ref(`/tours/${loggedInUser.tour}/announcement`).on('value', async (snapshot) => {
-      console.log("so getting psa now");
       const announcement = await snapshot.val();
-      console.log("here's psa", announcement);
       dispatch(setAnnouncement(announcement));
-      console.log("all set!");
     });
   }catch(err){
     console.log(err);

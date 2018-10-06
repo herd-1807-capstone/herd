@@ -158,7 +158,7 @@ class MenuBar extends React.Component {
         </List>
         <Divider />
         <List>
-          {currentUser.hasOwnProperty('status') && currentUser.status === 'admin' 
+          {currentUser.hasOwnProperty('status') && currentUser.status === 'admin'
           ?
           <AdminListItems showAnnouncementModal={this.showAnnouncementModal} props={this.props} />
           :

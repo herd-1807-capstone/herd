@@ -1,8 +1,5 @@
 import React from 'react';
-import PlaceOutlined from '@material-ui/icons/PlaceOutlined';
 import Place from '@material-ui/icons/Place';
-
-
 
 const Spot = () => {
 
@@ -11,15 +8,15 @@ const Spot = () => {
     fontSize: 40
   }
   return (
-            <Place style = {styles} />
-          );
+    <Place style = {styles} />
+  );
 }
 
 
 const Admin = () => {
   return (
-            <div className = 'admin-marker' />
-          );
+    <div className = 'admin-marker' />
+  );
 }
 
 const User = ({imgUrl, idx}) => {

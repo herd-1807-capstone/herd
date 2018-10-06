@@ -7,8 +7,7 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import { setCurrentUser } from '../reducers/user';
-import { Route, withRouter } from 'react-router-dom';
-import ManageGroup from './ManageGroup';
+import { withRouter } from 'react-router-dom';
 import {API_ROOT} from '../api-config';
 
 const styles = {
@@ -53,7 +52,7 @@ class CreateGroup extends Component {
     if(newName){
       // console.log(this.state)
       evt.persist()
-      const { tourName, imgUrl, address, description } = this.state
+      const { tourName, imgUrl, description } = this.state
       let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
       // console.log(access_token)
       let createResult = await axios.post(`${API_ROOT}/tours?access_token=${access_token}`, {
@@ -61,7 +60,6 @@ class CreateGroup extends Component {
                           "imgUrl": imgUrl,
                           "description": description,
                           })
-      // console.log(createResult.data)
       if(createResult.status === 200){
         let newCurrentUser = {...this.props.currentUser, tour: createResult.data.key}
         this.props.updateUser(newCurrentUser)

@@ -1,11 +1,6 @@
 import React, { Component } from 'react';
 import firebase from './fire';
-import { connect } from 'react-redux';
 import { StyledFirebaseAuth } from 'react-firebaseui';
-import { setCurrentUser } from './store';
-import store from './store/index'
-
-const db = firebase.database();
 
 var uiConfig = {
   signInFlow: 'redirect',
@@ -51,7 +46,7 @@ export default class Login extends Component {
           uiConfig={uiConfig}
           firebaseAuth={firebase.auth()}
         />
-        <img
+        <img alt="herd-event-img"
           src="http://herd.careers/wp-content/uploads/2016/04/Event-Ad-1.gif"
           width="400px"
           height="400px"

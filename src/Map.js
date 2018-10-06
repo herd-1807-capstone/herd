@@ -8,7 +8,6 @@ import axios from 'axios'
 import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected, findSelectedMarker, getAnnouncement } from './store';
 import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
-import {setAnnouncement} from './reducers/tour'
 import {API_ROOT} from './api-config';
 import Modal from '@material-ui/core/Modal';
 import AddMarkerForm from './AddMarkerForm'

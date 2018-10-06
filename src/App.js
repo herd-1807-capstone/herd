@@ -1,14 +1,9 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
-import Grid from '@material-ui/core/Grid';
 import firebase from './fire';
 import { connect } from 'react-redux';
-
-import logo from './logo.svg';
 import './App.css';
-import SignIn from './SignIn';
 import Login from './Login';
-import Map from './Map';
 import Error from './Error';
 import MenuBar from './components/MenuBar';
 import { setCurrentUser } from './store/index';
@@ -20,22 +15,13 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    // this.state = {
-    //   user: null,
-    //   isLoading: true,
-    // };
-  }
-
-
   componentDidMount() {
     auth.onAuthStateChanged(async user => {
       if (user) {
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
           // console.log('USER EXISTS IN DB???', snapshot)
-          
+
           if (!snapshot.exists()) {
             // console.log("Snapshot does not exists!!")
             // console.log(user)
@@ -83,7 +69,7 @@ class App extends Component {
     });
   }
 
-  
+
 
   render() {
     if(this.props.currentUser === null){
