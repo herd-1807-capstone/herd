@@ -255,14 +255,13 @@ class MenuBar extends React.Component {
           <form onSubmit={this.sendTourAnnouncement}>
             <div>
               <p id="modal-error" />
+              <label htmlFor="message">New PSA To Send:</label> <br />
+              <input placeholder="Type here..." type="text" className="psa-input" name="message" type="text" />
             </div>
-            <div>
-              <label htmlFor="message">Announcement To Send:</label>
-              <input name="message" type="text" />
-            </div>
-            <Button variant="outlined" color="primary" size="small" type="submit">Send
-            </Button>
-            <Button color="primary" variant="outlined" size="small" aria-label="Add" onClick={this.hideAnnouncementModal} type="button">Cancel</Button>
+            <br />
+              <Button variant="outlined" color="primary" size="small" type="submit">Send
+              </Button>
+              <Button color="primary" variant="outlined" size="small" aria-label="Add" onClick={this.hideAnnouncementModal} type="button">Cancel</Button>
           </form>
         </AnnouncementCreateModal>
 
