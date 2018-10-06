@@ -15,6 +15,8 @@ import { setCurrentUser } from './store/index';
 import Admin from './components/Admin';
 import CreateGroup from './components/CreateGroup';
 import ManageGroup from './components/ManageGroup';
+import axios from 'axios';
+import { API_ROOT } from './api-config';
 
 const auth = firebase.auth();
 const db = firebase.database();
@@ -35,7 +37,10 @@ class App extends Component {
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
           // console.log('USER EXISTS IN DB???', snapshot)
-          
+
+          const userRef = db.ref(`/users/${user.uid}`)
+
+
           if (!snapshot.exists()) {
             // console.log("Snapshot does not exists!!")
             // console.log(user)
@@ -47,21 +52,26 @@ class App extends Component {
               status: 'member',
               visible: true,
               tour: 'null',
+              loggedIn: true,
             };
             // console.log('CREATING USER THE FIRST TIME');
             await db.ref(`/users/${user.uid}`).set(newUser);
-            user = newUser
+            newUser = await db.ref(`/users/${user.uid}`).once('value');
+            user = newUser.val();
           } else {
             let theUser = {
               name: user.displayName,
               email: user.email,
               phone: user.phoneNumber,
               imgUrl: user.photoURL,
+              loggedIn: true
             }
 
             // console.log(snapshot.val().tour)
 
             await db.ref(`/users/${user.uid}`).update(theUser)
+            // const {data} = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${idToken}`, theUser);
+
             theUser.uid = user.uid
             theUser.status = snapshot.val().status
             theUser.visible = snapshot.val().visible
@@ -75,15 +85,16 @@ class App extends Component {
           // this.setState({ user, isLoading: false });
           // this.props.setCurrentUser(snapshot.val())
           this.props.setCurrentUser(user)
-
+          userRef.onDisconnect().update({loggedIn: false});
         } catch (error) {
           console.error(error);
         }
       }
     });
+
   }
 
-  
+
 
   render() {
     if(this.props.currentUser === null){

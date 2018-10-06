@@ -5,7 +5,7 @@ import GOOGLE_API_KEY from './secrets';
 import firebase from './fire';
 import { Spot, Admin, User } from './Marker';
 import axios from 'axios'
-import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected, findSelectedMarker } from './store';
+import { getAllUsers, getSpotsThunk, addSpotThunk, setSelected, findSelectedMarker } from './store';
 import { connect } from 'react-redux';
 import {setCurrentUser} from './reducers/user'
 import {API_ROOT} from './api-config';
@@ -173,9 +173,10 @@ class SimpleMap extends Component {
         // User is signed in.
         try {
           //get user's profile
+          // await db.ref(`/users/${user.uid}`).onDisconnect().update({loggedIn: false});
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
           let userInfo = snapshot.val();
-          store.dispatch(setCurrentUser(userInfo));
+          this.props.setCurrentUser(userInfo);
           this.props.getSpots();
           this.props.getUsers();
         } catch (error) {
@@ -333,6 +334,9 @@ const mapDispatch = (dispatch) => ({
   },
   setMap(map, maps){
     dispatch(setGoogleMap(map, maps));
+  },
+  setCurrentUser(user){
+    dispatch(setCurrentUser(user))
   }
 })
 export default connect(mapState, mapDispatch)(SimpleMap);
