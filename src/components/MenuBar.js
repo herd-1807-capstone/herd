@@ -85,7 +85,8 @@ class MenuBar extends React.Component {
   }
   modalOpen = (type) => () =>{
     this.setState({
-      [type]: true
+      [type]: true,
+      mobileOpen: false
     })
   }
 
@@ -105,11 +106,11 @@ class MenuBar extends React.Component {
   }
 
   handleChatStart() {
-    this.setState({ showInfo: false });
+    this.setState({ showInfo: false, mobileOpen: false });
   }
 
   handleInfoSpot() {
-    this.setState({ showInfo: true });
+    this.setState({ showInfo: true, mobileOpen: false });
   }
 
   handleRecenter(evt){
@@ -119,7 +120,7 @@ class MenuBar extends React.Component {
   }
 
   showAnnouncementModal = () => {
-    this.setState({showMsgModal: true});
+    this.setState({showMsgModal: true, mobileOpen: false});
   }
 
   hideAnnouncementModal = () => {
@@ -143,7 +144,7 @@ class MenuBar extends React.Component {
   }
 
   render() {
-    const { classes, theme } = this.props;
+    const { classes, theme, currentUser } = this.props;
 
     const drawer = (
       <div>
@@ -157,7 +158,12 @@ class MenuBar extends React.Component {
         </List>
         <Divider />
         <List>
-          <AdminListItems showAnnouncementModal={this.showAnnouncementModal} />
+          {currentUser.hasOwnProperty('status') && currentUser.status === 'admin' 
+          ?
+          <AdminListItems showAnnouncementModal={this.showAnnouncementModal} props={this.props} />
+          :
+          null
+          }
         </List>
       </div>
     );
