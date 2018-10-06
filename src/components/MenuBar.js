@@ -75,6 +75,7 @@ class MenuBar extends React.Component {
       usersListWindow: false,
       spotsListWindow: false,
       showMsgModal: false,
+      showPSA: 'block', // block or none
     };
 
     this.handleLogout = this.handleLogout.bind(this);
@@ -82,7 +83,9 @@ class MenuBar extends React.Component {
     this.handleInfoSpot = this.handleInfoSpot.bind(this);
     this.handleRecenter = this.handleRecenter.bind(this);
     this.sendTourAnnouncement = this.sendTourAnnouncement.bind(this);
+    this.hidePSABar = this.hidePSABar.bind(this);
   }
+
   modalOpen = (type) => () =>{
     this.setState({
       [type]: true,
@@ -143,6 +146,12 @@ class MenuBar extends React.Component {
     }
   }
 
+  hidePSABar(){
+    this.setState({
+      showPSA: 'none'
+    })
+  }
+
   render() {
     const { classes, theme, currentUser } = this.props;
 
@@ -199,7 +208,10 @@ class MenuBar extends React.Component {
             ) : null}
           </Toolbar>
           <Divider />
-          <div style={{backgroundColor:"light-pink"}}>{this.props.announcement}</div>
+          <div style={{backgroundColor: "#37BC9B", display: this.state.showPSA}}>
+            {`[PSA] ${this.props.announcement}`}
+            <span style={{float:"right", paddingRight:'10px'}}><a href="#" style={{textDecoration:'none', color: 'white'}} onClick={this.hidePSABar}>x</a></span>
+          </div>
         </AppBar>
         <Hidden mdUp>
           <Drawer
