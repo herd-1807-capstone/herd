@@ -61,9 +61,9 @@ class CreateGroup extends Component {
                           "imgUrl": imgUrl,
                           "description": description,
                           })
-      console.log(createResult)
+      // console.log(createResult.data)
       if(createResult.status === 200){
-        let newCurrentUser = {...this.props.currentUser, tour: this.state.tourName}
+        let newCurrentUser = {...this.props.currentUser, tour: createResult.data.key}
         this.props.updateUser(newCurrentUser)
         this.props.history.push('/admin/group')
       } else {

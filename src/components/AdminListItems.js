@@ -10,21 +10,29 @@ import AssignmentIcon from '@material-ui/icons/Assignment';
 import AddAlert from '@material-ui/icons/AddAlert';
 
 class AdminListItems extends Component {
+  constructor(props){
+    super(props)
+    this.handleToGroup = this.handleToGroup.bind(this)
+  }
+  handleToGroup(evt){
+    console.log(this.props.props.history)
+    this.props.props.history.push('/admin')
+  }
   render() {
     return (
       <div>
         <ListSubheader inset>Tour guide functions</ListSubheader>
-        <ListItem button>
+        {/* <ListItem button>
           <ListItemIcon>
             <AssignmentIcon />
           </ListItemIcon>
           <ListItemText primary="Create a Tour" />
-        </ListItem>
-        <ListItem button>
+        </ListItem> */}
+        <ListItem button onClick={this.handleToGroup} >
           <ListItemIcon>
             <PeopleIcon />
           </ListItemIcon>
-          <ListItemText primary="Add/Update a Group" />
+          <ListItemText primary="Group Management" />
         </ListItem>
         <ListItem button>
           <ListItemIcon>

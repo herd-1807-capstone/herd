@@ -71,6 +71,7 @@ class Admin extends Component{
             deleteCount: 0,
             access_token: '',
         }
+        
         this.handleDelete = this.handleDelete.bind(this)
     }
 
@@ -96,7 +97,6 @@ class Admin extends Component{
             let resGroupMember = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
             let groupMember = resGroupMember.data
             console.log("OMG! You deleted a group!")
-            console.log(groupMember)
             axios.delete(`${API_ROOT}/tours/${currentUser.tour}?access_token=${access_token}`)
             let allDelete = []
             for(let i = 0; i < groupMember.length; i++){
