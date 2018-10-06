@@ -65,9 +65,11 @@ class ChatDialogUserList extends Component {
   async componentDidMount() {
     await this.props.getUsers;
     const userlist = this.props.userlist;
-    const value = userlist[0].name;
-    const selectedUid = userlist[0].uid;
-    this.setState({ value, selectedUid, userlist });
+    if(userlist.length > 1){
+      const value = userlist[0].name;
+      const selectedUid = userlist[0].uid;
+      this.setState({ value, selectedUid, userlist });
+    }
   }
 
   render() {
