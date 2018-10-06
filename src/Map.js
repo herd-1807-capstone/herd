@@ -3,7 +3,7 @@ import GoogleMapReact from 'google-map-react';
 import GeolocationMarker from './GeolocationMarker';
 import GOOGLE_API_KEY from './secrets';
 import firebase from './fire';
-import { Spot, Admin, User } from './Marker';
+import { Spot, Admin, User, OfflineUser, OfflineAdmin } from './Marker';
 import axios from 'axios'
 import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected, findSelectedMarker, getAnnouncement } from './store';
 import { connect } from 'react-redux';
@@ -174,9 +174,10 @@ class SimpleMap extends Component {
         // User is signed in.
         try {
           //get user's profile
+          // await db.ref(`/users/${user.uid}`).onDisconnect().update({loggedIn: false});
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
           let userInfo = snapshot.val();
-          store.dispatch(setCurrentUser(userInfo));
+          this.props.setCurrentUser(userInfo);
           this.props.getSpots();
           this.props.getUsers();
         } catch (error) {
@@ -235,14 +236,26 @@ class SimpleMap extends Component {
   renderUsers() {
     return this.props.users.map((user, index)=> {
       if (user.status === 'admin') {
-        if (user.uid && user.lat && user.lng){
+        if (user.uid && user.lat && user.lng && user.loggedIn){
           return <Admin key={user.uid} lat={user.lat} lng={user.lng} />;
+        }
+        if (user.uid && user.lat && user.lng && !user.loggedIn){
+          return <OfflineAdmin  key={user.uid} lat={user.lat} lng={user.lng} />;
         }
         return null
       }
-      if (user.uid && user.lat && user.lng){
+      if (user.uid && user.lat && user.lng && user.loggedIn){
 
         return(<User
+                  key={user.uid}
+                  lat={user.lat}
+                  lng={user.lng}
+                  imgUrl={user.imgUrl}
+                  idx={index} />);
+      }
+      if (user.uid && user.lat && user.lng && !user.loggedIn){
+        return (<OfflineUser
+                  className = 'user-marker-offline'
                   key={user.uid}
                   lat={user.lat}
                   lng={user.lng}
@@ -343,6 +356,9 @@ const mapDispatch = (dispatch) => ({
   },
   setMap(map, maps){
     dispatch(setGoogleMap(map, maps));
+  },
+  setCurrentUser(user){
+    dispatch(setCurrentUser(user))
   },
   getAnnouncement(){
     dispatch(getAnnouncement());

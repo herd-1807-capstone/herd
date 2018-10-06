@@ -90,6 +90,9 @@ class ListWindow extends React.Component {
             {
               type === 'usersListWindow' && (!item.visible || !item.lat || !item.lng)? <InvisibleIcon /> : null
             }
+            {
+              type === 'usersListWindow' && item.loggedIn ? <div className= 'online'></div> : null
+            }
             </ListItem>
 
           ))}
