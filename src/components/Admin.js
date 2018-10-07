@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router-dom'
 import axios from 'axios'
 import firebase from '../fire';
-// import './component.css'
+import './component.css'
 import {API_ROOT} from '../api-config';
 
 import TextField from '@material-ui/core/TextField';
@@ -21,6 +21,7 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import { setCurrentUser } from '../reducers/user'
+import LoadingState from './LoadingState'
 
 const style = theme => ({
     button: {
@@ -128,9 +129,16 @@ class Admin extends Component{
     }
 
     render(){
-        const { classes, currentUser } = this.props
+        const { classes, isLoading, currentUser } = this.props
         // console.log(currentUser)
         const { tour } = this.state
+        if(isLoading){
+            return (
+                <div className='loadingParent'>
+                    <LoadingState className='loadingState' />
+                </div>
+            )
+        }
         if(currentUser.hasOwnProperty('tour') && currentUser.tour !== 'null'){
             // console.log("has current user")
             return(
@@ -230,6 +238,7 @@ class Admin extends Component{
 
 const mapState = (state) => ({
     currentUser: state.user.currentUser,
+    isLoading: state.user.isLoading,
 })
 
 const mapDispatch = dispatch => {
