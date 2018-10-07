@@ -49,7 +49,7 @@ class AdminListItems extends Component {
           <ListItemIcon>
             <AddAlert />
           </ListItemIcon>
-          <ListItemText primary="Announment" />
+          <ListItemText primary="Announcement" />
         </ListItem>
       </div>
     );

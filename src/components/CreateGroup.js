@@ -9,8 +9,10 @@ import { connect } from 'react-redux';
 import { setCurrentUser } from '../reducers/user';
 import { withRouter } from 'react-router-dom';
 import {API_ROOT} from '../api-config';
+import { changeLoadingState } from '../reducers/user';
+import LoadingState from './LoadingState'
 
-const styles = {
+const styles =  {
   outer:{
     marginTop: 20,
     display: 'flex',
@@ -29,7 +31,7 @@ const styles = {
     marginTop: 10,
     marginLeft: 10,
     marginRight: 10,
-  }
+  },
   }
 
 class CreateGroup extends Component {
@@ -143,7 +145,7 @@ class CreateGroup extends Component {
           </Grid>
           </form>
         </Grid>
-
+        <LoadingState />
       </div>
     );
   }
@@ -157,7 +159,8 @@ const mapProps = (state) => {
 }
 
 const mapDispatch = (dispatch) => ({
-  updateUser: (user) => dispatch(setCurrentUser(user))
+  updateUser: (user) => dispatch(setCurrentUser(user)),
+  changeLoadingState: () => dispatch(changeLoadingState())
 })
 
 export default withRouter(connect(mapProps, mapDispatch)(CreateGroup));

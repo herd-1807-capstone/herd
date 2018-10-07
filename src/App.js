@@ -10,12 +10,16 @@ import { setCurrentUser } from './store/index';
 import Admin from './components/Admin';
 import CreateGroup from './components/CreateGroup';
 import ManageGroup from './components/ManageGroup';
+import LoadingState from './components/LoadingState'
+import { changeLoadingState } from './reducers/user';
 
 const auth = firebase.auth();
 const db = firebase.database();
 
 class App extends Component {
   componentDidMount() {
+    // console.log("Change loading state")
+    // this.props.changeLoadingState()
     auth.onAuthStateChanged(async user => {
       if (user) {
         try {
@@ -25,7 +29,6 @@ class App extends Component {
 
 
           if (!snapshot.exists()) {
-
             let newUser = {
               name: user.displayName,
               email: user.email,
@@ -36,11 +39,11 @@ class App extends Component {
               tour: 'null',
               loggedIn: true,
             };
-
             await db.ref(`/users/${user.uid}`).set(newUser);
             newUser = await db.ref(`/users/${user.uid}`).once('value');
             user = newUser.val();
           } else {
+            console.log('CREATING USER THE FIRST TIME');
             let theUser = {
               name: user.displayName,
               email: user.email,
@@ -71,11 +74,19 @@ class App extends Component {
 
 
   render() {
-    if(this.props.currentUser === null){
+    if(this.props.currentUser === null || !this.props.currentUser.hasOwnProperty('email')){
       return (
-        <Redirect to='/' />
+        // <Redirect to='/' />
+        <Route component={LoadingState} />
       )
     }
+    // if(this.props.isLoading){
+    //   return (
+    //       <div className='loadingParent'>
+    //           <LoadingState className='loadingState' />
+    //       </div>
+    //   )
+  // }
     return (
       <div className="App">
 
@@ -106,7 +117,8 @@ const mapState = state => {
 
 const mapDispatch = dispatch => {
   return {
-    setCurrentUser: (user) => dispatch(setCurrentUser(user))
+    setCurrentUser: (user) => dispatch(setCurrentUser(user)),
+    changeLoadingState: () => dispatch(changeLoadingState())
   }
 }
 

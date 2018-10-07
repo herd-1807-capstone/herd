@@ -17,6 +17,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import Avatar from '@material-ui/core/Avatar';
 
 import {API_ROOT} from '../api-config';
 
@@ -36,10 +37,14 @@ const styles = theme => ({
     },
     button: {
         margin: 2*theme.spacing.unit,
-        width: 70,
+        width: 80,
     },
     extendedIcon: {
         marginRight: theme.spacing.unit,
+    },
+    avatarBlue: {
+
+        backgroundColor: '#536DFE'
     }
 });
 function TabContainer(props) {
@@ -62,12 +67,11 @@ constructor(props){
     this.state = {
         groupys: [],
         freeBirds: [],
-        // checked: [1],
-        value: 0,
         access_token: "",
         changedUser:[],
         cacheGroupys:[],
         cacheFreeBirds: [],
+        cancelButtonText: "Back"
       }
 
     this.handleSave = this.handleSave.bind(this)
@@ -93,16 +97,6 @@ constructor(props){
                     cacheFreeBirds: [...freeBirds]
         })
     });
-
-    // let groupys = resGroupys.data
-    // let freeBirds = resFreeBirds.data
-    // this.setState({...this.state,
-    //                 groupys,
-    //                 freeBirds,
-    //                 access_token,
-    //                 cacheGroupys: [...groupys],
-    //                 cacheFreeBirds: [...freeBirds]
-    //     })
   }
 
   handleToggle = user => async (evt) => {
@@ -143,13 +137,11 @@ constructor(props){
         newChanged.push(user)
     }
     this.setState({...this.state,
-      groupys: newGroupys, freeBirds: newfreeBirds, changedUser: newChanged
+      groupys: newGroupys, 
+      freeBirds: newfreeBirds, 
+      changedUser: newChanged,
     });
 
-  };
-
-  handleChange = (event, value) => {
-    this.setState({ value });
   };
 
   handleSave = async (evt) => {
@@ -197,31 +189,38 @@ constructor(props){
                 })
   }
 
+  static getDerivedStateFromProps(props, state){
+    const { cancelButtonText, changedUser } = state;
+      if(changedUser.length > 0 && cancelButtonText === 'Back') {
+        return ({...state, cancelButtonText: 'Cancel'})
+    } else if (changedUser.length == 0 && cancelButtonText === 'Cancel') {
+        return ({...state, cancelButtonText: 'Back'})
+    }
+  }
 
   render() {
     const { classes } = this.props;
-    const { value, groupys, freeBirds } = this.state;
+    const { groupys, freeBirds, cancelButtonText } = this.state;
     // console.log(this.state.groupys)
     // console.log(this.state.freeBirds)
-    console.log(this.state.changedUser)
-
+    
     return (
       <div className={classes.subRoot}>
         <Paper className={classes.paperBack} elevation={3}>
         <div className={classes.root}>
         <AppBar position="static">
-          <Tabs value={value} onChange={this.handleChange}>
             <Tab label="Group Members" />
-            <Tab label="No Group Members" />
-          </Tabs>
         </AppBar>
-        {value === 0 && <TabContainer>
+        <TabContainer>
             <List>
           {Object.values(groupys).map(user => (
             <div key={user.name}>
             <ListItem key={user.uid} dense button className={classes.listItem}>
-              {/* <Avatar alt="Remy Sharp" src="/static/images/remy.jpg" /> */}
-              <AccountCircle />
+              {(user.hasOwnProperty('imgUrl') && user.imgUrl !== 'null')
+              ?
+              <Avatar src={user.imgUrl} />
+              :
+              <Avatar className={classes.avatarBlue} ><AccountCircle/></Avatar>}
               <ListItemText primary={`${user.name}`} />
               <ListItemSecondaryAction>
                 <Checkbox
@@ -234,14 +233,21 @@ constructor(props){
             </div>
           ))}
         </List>
-            </TabContainer>}
-        {value === 1 && <TabContainer>
+            </TabContainer>
+            <AppBar position="static">
+            <Tab label="No Group Members" />
+            </AppBar>
+        <TabContainer>
             <List>
           {Object.values(freeBirds).map(user => (
             <div key={user.uid}>
             <ListItem key={user.uid} dense button className={classes.listItem}>
-              {/* <Avatar alt="Remy Sharp" src="/static/images/remy.jpg" /> */}
-              <AccountCircle />
+            {(user.hasOwnProperty('imgUrl') && user.imgUrl !== 'null')
+              ?
+              <Avatar src={user.imgUrl} sizes={'30'} />
+              :
+              <Avatar className={classes.avatarBlue} ><AccountCircle/></Avatar>
+              }
               <ListItemText primary={`${user.name}`} />
               <ListItemSecondaryAction>
                 <Checkbox
@@ -254,7 +260,7 @@ constructor(props){
             </div>
           ))}
         </List>
-        </TabContainer>}
+        </TabContainer>
       </div>
 
 
@@ -262,7 +268,7 @@ constructor(props){
             Save
         </Button>
         <Button variant="extendedFab" onClick={this.handleCancel} color="primary" className={classes.button} >
-            Cancel
+            {cancelButtonText}
         </Button>
 
         </Paper>
