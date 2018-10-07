@@ -39,7 +39,7 @@ class SimpleMap extends Component {
         accuracy: 0,
       },
 
-      zoom: 18,
+      // zoom: 18,
       center: {
         lat: 28.4177,
         lng: -81.5812,

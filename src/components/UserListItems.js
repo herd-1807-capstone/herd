@@ -37,13 +37,15 @@ class UserListItems extends Component {
           reselect(selected);
           if (selected.lat && selected.lng ){
             const {lat, lng} = selected;
+            map.setZoom(15);
             map.panTo({lat, lng});
+            // map.setZoom(18);
             window.infoWindow.setContent(selected && (selected.name || selected.uid));
             window.infoWindow.setPosition({lat, lng})
             window.infoWindow.open(map)
           }
           i++;
-          if (i < spots.length) loop();
+          if (this.state.tourPreview && (i < spots.length) ) loop();
           if (i === spots.length - 1) {
             this.stopPreview();
           }
