@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 import { IconButton } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close'
 import StarIcon from '@material-ui/icons/Star'
-import {setSelected, findSelectedMarker} from './reducers/spots';
+import {setSelected} from './reducers/spots';
 import InvisibleIcon from '@material-ui/icons/VisibilityOffOutlined';
 
 function getModalStyle() {
@@ -89,6 +89,9 @@ class ListWindow extends React.Component {
           }
             {
               type === 'usersListWindow' && (!item.visible || !item.lat || !item.lng)? <InvisibleIcon /> : null
+            }
+            {
+              type === 'usersListWindow' && item.loggedIn ? <div className= 'online'></div> : null
             }
             </ListItem>
 

@@ -80,11 +80,19 @@ body {
 .modal-main {
   position:fixed;
   background: white;
-  width: 100%;
+  width: 50%;
   height: auto;
   top: 50%;
   left: 50%;
+  padding-bottom:10px;
   transform: translate(-50%,-50%);
+}
+
+.psa-input {
+  width: 90%;
+  padding: 12px 12px 20px;
+  margin: 8px 0;
+  box-sizing: border-box;
 }
 
 .display-block {
@@ -93,4 +101,31 @@ body {
 
 .display-none {
   display: none;
+}
+
+.online{
+  background-color: rgb(20, 221, 20);
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+}
+
+.user-marker-offline{
+  opacity: 0.5;
+  background-color: white;
+  border: solid 2px white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+}
+
+.admin-marker-offline{
+  background-color: red;
+  border: solid 3px white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  opacity: 0.5;
 }

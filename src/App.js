@@ -1,44 +1,34 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
-import Grid from '@material-ui/core/Grid';
 import firebase from './fire';
 import { connect } from 'react-redux';
-
-import logo from './logo.svg';
 import './App.css';
-import SignIn from './SignIn';
 import Login from './Login';
-import Map from './Map';
 import Error from './Error';
 import MenuBar from './components/MenuBar';
 import { setCurrentUser } from './store/index';
 import Admin from './components/Admin';
 import CreateGroup from './components/CreateGroup';
 import ManageGroup from './components/ManageGroup';
+import LoadingState from './components/LoadingState'
+import { changeLoadingState } from './reducers/user';
 
 const auth = firebase.auth();
 const db = firebase.database();
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    // this.state = {
-    //   user: null,
-    //   isLoading: true,
-    // };
-  }
-
-
   componentDidMount() {
+    // console.log("Change loading state")
+    // this.props.changeLoadingState()
     auth.onAuthStateChanged(async user => {
       if (user) {
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          // console.log('USER EXISTS IN DB???', snapshot)
-          
+
+          const userRef = db.ref(`/users/${user.uid}`)
+
+
           if (!snapshot.exists()) {
-            // console.log("Snapshot does not exists!!")
-            // console.log(user)
             let newUser = {
               name: user.displayName,
               email: user.email,
@@ -47,50 +37,56 @@ class App extends Component {
               status: 'member',
               visible: true,
               tour: 'null',
+              loggedIn: true,
             };
-            // console.log('CREATING USER THE FIRST TIME');
             await db.ref(`/users/${user.uid}`).set(newUser);
-            user = newUser
+            newUser = await db.ref(`/users/${user.uid}`).once('value');
+            user = newUser.val();
           } else {
+            console.log('CREATING USER THE FIRST TIME');
             let theUser = {
               name: user.displayName,
               email: user.email,
               phone: user.phoneNumber,
               imgUrl: user.photoURL,
+              loggedIn: true
             }
-
-            // console.log(snapshot.val().tour)
-
             await db.ref(`/users/${user.uid}`).update(theUser)
+
             theUser.uid = user.uid
             theUser.status = snapshot.val().status
             theUser.visible = snapshot.val().visible
             theUser.tour = snapshot.val().tour
             user = theUser
-          //   return firebase.database().ref().update(updates);
-          // }
-          }
-          // console.log("You are authed!!")
-          // console.log(snapshot.val())
-          // this.setState({ user, isLoading: false });
-          // this.props.setCurrentUser(snapshot.val())
-          this.props.setCurrentUser(user)
 
+          }
+
+          this.props.setCurrentUser(user)
+          userRef.onDisconnect().update({loggedIn: false});
         } catch (error) {
           console.error(error);
         }
       }
     });
+
   }
 
-  
+
 
   render() {
-    if(this.props.currentUser === null){
+    if(this.props.currentUser === null || !this.props.currentUser.hasOwnProperty('email')){
       return (
-        <Redirect to='/' />
+        // <Redirect to='/' />
+        <Route component={LoadingState} />
       )
     }
+    // if(this.props.isLoading){
+    //   return (
+    //       <div className='loadingParent'>
+    //           <LoadingState className='loadingState' />
+    //       </div>
+    //   )
+  // }
     return (
       <div className="App">
 
@@ -121,7 +117,8 @@ const mapState = state => {
 
 const mapDispatch = dispatch => {
   return {
-    setCurrentUser: (user) => dispatch(setCurrentUser(user))
+    setCurrentUser: (user) => dispatch(setCurrentUser(user)),
+    changeLoadingState: () => dispatch(changeLoadingState())
   }
 }
 

@@ -8,17 +8,16 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
-import Avatar from '@material-ui/core/Avatar';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import firebase from '../fire';
-import Admin from './Admin';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import Avatar from '@material-ui/core/Avatar';
 
 import {API_ROOT} from '../api-config';
 
@@ -38,10 +37,14 @@ const styles = theme => ({
     },
     button: {
         margin: 2*theme.spacing.unit,
-        width: 70,
+        width: 80,
     },
     extendedIcon: {
         marginRight: theme.spacing.unit,
+    },
+    avatarBlue: {
+
+        backgroundColor: '#536DFE'
     }
 });
 function TabContainer(props) {
@@ -51,11 +54,11 @@ function TabContainer(props) {
       </Typography>
     );
   }
-  
+
   TabContainer.propTypes = {
     children: PropTypes.node.isRequired,
   };
-  
+
 
 class ManageGroup extends React.Component {
 
@@ -64,14 +67,13 @@ constructor(props){
     this.state = {
         groupys: [],
         freeBirds: [],
-        // checked: [1],
-        value: 0,
         access_token: "",
         changedUser:[],
         cacheGroupys:[],
         cacheFreeBirds: [],
+        cancelButtonText: "Back"
       }
-    
+
     this.handleSave = this.handleSave.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
   }
@@ -87,24 +89,14 @@ constructor(props){
         if(groupys && groupys[0].hasOwnProperty('tour') && groupys.length !== 0 && groupys[0].tour === 'null'){
             groupys = []
         }
-    this.setState({...this.state, 
-                    groupys, 
-                    freeBirds, 
+    this.setState({...this.state,
+                    groupys,
+                    freeBirds,
                     access_token,
                     cacheGroupys: [...groupys],
                     cacheFreeBirds: [...freeBirds]
         })
     });
-    
-    // let groupys = resGroupys.data
-    // let freeBirds = resFreeBirds.data
-    // this.setState({...this.state, 
-    //                 groupys, 
-    //                 freeBirds, 
-    //                 access_token,
-    //                 cacheGroupys: [...groupys],
-    //                 cacheFreeBirds: [...freeBirds]
-    //     })
   }
 
   handleToggle = user => async (evt) => {
@@ -145,13 +137,11 @@ constructor(props){
         newChanged.push(user)
     }
     this.setState({...this.state,
-      groupys: newGroupys, freeBirds: newfreeBirds, changedUser: newChanged
+      groupys: newGroupys, 
+      freeBirds: newfreeBirds, 
+      changedUser: newChanged,
     });
 
-  };
-
-  handleChange = (event, value) => {
-    this.setState({ value });
   };
 
   handleSave = async (evt) => {
@@ -165,15 +155,15 @@ constructor(props){
                 console.log(`Put the tour!!!${putTour}`)
             } else {
                 user.tour = 'null'
-                let putTour = await axios.delete(`${API_ROOT}/tours/${currentUser.tour}/users/${user.uid}?access_token=${access_token}`)
+                await axios.delete(`${API_ROOT}/tours/${currentUser.tour}/users/${user.uid}?access_token=${access_token}`)
             }
-            let putUser = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: user.tour})   
+            let putUser = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: user.tour})
             console.log("update user", putUser)
             console.log(currentUser.tour)
             console.log("Check!")
         }
         this.setState({...this.state, changedUser: []})
-        
+
     } catch (error) {
         console.error(error)
     }
@@ -192,38 +182,45 @@ constructor(props){
         user.tour = 'null'
         return user
     })
-    this.setState({...this.state, 
-                    groupys: oldGroupys, 
+    this.setState({...this.state,
+                    groupys: oldGroupys,
                     freeBirds: oldFreeBirds,
                     changedUser: [],
                 })
   }
 
+  static getDerivedStateFromProps(props, state){
+    const { cancelButtonText, changedUser } = state;
+      if(changedUser.length > 0 && cancelButtonText === 'Back') {
+        return ({...state, cancelButtonText: 'Cancel'})
+    } else if (changedUser.length == 0 && cancelButtonText === 'Cancel') {
+        return ({...state, cancelButtonText: 'Back'})
+    }
+  }
 
   render() {
     const { classes } = this.props;
-    const { value, groupys, freeBirds } = this.state;
+    const { groupys, freeBirds, cancelButtonText } = this.state;
     // console.log(this.state.groupys)
     // console.log(this.state.freeBirds)
-    console.log(this.state.changedUser)
-
+    
     return (
       <div className={classes.subRoot}>
         <Paper className={classes.paperBack} elevation={3}>
         <div className={classes.root}>
         <AppBar position="static">
-          <Tabs value={value} onChange={this.handleChange}>
             <Tab label="Group Members" />
-            <Tab label="No Group Members" />
-          </Tabs>
         </AppBar>
-        {value === 0 && <TabContainer>
+        <TabContainer>
             <List>
           {Object.values(groupys).map(user => (
             <div key={user.name}>
             <ListItem key={user.uid} dense button className={classes.listItem}>
-              {/* <Avatar alt="Remy Sharp" src="/static/images/remy.jpg" /> */}
-              <AccountCircle />
+              {(user.hasOwnProperty('imgUrl') && user.imgUrl !== 'null')
+              ?
+              <Avatar src={user.imgUrl} />
+              :
+              <Avatar className={classes.avatarBlue} ><AccountCircle/></Avatar>}
               <ListItemText primary={`${user.name}`} />
               <ListItemSecondaryAction>
                 <Checkbox
@@ -236,14 +233,21 @@ constructor(props){
             </div>
           ))}
         </List>
-            </TabContainer>}
-        {value === 1 && <TabContainer>
+            </TabContainer>
+            <AppBar position="static">
+            <Tab label="No Group Members" />
+            </AppBar>
+        <TabContainer>
             <List>
           {Object.values(freeBirds).map(user => (
             <div key={user.uid}>
             <ListItem key={user.uid} dense button className={classes.listItem}>
-              {/* <Avatar alt="Remy Sharp" src="/static/images/remy.jpg" /> */}
-              <AccountCircle />
+            {(user.hasOwnProperty('imgUrl') && user.imgUrl !== 'null')
+              ?
+              <Avatar src={user.imgUrl} sizes={'30'} />
+              :
+              <Avatar className={classes.avatarBlue} ><AccountCircle/></Avatar>
+              }
               <ListItemText primary={`${user.name}`} />
               <ListItemSecondaryAction>
                 <Checkbox
@@ -256,7 +260,7 @@ constructor(props){
             </div>
           ))}
         </List>
-        </TabContainer>}
+        </TabContainer>
       </div>
 
 
@@ -264,11 +268,11 @@ constructor(props){
             Save
         </Button>
         <Button variant="extendedFab" onClick={this.handleCancel} color="primary" className={classes.button} >
-            Cancel
-        </Button> 
-        
+            {cancelButtonText}
+        </Button>
+
         </Paper>
-        
+
       </div>
     );
   }

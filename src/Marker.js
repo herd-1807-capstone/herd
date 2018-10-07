@@ -1,8 +1,5 @@
 import React from 'react';
-import PlaceOutlined from '@material-ui/icons/PlaceOutlined';
 import Place from '@material-ui/icons/Place';
-
-
 
 const Spot = () => {
 
@@ -11,15 +8,15 @@ const Spot = () => {
     fontSize: 40
   }
   return (
-            <Place style = {styles} />
-          );
+    <Place style = {styles} />
+  );
 }
 
 
 const Admin = () => {
   return (
-            <div className = 'admin-marker' />
-          );
+    <div className = 'admin-marker' />
+  );
 }
 
 const User = ({imgUrl, idx}) => {
@@ -29,4 +26,18 @@ const User = ({imgUrl, idx}) => {
   return <img className = 'user-marker' src ={`https://robohash.org/${idx}.png?set=set4`}/>
 }
 
-export {Spot, Admin, User}
+const OfflineUser = ({imgUrl, idx}) => {
+  if (imgUrl){
+    return <img className = 'user-marker-offline' src={imgUrl} />
+  }
+  return <img className = 'user-marker-offline' src ={`https://robohash.org/${idx}.png?set=set4`}/>
+}
+
+const OfflineAdmin = () => {
+  return (
+    <div className = 'admin-marker-offline' />
+  );
+}
+
+
+export {Spot, Admin, User, OfflineAdmin, OfflineUser}
