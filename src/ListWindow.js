@@ -49,7 +49,7 @@ class ListWindow extends React.Component {
     const {handleClose, setSelected, map} = this.props
     setSelected(selected);
     if (selected.lat && selected.lng ){
-      handleClose(type);
+      handleClose(type)();
       const {lat, lng} = selected;
       map.panTo({lat, lng});
       window.infoWindow.setContent(selected && (selected.name || selected.uid));
