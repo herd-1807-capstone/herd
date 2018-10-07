@@ -15,6 +15,8 @@ import { setCurrentUser } from './store/index';
 import Admin from './components/Admin';
 import CreateGroup from './components/CreateGroup';
 import ManageGroup from './components/ManageGroup';
+import LoadingState from './components/LoadingState'
+import { changeLoadingState } from './reducers/user';
 
 const auth = firebase.auth();
 const db = firebase.database();
@@ -30,6 +32,8 @@ class App extends Component {
 
 
   componentDidMount() {
+    // console.log("Change loading state")
+    // this.props.changeLoadingState()
     auth.onAuthStateChanged(async user => {
       if (user) {
         try {
@@ -37,7 +41,7 @@ class App extends Component {
           // console.log('USER EXISTS IN DB???', snapshot)
           
           if (!snapshot.exists()) {
-            // console.log("Snapshot does not exists!!")
+            console.log("Snapshot does not exists!!")
             // console.log(user)
             let newUser = {
               name: user.displayName,
@@ -48,10 +52,10 @@ class App extends Component {
               visible: true,
               tour: 'null',
             };
-            // console.log('CREATING USER THE FIRST TIME');
             await db.ref(`/users/${user.uid}`).set(newUser);
             user = newUser
           } else {
+            console.log('CREATING USER THE FIRST TIME');
             let theUser = {
               name: user.displayName,
               email: user.email,
@@ -75,7 +79,8 @@ class App extends Component {
           // this.setState({ user, isLoading: false });
           // this.props.setCurrentUser(snapshot.val())
           this.props.setCurrentUser(user)
-
+          // console.log("change loading state AGAIN!")
+          // this.props.changeLoadingState();
         } catch (error) {
           console.error(error);
         }
@@ -86,11 +91,19 @@ class App extends Component {
   
 
   render() {
-    if(this.props.currentUser === null){
+    if(this.props.currentUser === null || !this.props.currentUser.hasOwnProperty('email')){
       return (
-        <Redirect to='/' />
+        // <Redirect to='/' />
+        <Route component={LoadingState} />
       )
     }
+    // if(this.props.isLoading){
+    //   return (
+    //       <div className='loadingParent'>
+    //           <LoadingState className='loadingState' />
+    //       </div>
+    //   )
+  // }
     return (
       <div className="App">
 
@@ -121,7 +134,8 @@ const mapState = state => {
 
 const mapDispatch = dispatch => {
   return {
-    setCurrentUser: (user) => dispatch(setCurrentUser(user))
+    setCurrentUser: (user) => dispatch(setCurrentUser(user)),
+    changeLoadingState: () => dispatch(changeLoadingState())
   }
 }
 
