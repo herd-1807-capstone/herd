@@ -58,7 +58,8 @@ body {
 }
 
 .success {
-  color: rgb(8, 189, 8)
+  color: rgb(8, 189, 8);
+  padding: 10px;
 }
 
 #mylocation{
