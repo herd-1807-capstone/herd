@@ -11,12 +11,14 @@ import AddAlert from '@material-ui/icons/AddAlert';
 class AdminListItems extends Component {
   constructor(props){
     super(props)
+
     this.handleToGroup = this.handleToGroup.bind(this)
   }
   handleToGroup(evt){
     console.log(this.props.props.history)
     this.props.props.history.push('/admin')
   }
+
   render() {
     return (
       <div>
