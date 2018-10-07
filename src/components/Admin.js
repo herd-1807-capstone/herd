@@ -26,7 +26,7 @@ import LoadingState from './LoadingState'
 const style = theme => ({
     button: {
         margin: 3*theme.spacing.unit,
-        width: 135,
+        width: 80,
     },
     extendedIcon: {
         marginRight: theme.spacing.unit,
@@ -163,13 +163,13 @@ class Admin extends Component{
                     </CardActionArea>
 
                 <div>
-                    <Button variant="contained"
+                    <Button variant="extendedFab"
                             color="primary"
                             className={classes.button}
                             onClick={this.handleClickOpen}
                     >Delete</Button>
 
-                    <Button variant="contained"
+                    <Button variant="extendedFab"
                             color="primary"
                             className={classes.button}
                             component={Link}
