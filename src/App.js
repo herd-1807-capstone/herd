@@ -18,24 +18,13 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 class App extends Component {
-  constructor(props){
-    super(props)
-    this.state = {
-      isLoading: true,
-      isAuth: true,
-    }
-  }
   
   componentDidMount() {
-    // this.props.changeLoadingState()
     auth.onAuthStateChanged(async user => {
-      console.log("Component did mount in app")
       if (user) {
-        this.setState({...this.state, isLoading: true, isAuth: true})
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          // console.log(snapshot.val())
-          console.log("user is exist!")
+          console.log("user does exist!")
           const userRef = db.ref(`/users/${user.uid}`)
           if (!snapshot.exists()) {
             let newUser = {
@@ -52,7 +41,6 @@ class App extends Component {
             newUser = await db.ref(`/users/${user.uid}`).once('value');
             user = newUser.val();
           } else {
-            console.log('Update information');
             let theUser = {
               name: user.displayName,
               email: user.email,
@@ -67,70 +55,21 @@ class App extends Component {
             theUser.visible = snapshot.val().visible
             theUser.tour = snapshot.val().tour
             user = theUser
-
           }
-          
           this.props.setCurrentUser(user)
           userRef.onDisconnect().update({loggedIn: false});
-          
-          console.log("end of the line, local loadingstate is ", this.state.isLoading)
         } catch (error) {
           console.error(error);
         }
+      } else {
+        console.log("User does not exist")
+        this.props.history.push('/signin')
       }
     });
-    console.log("User does not exist")
-    this.setState({...this.state, isAuth: false})
   }
-  static getDerivedStateFromProps(props, state){
-    console.log("receive new props of state")
-    console.log(state)
-    console.log(props)
-    // console.log(props.currentUser !== null && props.currentUser.hasOwnProperty('uid'))
-    if(!state.isAuth && state.isLoading){
-      console.log("No user out there, stop loading")
-      return ({...state, isLoading: false})
-    } else if(state.isAuth && state.isLoading && props.currentUser !== null && props.currentUser.hasOwnProperty('uid')){
-      console.log("Receive current user! Stop loading")
-      return ({...state, isLoading: false})
-    } else {
-      return null
-    }
-  }
-  ComponentDidUpdate(prevProps, prevState){
-    console.log("Component did update")
-    const { isAuth, isLoading } = this.state
-    console.log("isAuth = ")
-    console.log(isAuth)
-    console.log("isLoading = ")
-    console.log(isLoading)
 
-    // if(!isAuth && isLoading){
-    //   console.log("no user login, stop loading, should go to login page")
-    //   this.setState({...this.state, isLoading: false})
-    // } else if (isAuth && isLoading && this.props.currentUser !== null && this.props.currentUser.hasOwnProperty('uid')){
-    //   console.log("Component did update, current user is ", this.props.currentUser)
-    //   console.log("Got current user, stop loading")
-    //   this.setState({...this.state, isLoading: false})
-    // } 
-  }
 
   render() {
-    // if(this.props.currentUser === null || !this.props.currentUser.hasOwnProperty('email')){
-    //   return (
-    //     // <Redirect to='/' />
-    //     <Route component={LoadingState} />
-    //   )
-    // }
-    console.log(this.state.isLoading)
-    console.log(this.props.currentUser)
-    if(this.state.isLoading){
-      console.log("Run loading state")
-      return (
-        <Route component={LoadingState} />
-        // <LoadingState />
-      )
-  }
     return (
       <div className="App">
 
@@ -145,7 +84,7 @@ class App extends Component {
               <Route path="/admin/group/create" component={CreateGroup} />
             </Switch>
           )}
-          <Route component={Login} />
+          {<Route component={LoadingState} />}
         </Switch>
       </div>
     );
