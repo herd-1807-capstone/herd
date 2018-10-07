@@ -75,6 +75,7 @@ class MenuBar extends React.Component {
       usersListWindow: false,
       spotsListWindow: false,
       showMsgModal: false,
+      showPSA: 'block', // block or none
     };
 
     this.handleLogout = this.handleLogout.bind(this);
@@ -82,24 +83,29 @@ class MenuBar extends React.Component {
     this.handleInfoSpot = this.handleInfoSpot.bind(this);
     this.handleRecenter = this.handleRecenter.bind(this);
     this.sendTourAnnouncement = this.sendTourAnnouncement.bind(this);
+    this.hidePSABar = this.hidePSABar.bind(this);
   }
+
   modalOpen = (type) => () =>{
     this.setState({
       [type]: true,
       mobileOpen: false
     })
   }
+
   handleListClose = (type) => () => {
     this.setState({
       [type]: false
     })
   }
+
   handleDrawerToggle = () => {
     this.setState(state => ({ mobileOpen: !state.mobileOpen }));
   };
 
   async handleLogout() {
     await firebase.auth().signOut();
+    await firebase.database().ref(`/users/${this.props.currentUser.uid}`).update({loggedIn: false});
     this.props.logout();
   }
 
@@ -130,12 +136,21 @@ class MenuBar extends React.Component {
       evt.preventDefault();
 
       const message = evt.target.message.value;
+      // before calling the send function, check if message is not empty.
+      if(message && message.length > 0){
+        this.props.sendTourAnnouncement(message);
+      }
 
-      this.props.sendTourAnnouncement(message);
       this.hideAnnouncementModal();
     } catch(err){
       console.log(err);
     }
+  }
+
+  hidePSABar(){
+    this.setState({
+      showPSA: 'none'
+    })
   }
 
   render() {
@@ -153,7 +168,7 @@ class MenuBar extends React.Component {
         </List>
         <Divider />
         <List>
-          {currentUser.hasOwnProperty('status') && currentUser.status === 'admin' 
+          {currentUser.hasOwnProperty('status') && currentUser.status === 'admin'
           ?
           <AdminListItems showAnnouncementModal={this.showAnnouncementModal} props={this.props} />
           :
@@ -176,7 +191,7 @@ class MenuBar extends React.Component {
               <MenuIcon />
             </IconButton>
             <Typography variant="title" color="inherit" noWrap>
-              Herd - Tour groups management
+              Herd - Tour Groups Management
             </Typography>
             <IconButton onClick ={this.handleRecenter}>
               <GpsFixed />
@@ -193,6 +208,12 @@ class MenuBar extends React.Component {
               </Button>
             ) : null}
           </Toolbar>
+          <Divider />
+          <div style={{backgroundColor: "#37BC9B", display: this.state.showPSA}}>
+              <img style={{width:"24px", height:"24px", paddingRight:'5px'}} src="info_outline.png" />
+            <span style={{verticalAlign:"top"}}>{`${this.props.announcement}`}</span>
+            <span style={{float:"right", paddingRight:'10px'}}><a href="#" style={{textDecoration:'none', color: 'white'}} onClick={this.hidePSABar}>x</a></span>
+          </div>
         </AppBar>
         <Hidden mdUp>
           <Drawer
@@ -236,17 +257,15 @@ class MenuBar extends React.Component {
           <form onSubmit={this.sendTourAnnouncement}>
             <div>
               <p id="modal-error" />
+              <label htmlFor="message">New PSA To Send:</label> <br />
+              <input placeholder="Type here..." type="text" className="psa-input" name="message" type="text" />
             </div>
-            <div>
-              <label htmlFor="message">Announcement To Send:</label>
-              <input name="message" type="text" />
-            </div>
-            <Button variant="outlined" color="primary" size="small" type="submit">Send
-            </Button>
-            <Button color="primary" variant="outlined" size="small" aria-label="Add" onClick={this.hideAnnouncementModal} type="button">Cancel</Button>
+            <br />
+              <Button variant="outlined" color="primary" size="small" type="submit">Send
+              </Button>
+              <Button color="primary" variant="outlined" size="small" aria-label="Add" onClick={this.hideAnnouncementModal} type="button">Cancel</Button>
           </form>
         </AnnouncementCreateModal>
-
       </div>
     );
   }
@@ -259,6 +278,7 @@ MenuBar.propTypes = {
 
 const mapState = state => ({
   currentUser: state.user.currentUser,
+  announcement: state.tour.announcement,
 });
 
 const mapDispatch = dispatch => ({

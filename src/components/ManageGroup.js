@@ -8,12 +8,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
-import Avatar from '@material-ui/core/Avatar';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import firebase from '../fire';
-import Admin from './Admin';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -51,11 +49,11 @@ function TabContainer(props) {
       </Typography>
     );
   }
-  
+
   TabContainer.propTypes = {
     children: PropTypes.node.isRequired,
   };
-  
+
 
 class ManageGroup extends React.Component {
 
@@ -71,7 +69,7 @@ constructor(props){
         cacheGroupys:[],
         cacheFreeBirds: [],
       }
-    
+
     this.handleSave = this.handleSave.bind(this)
     this.handleCancel = this.handleCancel.bind(this)
   }
@@ -87,20 +85,20 @@ constructor(props){
         if(groupys && groupys[0].hasOwnProperty('tour') && groupys.length !== 0 && groupys[0].tour === 'null'){
             groupys = []
         }
-    this.setState({...this.state, 
-                    groupys, 
-                    freeBirds, 
+    this.setState({...this.state,
+                    groupys,
+                    freeBirds,
                     access_token,
                     cacheGroupys: [...groupys],
                     cacheFreeBirds: [...freeBirds]
         })
     });
-    
+
     // let groupys = resGroupys.data
     // let freeBirds = resFreeBirds.data
-    // this.setState({...this.state, 
-    //                 groupys, 
-    //                 freeBirds, 
+    // this.setState({...this.state,
+    //                 groupys,
+    //                 freeBirds,
     //                 access_token,
     //                 cacheGroupys: [...groupys],
     //                 cacheFreeBirds: [...freeBirds]
@@ -165,15 +163,15 @@ constructor(props){
                 console.log(`Put the tour!!!${putTour}`)
             } else {
                 user.tour = 'null'
-                let putTour = await axios.delete(`${API_ROOT}/tours/${currentUser.tour}/users/${user.uid}?access_token=${access_token}`)
+                await axios.delete(`${API_ROOT}/tours/${currentUser.tour}/users/${user.uid}?access_token=${access_token}`)
             }
-            let putUser = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: user.tour})   
+            let putUser = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: user.tour})
             console.log("update user", putUser)
             console.log(currentUser.tour)
             console.log("Check!")
         }
         this.setState({...this.state, changedUser: []})
-        
+
     } catch (error) {
         console.error(error)
     }
@@ -192,8 +190,8 @@ constructor(props){
         user.tour = 'null'
         return user
     })
-    this.setState({...this.state, 
-                    groupys: oldGroupys, 
+    this.setState({...this.state,
+                    groupys: oldGroupys,
                     freeBirds: oldFreeBirds,
                     changedUser: [],
                 })
@@ -265,10 +263,10 @@ constructor(props){
         </Button>
         <Button variant="extendedFab" onClick={this.handleCancel} color="primary" className={classes.button} >
             Cancel
-        </Button> 
-        
+        </Button>
+
         </Paper>
-        
+
       </div>
     );
   }

@@ -1,14 +1,9 @@
 import React, { Component } from 'react';
 import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
-import Grid from '@material-ui/core/Grid';
 import firebase from './fire';
 import { connect } from 'react-redux';
-
-import logo from './logo.svg';
 import './App.css';
-import SignIn from './SignIn';
 import Login from './Login';
-import Map from './Map';
 import Error from './Error';
 import MenuBar from './components/MenuBar';
 import { setCurrentUser } from './store/index';
@@ -22,15 +17,6 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    // this.state = {
-    //   user: null,
-    //   isLoading: true,
-    // };
-  }
-
-
   componentDidMount() {
     // console.log("Change loading state")
     // this.props.changeLoadingState()
@@ -38,11 +24,11 @@ class App extends Component {
       if (user) {
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          // console.log('USER EXISTS IN DB???', snapshot)
-          
+
+          const userRef = db.ref(`/users/${user.uid}`)
+
+
           if (!snapshot.exists()) {
-            console.log("Snapshot does not exists!!")
-            // console.log(user)
             let newUser = {
               name: user.displayName,
               email: user.email,
@@ -51,9 +37,11 @@ class App extends Component {
               status: 'member',
               visible: true,
               tour: 'null',
+              loggedIn: true,
             };
             await db.ref(`/users/${user.uid}`).set(newUser);
-            user = newUser
+            newUser = await db.ref(`/users/${user.uid}`).once('value');
+            user = newUser.val();
           } else {
             console.log('CREATING USER THE FIRST TIME');
             let theUser = {
@@ -61,34 +49,29 @@ class App extends Component {
               email: user.email,
               phone: user.phoneNumber,
               imgUrl: user.photoURL,
+              loggedIn: true
             }
-
-            // console.log(snapshot.val().tour)
-
             await db.ref(`/users/${user.uid}`).update(theUser)
+
             theUser.uid = user.uid
             theUser.status = snapshot.val().status
             theUser.visible = snapshot.val().visible
             theUser.tour = snapshot.val().tour
             user = theUser
-          //   return firebase.database().ref().update(updates);
-          // }
+
           }
-          // console.log("You are authed!!")
-          // console.log(snapshot.val())
-          // this.setState({ user, isLoading: false });
-          // this.props.setCurrentUser(snapshot.val())
+
           this.props.setCurrentUser(user)
-          // console.log("change loading state AGAIN!")
-          // this.props.changeLoadingState();
+          userRef.onDisconnect().update({loggedIn: false});
         } catch (error) {
           console.error(error);
         }
       }
     });
+
   }
 
-  
+
 
   render() {
     if(this.props.currentUser === null || !this.props.currentUser.hasOwnProperty('email')){

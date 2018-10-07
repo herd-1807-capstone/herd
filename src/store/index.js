@@ -5,9 +5,11 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import user from '../reducers/user';
 import spots from '../reducers/spots';
 import chat from '../reducers/chat';
-import googlemap from '../reducers/googlemap'
+import tour from '../reducers/tour';
+import googlemap from '../reducers/googlemap';
 
 const reducer = combineReducers({
+  tour,
   user,
   spots,
   chat,
@@ -20,4 +22,4 @@ const store = createStore(reducer, composeWithDevTools(middleware));
 export default store
 export * from '../reducers/user'
 export * from '../reducers/spots'
-export * from '../reducers/announcement'
+export * from '../reducers/tour'
