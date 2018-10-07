@@ -26,6 +26,8 @@ import GpsFixed from '@material-ui/icons/GpsFixed';
 import PeopleIcon from '@material-ui/icons/People';
 import SpotsIcon from '@material-ui/icons/Place';
 
+
+
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -162,6 +164,7 @@ class MenuBar extends React.Component {
         <Divider />
         <List>
           <UserListItems
+            menuToggle = {this.modalOpen}
             handleChatStart={this.handleChatStart}
             handleInfoSpot={this.handleInfoSpot}
           />

@@ -52,7 +52,7 @@ class ListWindow extends React.Component {
       handleClose(type);
       const {lat, lng} = selected;
       map.panTo({lat, lng});
-      window.infoWindow.setContent(selected && selected.name || selected.uid);
+      window.infoWindow.setContent(selected && (selected.name || selected.uid));
       window.infoWindow.setPosition({lat, lng})
       window.infoWindow.open(map)
     }

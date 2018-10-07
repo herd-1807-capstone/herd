@@ -174,6 +174,7 @@ class BottomSheet extends React.Component {
                     <DialogTitle id="form-dialog-title">Edit a spot</DialogTitle>
                     <DialogContent>
                       <TextField
+                        required = {true}
                         autoFocus
                         margin="dense"
                         label="Name"
@@ -183,6 +184,7 @@ class BottomSheet extends React.Component {
                         onChange={this.handleChange}
                       />
                       <TextField
+                        required = {true}
                         autoFocus
                         margin="dense"
                         label="Description"
@@ -192,6 +194,7 @@ class BottomSheet extends React.Component {
                         onChange = {this.handleChange}
                       />
                       <TextField
+                        type = 'url'
                         autoFocus
                         margin="dense"
                         label="Image url"

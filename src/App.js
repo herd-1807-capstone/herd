@@ -74,12 +74,12 @@ class App extends Component {
 
 
   render() {
-    if(this.props.currentUser === null || !this.props.currentUser.hasOwnProperty('email')){
-      return (
-        // <Redirect to='/' />
-        <Route component={LoadingState} />
-      )
-    }
+    // if(this.props.currentUser === null || !this.props.currentUser.hasOwnProperty('email')){
+    //   return (
+    //     // <Redirect to='/' />
+    //     <Route component={LoadingState} />
+    //   )
+    // }
     // if(this.props.isLoading){
     //   return (
     //       <div className='loadingParent'>
