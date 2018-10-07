@@ -1,6 +1,6 @@
 import firebase from '../fire';
-const db = firebase.database();
 import axios from 'axios';
+const db = firebase.database();
 
 // Actions
 const GET_CONVERSATION = 'GET_CONVERSATION';
