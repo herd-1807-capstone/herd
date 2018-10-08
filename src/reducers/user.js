@@ -1,4 +1,6 @@
 import firebase from '../fire';
+import {API_ROOT} from '../api-config';
+import axios from 'axios'
 const db = firebase.database();
 
 // INITIAL STATE
@@ -76,11 +78,25 @@ export const getAllUsers = () => (dispatch, getState) => {
           }
         );
     }
-
-
 }
 
+export const addTourToUser = tourId => async (dispatch, getState) => {
+  try{
+    const loggedInUser = getState().user.currentUser;
+    loggedInUser.tour = tourId;
 
+    let idToken = await firebase.auth().currentUser.getIdToken();
+    // update the logged-in user's tourId to the selected tourId
+    await axios.put(`${API_ROOT}/users/${loggedInUser.uid}?access_token=${idToken}`, loggedInUser);
+
+    idToken = await firebase.auth().currentUser.getIdToken();
+    // get the updated user instance and set as a current user.
+    const {data} = await axios.get(`${API_ROOT}/users/${loggedInUser.uid}?access_token=${idToken}`);
+    dispatch(setCurrentUser(data));
+  }catch(err){
+    console.log(err);
+  }
+}
 
 // REDUCER
 export default (state = defaultUser, action) => {

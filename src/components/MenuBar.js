@@ -229,11 +229,16 @@ class MenuBar extends React.Component {
             ) : null}
           </Toolbar>
           <Divider />
-          <div style={{backgroundColor: "#37BC9B", display: this.state.showPSA}}>
-              <img style={{width:"24px", height:"24px", paddingRight:'5px'}} src="info_outline.png" />
-            <span style={{verticalAlign:"top"}}>{`${this.props.announcement}`}</span>
-            <span style={{float:"right", paddingRight:'10px'}}><a href="#" style={{textDecoration:'none', color: 'white'}} onClick={this.hidePSABar}>x</a></span>
-          </div>
+          {
+            this.props.announcement?
+            <div style={{backgroundColor: "#37BC9B", display: this.state.showPSA}}>
+                <img style={{width:"24px", height:"24px", paddingRight:'5px'}} src="info_outline.png" />
+              <span style={{verticalAlign:"top"}}>{`${this.props.announcement}`}</span>
+              <span style={{float:"right", paddingRight:'10px'}}><a href="#" style={{textDecoration:'none', color: 'white'}} onClick={this.hidePSABar}>x</a></span>
+            </div>
+            :
+            null
+          }
         </AppBar>
         <Hidden mdUp>
           <Drawer
