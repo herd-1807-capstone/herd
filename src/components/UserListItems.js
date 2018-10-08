@@ -44,6 +44,12 @@ const UserListItems = props => {
         </ListItemIcon>
         <ListItemText primary="Start a Chat" />
       </ListItem>
+      <ListItem button onClick={props.handleInvite}>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
+        <ListItemText primary="Invite Friends" />
+      </ListItem>
     </div>
   );
 };

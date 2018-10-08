@@ -25,6 +25,8 @@ import { setCurrentUser, sendTourAnnouncement } from '../store/index';
 import GpsFixed from '@material-ui/icons/GpsFixed';
 import PeopleIcon from '@material-ui/icons/People';
 import SpotsIcon from '@material-ui/icons/Place';
+import axios from 'axios';
+import {API_ROOT} from '../api-config';
 
 const drawerWidth = 240;
 
@@ -84,6 +86,7 @@ class MenuBar extends React.Component {
     this.handleRecenter = this.handleRecenter.bind(this);
     this.sendTourAnnouncement = this.sendTourAnnouncement.bind(this);
     this.hidePSABar = this.hidePSABar.bind(this);
+    this.handleInvite = this.handleInvite.bind(this)
   }
 
   modalOpen = (type) => () =>{
@@ -121,6 +124,13 @@ class MenuBar extends React.Component {
     this.setState({recenter: true}, ()=>{
       this.setState({recenter: false})
     })
+  }
+
+  async handleInvite(evt){
+    let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
+
+    const result = await axios.post(`${API_ROOT}/tours/${"-LO9qp_CJeEownSICbbp"}/users/${"NCNNuK1w"}?access_token=${access_token}`)
+    console.log(result)
   }
 
   showAnnouncementModal = () => {
@@ -164,6 +174,7 @@ class MenuBar extends React.Component {
           <UserListItems
             handleChatStart={this.handleChatStart}
             handleInfoSpot={this.handleInfoSpot}
+            handleInvite={this.handleInvite}
           />
         </List>
         <Divider />
