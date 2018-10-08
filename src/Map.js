@@ -17,10 +17,10 @@ import {setGoogleMap} from './reducers/googlemap';
 const db = firebase.database();
 
 
-const options = {
+const createOptions = () => ({
   mapTypeControl: true,
   streetViewControl: true,
-}
+})
 
 class SimpleMap extends Component {
   static defaultProps = {
@@ -37,6 +37,7 @@ class SimpleMap extends Component {
         lat: 28.4177,
         lng: -81.5812,
         accuracy: 0,
+        lastSeen: null
       },
 
       // zoom: 18,
@@ -58,14 +59,14 @@ class SimpleMap extends Component {
     this.onApiLoaded = this.onApiLoaded.bind(this);
     this.handleClose = this.handleClose.bind(this);
   }
-  async writeCurrentPosition(lat, lng) {
+  async writeCurrentPosition(lat, lng, lastSeen) {
     const tourId = this.props.currentUser.tour;
     const userId = this.props.currentUser.uid;
     try {
       const idToken = await firebase.auth().currentUser.getIdToken();
       await axios.put(
         `${API_ROOT}/tours/${tourId}/users/${userId}?access_token=${idToken}`,
-        { lat, lng }
+        { lat, lng, lastSeen}
       );
     } catch (error) {
       console.error(error);
@@ -81,11 +82,13 @@ class SimpleMap extends Component {
   }
   setCoords(position) {
     const {coords} = position;
+    console.log('POSITION OBJ', position);
     this.setState({
       currentPosition: {
         lat: coords.latitude,
         lng: coords.longitude,
-        accuracy: coords.accuracy
+        accuracy: coords.accuracy,
+        lastSeen: position.timestamp
       },
     });
     if (this.circle){
@@ -93,16 +96,18 @@ class SimpleMap extends Component {
     }
   }
   componentDidUpdate(prevProps, prevState) {
+
     let changedLat =
       prevState.currentPosition.lat !== this.state.currentPosition.lat;
     let changedLng =
       prevState.currentPosition.lng !== this.state.currentPosition.lng;
-    if (changedLat || changedLng) {
+    let freshLocationData = prevState.currentPosition.lastSeen !== this.state.currentPosition.lastSeen;
+    if (changedLat || changedLng || freshLocationData) {
       this.writeCurrentPosition(
         this.state.currentPosition.lat,
-        this.state.currentPosition.lng
+        this.state.currentPosition.lng,
+        this.state.currentPosition.lastSeen
       );
-
     }
     if (prevProps.recenter !== this.props.recenter){
       if (this.props.recenter){
@@ -167,19 +172,36 @@ class SimpleMap extends Component {
     this.watchCurrentPosition();
     this.loadAfterAuthUser();
   }
+  writeLocationHistory = (currentUser) => {
+    const tourId = currentUser.tour;
+    //check user is admin;
+    if (!tourId) return;
 
+    const tourRef = db.ref(`/tours/${tourId}`);
+    //TODO: check that now is between start and end of a tour
+      //then start interval
+    //if now is > end then clearInterval;
+    this.locationHistoryId = setInterval(()=>{
+      //read users location data
+      //check if recent, ie within the interval period
+        //push filtered array of recent latlng data to history field
+      tourRef.child('history').push({lat: 40.70486197359711, lng: -74.00897573876519});
+    }, 3000)
+
+  }
   loadAfterAuthUser(){
     firebase.auth().onAuthStateChanged(async user => {
       if (user) {
-        // User is signed in.
+        // User is authenticated via firebase
         try {
           //get user's profile
-          // await db.ref(`/users/${user.uid}`).onDisconnect().update({loggedIn: false});
+
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
           let userInfo = snapshot.val();
           this.props.setCurrentUser(userInfo);
           this.props.getSpots();
           this.props.getUsers();
+          // this.writeLocationHistory(userInfo);
         } catch (error) {
           console.error(error);
         }
@@ -201,11 +223,28 @@ class SimpleMap extends Component {
     if ('geolocation' in navigator){
       navigator.geolocation.clearWatch(this.geoWatchId);
     }
+    clearInterval(this.locationHistoryId);
+    clearInterval(this.locationHistoryId);
+
   }
   onApiLoaded({map, maps}){
     this.props.setMap(map, maps);
     this.renderAccuracyCircle(map, maps);
-    window.infoWindow = new this.props.maps.InfoWindow();
+
+    // const latLngData = this.props.heatmapData.map(coord => new maps.LatLng(coord.lat, coord.lng))
+
+    // console.log(new maps.InfoWindow());
+    window.infoWindow = new maps.InfoWindow();
+
+    // let heatmap = new maps.visualization.HeatmapLayer({
+    //   data: this.props.heatmapData.map(point => new maps.LatLng(point.lat, point.lng))
+
+    //   // .map(point => ({
+    //   //   location: new maps.LatLng(point.lat, point.lng),
+    //   //   weight: 1
+    //   // }))
+    // })
+    // heatmap.setMap(map);
   }
   renderAccuracyCircle(map, maps){
     const {lat, lng, accuracy } = this.state.currentPosition
@@ -266,7 +305,8 @@ class SimpleMap extends Component {
     });
   }
   render() {
-    const {usersListWindow, spotsListWindow, handleListClose} = this.props;
+    const {usersListWindow, spotsListWindow, handleListClose, heatmapData} = this.props;
+    // console.log('HEAT MAP DATA!!!!', heatmapData);
     return (
       // Important! Always set the container height explicitly
         <Fragment>
@@ -276,11 +316,13 @@ class SimpleMap extends Component {
               defaultCenter={this.props.center}
               defaultZoom={this.props.zoom}
               center={this.state.center}
-              options ={options}
+              options ={createOptions}
               onClick = {this.onMapClick}
               onChildClick={this.onMarkerClick}
               onGoogleApiLoaded={this.onApiLoaded}
               yesIWantToUseGoogleMapApiInternals = {true}
+              heatmapLibrary = {true}
+              // heatmap = {{data: heatmapData}}
               >
                 <GeolocationMarker
                   key = 'geolocationMarker'
@@ -296,9 +338,7 @@ class SimpleMap extends Component {
           <Modal
             key='add-marker-window'
             open={this.state.addMarkerWindow}
-            // onBackdropClick={this.handleClose}
             onClose={this.handleClose('addMarkerWindow')}
-            // style={{alignItems:'center',justifyContent:'center'}}
             >
             <AddMarkerForm
             handleClose= {this.handleClose}
@@ -338,7 +378,8 @@ const mapState = ({user, spots, googlemap})=>({
   currentUser: user.currentUser,
   selected: spots.selected,
   map: googlemap.map,
-  maps: googlemap.maps
+  maps: googlemap.maps,
+  heatmapData: user.list.filter(user=>user.lat && user.lng).map(user=>({lat:user.lat, lng:user.lng}))
 })
 
 const mapDispatch = (dispatch) => ({
