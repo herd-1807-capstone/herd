@@ -18,7 +18,7 @@ const auth = firebase.auth();
 const db = firebase.database();
 
 class App extends Component {
-  
+
   componentDidMount() {
     auth.onAuthStateChanged(async user => {
       if (user) {

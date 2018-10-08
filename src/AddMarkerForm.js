@@ -111,6 +111,7 @@ class AddMarkerForm extends React.Component {
                 label = 'Description'
                 multiline = {true}/>
                 <TextField
+                  type = 'url'
                   className={classes.items}
                   label="Image url"
                   name = "imgUrl"

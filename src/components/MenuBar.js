@@ -28,6 +28,8 @@ import SpotsIcon from '@material-ui/icons/Place';
 import axios from 'axios';
 import {API_ROOT} from '../api-config';
 
+
+
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -78,6 +80,7 @@ class MenuBar extends React.Component {
       spotsListWindow: false,
       showMsgModal: false,
       showPSA: 'block', // block or none
+      announcementResult: '',
     };
 
     this.handleLogout = this.handleLogout.bind(this);
@@ -129,29 +132,45 @@ class MenuBar extends React.Component {
   async handleInvite(evt){
     let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
 
-    const result = await axios.post(`${API_ROOT}/tours/${"-LO9qp_CJeEownSICbbp"}/users/${"NCNNuK1w"}?access_token=${access_token}`)
+    const result = await axios.post(`${API_ROOT}/tours/${"-LO9qp_CJeEownSICbbp"}/invitations/${"NCNNuK1w"}?access_token=${access_token}`)
     console.log(result)
   }
 
   showAnnouncementModal = () => {
-    this.setState({showMsgModal: true, mobileOpen: false});
+    this.setState({showMsgModal: true});
   }
 
   hideAnnouncementModal = () => {
     this.setState({showMsgModal: false});
   }
 
-  sendTourAnnouncement(evt){
+  async sendTourAnnouncement(evt){
     try{
+      const form = evt.target;
       evt.preventDefault();
 
       const message = evt.target.message.value;
       // before calling the send function, check if message is not empty.
+      let messageSent = true;
       if(message && message.length > 0){
-        this.props.sendTourAnnouncement(message);
+        messageSent = await this.props.sendTourAnnouncement(message);
       }
 
-      this.hideAnnouncementModal();
+      if(messageSent){
+        form.message.value = '';
+        this.setState({
+          announcementResult: 'The announcement message has been sent successfully.',
+          showMsgModal:true,
+        })
+        setTimeout(this.hideAnnouncementModal, 2000);
+      }else{
+        // add an error message to the announcement submit modal
+        const errorMsg = `Something went wrong. Please try again.`;
+        this.setState({
+          announcementResult: errorMsg,
+          showMsgModal:true,
+        })
+      }
     } catch(err){
       console.log(err);
     }
@@ -172,6 +191,7 @@ class MenuBar extends React.Component {
         <Divider />
         <List>
           <UserListItems
+            menuToggle = {this.modalOpen}
             handleChatStart={this.handleChatStart}
             handleInfoSpot={this.handleInfoSpot}
             handleInvite={this.handleInvite}
@@ -267,7 +287,6 @@ class MenuBar extends React.Component {
         <AnnouncementCreateModal show={this.state.showMsgModal} handleClose={this.hideAnnouncementModal}>
           <form onSubmit={this.sendTourAnnouncement}>
             <div>
-              <p id="modal-error" />
               <label htmlFor="message">New PSA To Send:</label> <br />
               <input placeholder="Type here..." type="text" className="psa-input" name="message" type="text" />
             </div>
@@ -275,6 +294,8 @@ class MenuBar extends React.Component {
               <Button variant="outlined" color="primary" size="small" type="submit">Send
               </Button>
               <Button color="primary" variant="outlined" size="small" aria-label="Add" onClick={this.hideAnnouncementModal} type="button">Cancel</Button>
+
+              <p id="modal-msg">{this.state.announcementResult}</p>
           </form>
         </AnnouncementCreateModal>
       </div>
@@ -289,12 +310,12 @@ MenuBar.propTypes = {
 
 const mapState = state => ({
   currentUser: state.user.currentUser,
-  announcement: state.tour.announcement,
+  announcement: state.tour.announcement
 });
 
 const mapDispatch = dispatch => ({
   logout: () => dispatch(setCurrentUser({})),
-  sendTourAnnouncement: (message, tourId) => dispatch(sendTourAnnouncement(message)),
+  sendTourAnnouncement: (message) => dispatch(sendTourAnnouncement(message)),
 });
 
 export default withStyles(styles, { withTheme: true })(

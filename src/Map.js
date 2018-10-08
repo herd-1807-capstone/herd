@@ -39,7 +39,7 @@ class SimpleMap extends Component {
         accuracy: 0,
       },
 
-      zoom: 18,
+      // zoom: 18,
       center: {
         lat: 28.4177,
         lng: -81.5812,
@@ -223,7 +223,6 @@ class SimpleMap extends Component {
     const {lat, lng, accuracy } = this.state.currentPosition
     this.circle.setCenter({lat, lng})
     this.circle.setRadius(accuracy);
-    console.log('ACCURACY!!!!!', accuracy);
   }
   renderSpots() {
     let spots = this.props.spots;
