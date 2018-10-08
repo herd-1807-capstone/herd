@@ -147,7 +147,7 @@ class MenuBar extends React.Component {
       if(messageSent){
         form.message.value = '';
         this.setState({
-          announcementResult: 'The Announcement Message has been sent successfully.',
+          announcementResult: 'The announcement message has been sent successfully.',
           showMsgModal:true,
         })
         setTimeout(this.hideAnnouncementModal, 2000);
