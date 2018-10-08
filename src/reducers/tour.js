@@ -20,7 +20,7 @@ export const setAnnouncement = announcement => (
 )
 
 // thunks
-export const sendTourAnnouncement = (announcement, tourId) => async (dispatch, getState) => {
+export const sendTourAnnouncement = (announcement) => async (dispatch, getState) => {
   try{
     const idToken = await firebase.auth().currentUser.getIdToken();
     // add an announcement to a tour(tourId) by finding a current tour of this logged-in user i.e., admin
@@ -29,15 +29,17 @@ export const sendTourAnnouncement = (announcement, tourId) => async (dispatch, g
     // only an admin of a tour is allowed to send out an announcement message.
     if(loggedInUser.status !== 'admin'){
       console.log("Not allowed to create an announcement message");
-      return;
+      return false;
     }
 
     const tourId = loggedInUser.tour;
     await axios.put(`${API_ROOT}/tours/${tourId}?access_token=${idToken}`, {announcement});
 
     dispatch(setAnnouncement(announcement))
+    return true;
   }catch(err){
-    console.log("Unable to get permission to notify.", err);
+    console.log("error occurred while sending out a psa", err);
+    return false;
   }
 };
 

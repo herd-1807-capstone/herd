@@ -12,22 +12,20 @@ import CreateGroup from './components/CreateGroup';
 import ManageGroup from './components/ManageGroup';
 import LoadingState from './components/LoadingState'
 import { changeLoadingState } from './reducers/user';
+import { isatty } from 'tty';
 
 const auth = firebase.auth();
 const db = firebase.database();
 
 class App extends Component {
+
   componentDidMount() {
-    // console.log("Change loading state")
-    // this.props.changeLoadingState()
     auth.onAuthStateChanged(async user => {
       if (user) {
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-
+          console.log("user does exist!")
           const userRef = db.ref(`/users/${user.uid}`)
-
-
           if (!snapshot.exists()) {
             let newUser = {
               name: user.displayName,
@@ -43,7 +41,6 @@ class App extends Component {
             newUser = await db.ref(`/users/${user.uid}`).once('value');
             user = newUser.val();
           } else {
-            console.log('CREATING USER THE FIRST TIME');
             let theUser = {
               name: user.displayName,
               email: user.email,
@@ -58,35 +55,21 @@ class App extends Component {
             theUser.visible = snapshot.val().visible
             theUser.tour = snapshot.val().tour
             user = theUser
-
           }
-
           this.props.setCurrentUser(user)
           userRef.onDisconnect().update({loggedIn: false});
         } catch (error) {
           console.error(error);
         }
+      } else {
+        console.log("User does not exist")
+        this.props.history.push('/signin')
       }
     });
-
   }
 
 
-
   render() {
-    if(this.props.currentUser === null || !this.props.currentUser.hasOwnProperty('email')){
-      return (
-        // <Redirect to='/' />
-        <Route component={LoadingState} />
-      )
-    }
-    // if(this.props.isLoading){
-    //   return (
-    //       <div className='loadingParent'>
-    //           <LoadingState className='loadingState' />
-    //       </div>
-    //   )
-  // }
     return (
       <div className="App">
 
@@ -101,7 +84,7 @@ class App extends Component {
               <Route path="/admin/group/create" component={CreateGroup} />
             </Switch>
           )}
-          <Route component={Login} />
+          {<Route component={LoadingState} />}
         </Switch>
       </div>
     );

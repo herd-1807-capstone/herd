@@ -39,7 +39,7 @@ class SimpleMap extends Component {
         accuracy: 0,
       },
 
-      zoom: 18,
+      // zoom: 18,
       center: {
         lat: 28.4177,
         lng: -81.5812,
@@ -140,11 +140,11 @@ class SimpleMap extends Component {
     const key = evt[0];
     const coords = evt[1];
     let marker = findSelectedMarker(key, this.props.spots, this.props.users);
-    this.infoWindow.setContent((marker && marker.name) || key);
-    this.infoWindow.setPosition(coords)
+    window.infoWindow.setContent((marker && marker.name) || key);
+    window.infoWindow.setPosition(coords)
     this.props.selectSpot(marker);
     this.props.map.panTo(coords);
-    this.infoWindow.open(this.props.map);
+    window.infoWindow.open(this.props.map);
   }
   centerToPosition(lat, lng) {
     this.setState(
@@ -205,7 +205,7 @@ class SimpleMap extends Component {
   onApiLoaded({map, maps}){
     this.props.setMap(map, maps);
     this.renderAccuracyCircle(map, maps);
-    this.infoWindow = new this.props.maps.InfoWindow();
+    window.infoWindow = new this.props.maps.InfoWindow();
   }
   renderAccuracyCircle(map, maps){
     const {lat, lng, accuracy } = this.state.currentPosition

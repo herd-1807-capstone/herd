@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
-import {addSpotThunk} from './reducers/spots'
+import {addSpotThunk, setSelected} from './reducers/spots'
 import { connect } from 'react-redux'
 
 function getModalStyle() {
@@ -51,6 +51,7 @@ class AddMarkerForm extends React.Component {
     this.state = {
       name:'',
       description:'',
+      imgUrl: '',
       success:false
     }
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -65,15 +66,19 @@ class AddMarkerForm extends React.Component {
     evt.preventDefault();
 
     const {lat, lng} = this.props;
-    const {name, description} = this.state;
+    const {name, description, imgUrl} = this.state;
     const spot = {
       name,
       description,
+      imgUrl,
       lat,
       lng
     }
     let res = await this.props.saveSpot(spot);
-    if (res) this.setState({success:true})
+    if (res) {
+      this.setState({success:true});
+      this.props.reselect(spot);
+    }
   }
   render() {
     const { classes, handleClose } = this.props;
@@ -105,6 +110,14 @@ class AddMarkerForm extends React.Component {
                 name = 'description'
                 label = 'Description'
                 multiline = {true}/>
+                <TextField
+                  type = 'url'
+                  className={classes.items}
+                  label="Image url"
+                  name = "imgUrl"
+                  value={this.state.imgurl}
+                  onChange = {this.handleChange}
+                />
               <div className = {classes.buttons}>
                 <Button
                 className = {classes.buttonItems}
@@ -136,7 +149,10 @@ AddMarkerForm.propTypes = {
 
 const mapDispatch = dispatch => ({
   saveSpot(spot){
-    dispatch(addSpotThunk(spot));
+    return dispatch(addSpotThunk(spot));
+  },
+  reselect(spot){
+    dispatch(setSelected(spot))
   }
 })
 

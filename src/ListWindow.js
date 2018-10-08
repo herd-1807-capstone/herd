@@ -46,12 +46,15 @@ const styles = theme => ({
 class ListWindow extends React.Component {
 
   panToSelected = (selected, type) => () => {
-    const {handleClose, setSelected, maps} = this.props
+    const {handleClose, setSelected, map} = this.props
     setSelected(selected);
     if (selected.lat && selected.lng ){
-      handleClose(type);
+      handleClose(type)();
       const {lat, lng} = selected;
-      maps.panTo({lat, lng});
+      map.panTo({lat, lng});
+      window.infoWindow.setContent(selected && (selected.name || selected.uid));
+      window.infoWindow.setPosition({lat, lng})
+      window.infoWindow.open(map)
     }
   }
   render() {
@@ -109,13 +112,13 @@ ListWindow.propTypes = {
 const mapStateUsers = ({user, googlemap}) => ({
   list: user.list,
   type:'usersListWindow',
-  maps: googlemap.map
+  map: googlemap.map,
 })
 
 const mapStateSpots = ({spots, googlemap}) => ({
   list: spots.list,
   type:'spotsListWindow',
-  maps: googlemap.map
+  map: googlemap.map
 })
 
 const mapDispatch = dispatch => ({
