@@ -1,5 +1,6 @@
 import firebase from '../fire';
 import axios from 'axios';
+import { API_ROOT } from '../api-config';
 const db = firebase.database();
 
 // Actions
@@ -13,10 +14,9 @@ export const setConversation = conversation => ({
   conversation,
 });
 
-export const addMessage = (toId, text) => ({
+export const addMessage = newMessage => ({
   type: ADD_MESSAGE,
-  toId,
-  text,
+  newMessage,
 });
 
 // Thunk creators
@@ -41,7 +41,7 @@ export const getConversation = toId => async (dispatch, getState) => {
     const fromId = getState().user.currentUser.uid;
     const tourId = getState().user.currentUser.tour || 'disney_tour'; //fallback value
 
-    const snapshot = await db.ref(`/tours/${tourId}/messages/`).once('value');
+    const snapshot = await db.ref(`/tours/${tourId}/messages/`).on('value');
 
     const toUser = await db.ref(`/users/${toId}`).once('value');
     const toName = toUser.val().name;
@@ -62,9 +62,29 @@ export const getConversation = toId => async (dispatch, getState) => {
   }
 };
 
+const addNewMessage = (userId, text) => async (dispatch, getState) => {
+  const fromId = getState().user.currentUser.uid;
+  const tourId = getState().user.currentUser.tour || 'disney_tour'; //fallback value
+  const idToken = await firebase.auth().currentUser.getIdToken();
+  try {
+    await axios.post(
+      `${API_ROOT}/tours/${tourId}/${userId}?access_token=${idToken}`,
+      text,
+      tourId
+    );
+    const newMessage = { text, toId: userId, fomId, tourId };
+    dispatch(addmessage(newMessage));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 // Reducer for Chat
 
-const initialState = { conversation: [] };
+const initialState = {
+  conversation: [],
+  newMessage: {},
+};
 
 export default (state = initialState, action) => {
   switch (action.type) {
@@ -72,7 +92,7 @@ export default (state = initialState, action) => {
       return { conversation: action.conversation };
 
     case ADD_MESSAGE:
-      return;
+      return { ...state, newMessage: action.newMessage };
 
     default:
       return state;

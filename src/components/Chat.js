@@ -28,7 +28,7 @@ const styles = theme => ({
 });
 
 class Chat extends Component {
-  state = { value: '', selectedUid: '', open: false };
+  state = { value: '', selectedUid: '', text: '', open: false };
 
   handleClickOpen = () => {
     this.setState({ open: true });
@@ -39,6 +39,14 @@ class Chat extends Component {
     );
     console.log('props after conversation', this.props);
   };
+
+  handleChange = event => {
+    this.setState({
+      text: event.target.value,
+    });
+  };
+
+  handleClick = () => {};
 
   render() {
     const { classes } = this.props;
@@ -58,10 +66,7 @@ class Chat extends Component {
           value={this.state.value}
         />
         <ChatView conversation={this.props.conversation} />
-        <ChatForm
-          receiver={this.state.value}
-          receiverId={this.state.selectedUid}
-        />
+        <ChatForm selectedName={this.state.value} />
       </div>
     );
   }
