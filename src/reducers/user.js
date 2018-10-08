@@ -7,21 +7,35 @@ const defaultUser = {
     isLoading: false,
     list:[],
     selectedUser:{},
+    historicalData: null
 }
 
 // ACTION TYPES
-const SET_CURRENT_USER = 'SET_CURRENT_USER'
-const CHANGE_LOADING_STATE = 'CHANGE_LOADING_STATE'
-const SET_ALL_USERS = 'SET_ALL_USERS'
-const SET_SELECTED_USER = 'SET_SELECTED_USER'
+const SET_CURRENT_USER = 'SET_CURRENT_USER';
+const CHANGE_LOADING_STATE = 'CHANGE_LOADING_STATE';
+const SET_ALL_USERS = 'SET_ALL_USERS';
+const SET_SELECTED_USER = 'SET_SELECTED_USER';
+const SET_HISTORICAL_DATA = 'SET_HISTORICAL_DATA';
+
 
 // ACTION CREATORS
 export const setCurrentUser = user => ({type: SET_CURRENT_USER, user})
 export const changeLoadingState = () => ({type: CHANGE_LOADING_STATE})
-const setAllUsers = users => ({type: SET_ALL_USERS, users})
+export const setAllUsers = users => ({type: SET_ALL_USERS, users})
 export const setSelectedUser = user => ({type: SET_SELECTED_USER, user})
-
+export const setHistoricalData = data => ({type: SET_HISTORICAL_DATA, data});
 // THUNK CREATORS
+export const getHistoricalData = () => async(dispatch, getState) => {
+  try {
+    const tourId = getState().user.currentUser.tour;
+    const snap = await db.ref(`/tours/${tourId}/history`).once('value');
+    const data = snap.val();
+    dispatch(setHistoricalData(data));
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export const getAllUsers = () => (dispatch, getState) => {
     const loggedInUser = getState().user.currentUser;
 
@@ -94,6 +108,8 @@ export default (state = defaultUser, action) => {
           return {...state, list: action.users}
       case SET_SELECTED_USER:
           return {...state, selectedUser: action.user}
+      case SET_HISTORICAL_DATA:
+          return {...state, historicalData: action.data}
       default:
           return state
   }
