@@ -51,6 +51,10 @@ class PostLogin extends Component{
   constructor(props){
     super(props);
 
+    this.state = {
+      tours: []
+    }
+
     this.handleLogout = this.handleLogout.bind(this);
     this.addTourToUser = this.addTourToUser.bind(this);
   }
@@ -74,13 +78,16 @@ class PostLogin extends Component{
   async componentDidMount(){
     try{
       await this.props.fetchAllTours();
+      this.setState({
+        tours: this.props.tours
+      })
     }catch(err){
       console.log(err);
     }
   }
 
   render(){
-    const { classes, theme, currentUser } = this.props;
+    const { classes } = this.props;
     return (
       <div className={classes.root}>
         <AppBar className={classes.appBar}>
@@ -95,10 +102,10 @@ class PostLogin extends Component{
         </AppBar>
         <div className={classes.tourDisplay}>
         {
-          this.props.tours ?
+          (this.state.tours.length === 0)?
           null
           :
-          (this.props.tours.map(tour =>
+          (this.state.tours.map(tour =>
             <Card className={classes.card} key={tour.id} onClick={() => this.addTourToUser(tour.id)}>
               <CardActionArea component={Link} to='#'>
                 <CardMedia
