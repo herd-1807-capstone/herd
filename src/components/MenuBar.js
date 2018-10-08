@@ -21,7 +21,7 @@ import Map from '../Map';
 import Chat from './Chat';
 import BottomSheet from '../BottomSheet';
 import AnnouncementCreateModal from './AnnouncementCreateModal';
-import { setCurrentUser, sendTourAnnouncement } from '../store/index';
+import { setCurrentUser, sendTourAnnouncement, fetchUserTour } from '../store/index';
 import GpsFixed from '@material-ui/icons/GpsFixed';
 import PeopleIcon from '@material-ui/icons/People';
 import SpotsIcon from '@material-ui/icons/Place';
@@ -172,6 +172,14 @@ class MenuBar extends React.Component {
     })
   }
 
+  async componentDidMount(){
+    try{
+      await this.props.getCurrentTour();
+    }catch(err){
+      console.log(err);
+    }
+  }
+
   render() {
     const { classes, theme, currentUser } = this.props;
 
@@ -211,7 +219,7 @@ class MenuBar extends React.Component {
               <MenuIcon />
             </IconButton>
             <Typography variant="title" color="inherit" noWrap>
-              Herd - Tour Groups Management
+              Herd - { this.props.tour ? this.props.tour.name: null }
             </Typography>
             <IconButton onClick ={this.handleRecenter}>
               <GpsFixed />
@@ -302,14 +310,18 @@ MenuBar.propTypes = {
   theme: PropTypes.object.isRequired,
 };
 
-const mapState = state => ({
-  currentUser: state.user.currentUser,
-  announcement: state.tour.announcement
-});
+const mapState = state => {
+  return {
+    currentUser: state.user.currentUser,
+    announcement: state.tour.announcement,
+    tour: state.tour.tour,
+  };
+}
 
 const mapDispatch = dispatch => ({
   logout: () => dispatch(setCurrentUser({})),
   sendTourAnnouncement: (message) => dispatch(sendTourAnnouncement(message)),
+  getCurrentTour: () => dispatch(fetchUserTour()),
 });
 
 export default withStyles(styles, { withTheme: true })(

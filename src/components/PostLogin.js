@@ -95,7 +95,7 @@ class PostLogin extends Component{
         </AppBar>
         <div className={classes.tourDisplay}>
         {
-          !this.props.tours ?
+          this.props.tours ?
           null
           :
           (this.props.tours.map(tour =>

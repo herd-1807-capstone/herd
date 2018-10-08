@@ -12,6 +12,7 @@ const defaultTour = {
 // action types
 const SET_ANNOUNCEMENT = "SET_ANNOUNCEMENT"
 const GET_ALL_TOURS = 'GET_ALL_TOURS'
+const GET_CURRENT_TOUR = 'GET_CURRENT_TOUR'
 
 // action creators
 export const setAnnouncement = announcement => (
@@ -25,6 +26,13 @@ export const getAllTours = tours => ({
   type: GET_ALL_TOURS,
   tours
 })
+
+export const getCurrentTour = tour => {
+  return {
+  type: GET_CURRENT_TOUR,
+  tour,
+  }
+}
 
 // thunks
 export const sendTourAnnouncement = (announcement) => async (dispatch, getState) => {
@@ -79,12 +87,30 @@ export const fetchAllTours = () => async( dispatch, getState) => {
   }
 }
 
+export const fetchUserTour = () => async(dispatch, getState) => {
+  try{
+    const currentUser = await firebase.auth().currentUser;
+    let idToken = await currentUser.getIdToken();
+    const userData = await axios.get(`${API_ROOT}/users/${currentUser.uid}?access_token=${idToken}`);
+    const user = userData.data;
+
+    idToken = await currentUser.getIdToken();
+    const tourData = await axios.get(`${API_ROOT}/tours/${user.tour}?access_token=${idToken}`);
+
+    dispatch(getCurrentTour(tourData.data));
+  }catch(err){
+    console.log(err);
+  }
+}
+
 export default(state = defaultTour, action) => {
   switch(action.type){
     case SET_ANNOUNCEMENT:
       return {...state, announcement: action.announcement};
     case GET_ALL_TOURS:
       return {...state, tours: action.tours};
+    case GET_CURRENT_TOUR:
+      return {...state, tour: action.tour};
     default:
       return state;
   }
