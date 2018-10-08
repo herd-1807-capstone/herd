@@ -26,7 +26,7 @@ import LoadingState from './LoadingState'
 const style = theme => ({
     button: {
         margin: 3*theme.spacing.unit,
-        width: 80,
+        width: 150,
     },
     extendedIcon: {
         marginRight: theme.spacing.unit,
