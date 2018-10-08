@@ -71,7 +71,8 @@ constructor(props){
         changedUser:[],
         cacheGroupys:[],
         cacheFreeBirds: [],
-        cancelButtonText: "Back"
+        cancelButtonText: "Back",
+        value: 0,
       }
 
     this.handleSave = this.handleSave.bind(this)
@@ -189,6 +190,10 @@ constructor(props){
                 })
   }
 
+  handleChange = (event, value) => {
+    this.setState({ value });
+  };
+
   static getDerivedStateFromProps(props, state){
     const { cancelButtonText, changedUser } = state;
       if(changedUser.length > 0 && cancelButtonText === 'Back') {
@@ -200,7 +205,7 @@ constructor(props){
 
   render() {
     const { classes } = this.props;
-    const { groupys, freeBirds, cancelButtonText } = this.state;
+    const { groupys, freeBirds, cancelButtonText, value } = this.state;
     // console.log(this.state.groupys)
     // console.log(this.state.freeBirds)
     
@@ -209,9 +214,12 @@ constructor(props){
         <Paper className={classes.paperBack} elevation={3}>
         <div className={classes.root}>
         <AppBar position="static">
+        <Tabs value={value} onChange={this.handleChange}>
             <Tab label="Group Members" />
+            <Tab label="No Group Members" />
+        </Tabs>
         </AppBar>
-        <TabContainer>
+        {value === 0 && <TabContainer>
             <List>
           {Object.values(groupys).map(user => (
             <div key={user.name}>
@@ -233,11 +241,8 @@ constructor(props){
             </div>
           ))}
         </List>
-            </TabContainer>
-            <AppBar position="static">
-            <Tab label="No Group Members" />
-            </AppBar>
-        <TabContainer>
+        </TabContainer>}
+        {value === 1 && <TabContainer>
             <List>
           {Object.values(freeBirds).map(user => (
             <div key={user.uid}>
@@ -260,7 +265,7 @@ constructor(props){
             </div>
           ))}
         </List>
-        </TabContainer>
+        </TabContainer>}
       </div>
 
 

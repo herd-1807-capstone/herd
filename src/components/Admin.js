@@ -112,7 +112,7 @@ class Admin extends Component{
       // console.log(access_token)
         let tourInfo = await axios.get(`${API_ROOT}/tours/${this.props.currentUser.tour}?access_token=${access_token}`)
         tourInfo = tourInfo.data
-        if(!tourInfo.hasOwnProperty('name')){
+        if(!tourInfo){
             let newUser = {...this.props.currentUser}
             newUser.tour = 'null'
             this.props.updateCurrentUser(newUser)
