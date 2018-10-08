@@ -34,7 +34,7 @@ class App extends Component {
               uid: user.uid,
               status: 'member',
               visible: true,
-              tour: 'null',
+              tour: null,
               loggedIn: true,
             };
             await db.ref(`/users/${user.uid}`).set(newUser);
@@ -70,6 +70,7 @@ class App extends Component {
 
 
   render() {
+    const tour = this.props.currentUser.tour;
     return (
       <div className="App">
 
@@ -78,8 +79,9 @@ class App extends Component {
           {this.props.currentUser.hasOwnProperty('email') && (
             <Switch>
               {
-                this.props.currentUser.tour ?
-                <Route exact path="/" component={MenuBar} />:
+                tour ?
+                <Route exact path="/" component={MenuBar} />
+                :
                 <Route exact path="/" component={PostLogin} />
               }
               <Route path="/error/:id" component={Error} />
