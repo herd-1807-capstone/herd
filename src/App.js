@@ -6,13 +6,13 @@ import './App.css';
 import Login from './Login';
 import Error from './Error';
 import MenuBar from './components/MenuBar';
+import PostLogin from './components/PostLogin';
 import { setCurrentUser } from './store/index';
 import Admin from './components/Admin';
 import CreateGroup from './components/CreateGroup';
 import ManageGroup from './components/ManageGroup';
 import LoadingState from './components/LoadingState'
 import { changeLoadingState } from './reducers/user';
-import { isatty } from 'tty';
 
 const auth = firebase.auth();
 const db = firebase.database();
@@ -39,7 +39,7 @@ class App extends Component {
               uid: user.uid,
               status: 'member',
               visible: true,
-              tour: 'null',
+              tour: null,
               loggedIn: true,
             };
             await db.ref(`/users/${user.uid}`).set(newUser);
@@ -75,6 +75,7 @@ class App extends Component {
 
 
   render() {
+    const tour = this.props.currentUser.tour;
     return (
       <div className="App">
 
@@ -82,7 +83,12 @@ class App extends Component {
           <Route path="/signin" component={Login} />
           {this.props.currentUser.hasOwnProperty('email') && (
             <Switch>
-              <Route exact path="/" component={MenuBar} />
+              {
+                tour ?
+                <Route exact path="/" component={MenuBar} />
+                :
+                <Route exact path="/" component={PostLogin} />
+              }
               <Route path="/error/:id" component={Error} />
               <Route exact path="/admin" component={Admin} />
               <Route exact path="/admin/group" component={ManageGroup} />
