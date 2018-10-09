@@ -1,17 +1,17 @@
 import React, { Fragment, Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import GeolocationMarker from './GeolocationMarker';
-import GOOGLE_API_KEY from './secrets';
-import firebase from './fire';
+import GOOGLE_API_KEY from '../utils/secrets';
+import firebase from '../utils/api-config';
 import { Spot } from './Marker';
 import axios from 'axios'
-import store, { getSpotsThunk, setSelected, findSelectedMarker, getAnnouncement } from './store';
+import store, { getSpotsThunk, setSelected, findSelectedMarker, getAnnouncement } from '../store';
 import { connect } from 'react-redux';
-import {setCurrentUser, getHistoricalData} from './reducers/user'
-import {API_ROOT} from './api-config';
+import {setCurrentUser, getHistoricalData} from '../reducers/user'
+import {API_ROOT} from '../utils/api-config';
 import Modal from '@material-ui/core/Modal';
 import {SpotsListWindow} from './ListWindow';
-import {setGoogleMap} from './reducers/googlemap';
+import {setGoogleMap} from '../reducers/googlemap';
 
 const db = firebase.database();
 

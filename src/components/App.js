@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
-import firebase from './fire';
+import firebase from '../utils/api-config';
 import { connect } from 'react-redux';
-import './App.css';
+import '../css/App.css';
 import Login from './Login';
 import Error from './Error';
-import MenuBar from './components/MenuBar';
-import PostLogin from './components/PostLogin';
-import { setCurrentUser } from './store/index';
-import Admin from './components/Admin';
-import CreateGroup from './components/CreateGroup';
-import ManageGroup from './components/ManageGroup';
-import LoadingState from './components/LoadingState'
-import { changeLoadingState } from './reducers/user';
+import MenuBar from './MenuBar';
+import PostLogin from './PostLogin';
+import { setCurrentUser } from '../store/index';
+import Admin from './Admin';
+import CreateGroup from './CreateGroup';
+import ManageGroup from './ManageGroup';
+import LoadingState from './LoadingState'
+import { changeLoadingState } from '../reducers/user';
 
 const auth = firebase.auth();
 const db = firebase.database();

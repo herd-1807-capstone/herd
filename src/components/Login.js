@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import firebase from './fire';
+import firebase from '../utils/api-config';
 import { StyledFirebaseAuth } from 'react-firebaseui';
 
 var uiConfig = {
