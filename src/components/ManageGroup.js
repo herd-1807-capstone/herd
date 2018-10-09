@@ -13,10 +13,22 @@ import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import firebase from '../fire';
 import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
+import InputBase from '@material-ui/core/InputBase';
+import { fade } from '@material-ui/core/styles/colorManipulator';
+import IconButton from '@material-ui/core/IconButton';
+import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
 
 import {API_ROOT} from '../api-config';
 
@@ -44,6 +56,47 @@ const styles = theme => ({
     avatarBlue: {
 
         backgroundColor: '#536DFE'
+    },
+    search: {
+        position: 'relative',
+        borderRadius: theme.shape.borderRadius,
+        backgroundColor: fade(theme.palette.common.white, 0.15),
+        '&:hover': {
+          backgroundColor: fade(theme.palette.common.white, 0.25),
+        },
+        marginLeft: 0,
+        width: '100%',
+        [theme.breakpoints.up('sm')]: {
+          marginLeft: theme.spacing.unit,
+          width: 'auto',
+        },
+    },
+    inputRoot: {
+        color: 'inherit',
+        width: '100%',
+    },
+    inputInput: {
+        marginTop: theme.spacing.unit,
+        paddingTop: theme.spacing.unit * 2,
+        paddingRight: theme.spacing.unit,
+        paddingBottom: theme.spacing.unit,
+        paddingLeft: theme.spacing.unit,
+        transition: theme.transitions.create('width'),
+        width: '100%',
+        [theme.breakpoints.up('sm')]: {
+        width: 250,
+        '&:focus': {
+            width: 240,
+            },
+        },
+        backgroundColor: '#EEEEEE',
+    },
+    addButton: {
+        margin: theme.spacing.unit,
+    },
+    searchBar: {
+        display: 'flex',
+        flexDirection: 'row',
     }
 });
 function TabContainer(props) {
@@ -65,83 +118,53 @@ constructor(props){
     super(props)
     this.state = {
         groupys: [],
-        freeBirds: [],
         access_token: "",
         changedUser:[],
-        cacheGroupys:[],
-        cacheFreeBirds: [],
-        cancelButtonText: "Back"
+        value: 0,
+        open: false,
+        inputText: ""
       }
 
     this.handleSave = this.handleSave.bind(this)
-    this.handleCancel = this.handleCancel.bind(this)
+    this.handleBack = this.handleBack.bind(this)
+    this.handleInput = this.handleInput.bind(this)
+    this.handleAddUser = this.handleAddUser.bind(this)
+    this.handleRemoveUser = this.handleRemoveUser.bind(this)
   }
 
   async componentDidMount(){
     let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
-    let resGroupys = axios.get(`${API_ROOT}/users?access_token=${access_token}`)
-    let resFreeBirds = axios.get(`${API_ROOT}/users/free?access_token=${access_token}`)
-    Promise.all([resGroupys, resFreeBirds])
-            .then(([resGroupysdata, resFreeBirdsdata]) => {
-        let groupys = resGroupysdata.data
-        let freeBirds = resFreeBirdsdata.data
-        if(groupys && groupys[0].hasOwnProperty('tour') && groupys.length !== 0 && groupys[0].tour === 'null'){
-            groupys = []
-        }
+    let resGroupys = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
+    let groupys = resGroupys.data
+    if(groupys && groupys.length > 0 && groupys[0].hasOwnProperty('tour') && groupys[0].tour === 'null'){
+        groupys = []
+    }
     this.setState({...this.state,
                     groupys,
-                    freeBirds,
                     access_token,
-                    cacheGroupys: [...groupys],
-                    cacheFreeBirds: [...freeBirds]
-        })
-    });
+                })
   }
 
-  handleToggle = user => async (evt) => {
-    const { groupys, freeBirds, changedUser } = this.state;
-    // const currentIndex = checked.indexOf(user);
-    // const newChecked = [...checked];
-
-    const { currentUser } = this.props
-    let newGroupys = []
-    let newfreeBirds = []
-    if (evt.target.checked) {
-
-        newfreeBirds = freeBirds.filter((fUser)=>{
-            return fUser.uid !== user.uid
-        })
-        user.tour = currentUser.tour
-        newGroupys = [...groupys, user]
-
-    } else {
-        // console.log("Uncheck!")
-        newGroupys = groupys.filter((gUser)=>{
-            return gUser.uid !== user.uid
-        })
-        user.tour = 'null'
-        newfreeBirds = [...freeBirds, user]
-    }
-    let change = false
-    // console.log(user)
-    let newChanged = changedUser.filter((cUser)=>{
-        if(cUser.uid !== user.uid){
-            return true
-        } else {
-            change = true
+  handleRemoveUser = user => () => {
+    console.log(user)
+    let hasChanged = false
+    let newChangeUser = this.state.changedUser.filter((cUser)=>{
+        if(cUser.uid === user.uid){
+            hasChanged = true
             return false
+        } else {
+            return true
         }
     })
-    if(!change){
-        newChanged.push(user)
+    if(!hasChanged){
+        let newUser = {...user, tour: 'null'}
+        newChangeUser.push(newUser)
     }
-    this.setState({...this.state,
-      groupys: newGroupys,
-      freeBirds: newfreeBirds,
-      changedUser: newChanged,
-    });
-
-  };
+    let newGroupys = this.state.groupys.filter((gUser)=>{
+        return gUser.uid !== user.uid
+    })
+    this.setState({...this.state, groupys: newGroupys, changedUser: newChangeUser})
+  }
 
   handleSave = async (evt) => {
     const { currentUser } = this.props
@@ -149,6 +172,8 @@ constructor(props){
     try {
         for(let i = 0; i < changedUser.length; i++){
             let user = changedUser[i]
+            // update tour's users property
+            console.log(user)
             if(user.hasOwnProperty('tour') && user.tour !== 'null'){
                 let putTour = await axios.post(`${API_ROOT}/tours/${currentUser.tour}/users?access_token=${access_token}`, {userId: user.uid})
                 console.log(`Put the tour!!!${putTour}`)
@@ -156,6 +181,7 @@ constructor(props){
                 user.tour = 'null'
                 await axios.delete(`${API_ROOT}/tours/${currentUser.tour}/users/${user.uid}?access_token=${access_token}`)
             }
+            // update user's 'tour' property
             let putUser = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: user.tour})
             console.log("update user", putUser)
             console.log(currentUser.tour)
@@ -168,38 +194,69 @@ constructor(props){
     }
   }
 
-  handleCancel = () => {
-    console.log(this.state.changedUser.length)
-    if(this.state.changedUser.length === 0){
-        this.props.history.push('/admin')
-    }
-    let oldGroupys = this.state.cacheGroupys.map((user)=>{
-        user.tour = this.props.currentUser.tour
-        return user
-    })
-    let oldFreeBirds = this.state.cacheFreeBirds.map((user)=>{
-        user.tour = 'null'
-        return user
-    })
-    this.setState({...this.state,
-                    groupys: oldGroupys,
-                    freeBirds: oldFreeBirds,
-                    changedUser: [],
-                })
+  handleLeave = () =>{
+    this.props.history.push('/admin')
   }
 
-  static getDerivedStateFromProps(props, state){
-    const { cancelButtonText, changedUser } = state;
-      if(changedUser.length > 0 && cancelButtonText === 'Back') {
-        return ({...state, cancelButtonText: 'Cancel'})
-    } else if (changedUser.length == 0 && cancelButtonText === 'Cancel') {
-        return ({...state, cancelButtonText: 'Back'})
+  handleBack = () => {
+    console.log(this.state.changedUser.length)
+    if(this.state.changedUser.length === 0){
+        this.handleLeave()
+    } else {
+        this.handleClickOpen()
     }
   }
+
+  handleChange = (event, value) => {
+    this.setState({ value });
+  };
+
+  handleInput(evt){
+      this.setState({...this.state, inputText: evt.target.value})
+  }
+
+  handleAddUser = async (evt) => {
+    const { access_token, changedUser, inputText, groupys } = this.state
+    const { currentUser } = this.props
+    try {
+        if(inputText !== ''){
+            let resUser = await axios.get(`${API_ROOT}/users/email/${inputText}?access_token=${access_token}`)
+            let user = resUser.data
+            console.log(`Get the user!!!`)
+            console.log(user)
+            if(user){
+                console.log("update local state")
+                let newUser = {...user, tour: currentUser.tour}
+                let isExist = false
+                changedUser.forEach((cUser)=>{
+                    if(cUser.uid === user.uid){
+                        isExist = true
+                    }
+                })
+                if(!isExist){
+                    this.setState({...this.state, groupys: [...groupys, newUser], changedUser: [...changedUser, newUser], inputText: ''})
+                }
+            } else {
+                this.setState({...this.state, inputText: 'User not exsit'})
+            }
+        }
+    } catch (error) {
+        this.setState({...this.state, inputText: error})
+        console.error(error)
+    }
+  }
+
+  handleClickOpen = () => {
+    this.setState({ open: true });
+  };
+
+  handleClose = () => {
+    this.setState({ open: false });
+  };
 
   render() {
     const { classes } = this.props;
-    const { groupys, freeBirds, cancelButtonText } = this.state;
+    const { groupys, freeBirds, cancelButtonText, value } = this.state;
     // console.log(this.state.groupys)
     // console.log(this.state.freeBirds)
 
@@ -208,35 +265,57 @@ constructor(props){
         <Paper className={classes.paperBack} elevation={3}>
         <div className={classes.root}>
         <AppBar position="static">
+        <Tabs value={value} onChange={this.handleChange}>
             <Tab label="Group Members" />
+            <Tab label="No Group Members" />
+        </Tabs>
         </AppBar>
-        <TabContainer>
+        <div className={classes.searchBar} >
+            <Button variant="fab" mini color="secondary" aria-label="Add" onClick={this.handleAddUser} className={classes.addButton}>
+            <AddIcon />
+            </Button>
+            <div className={classes.search}>
+                <InputBase
+                    placeholder="Search by Email…"
+                    type='email'
+                    classes={{
+                        root: classes.inputRoot,
+                        input: classes.inputInput,
+                    }}
+                    onChange={this.handleInput}
+                    value = {this.state.inputText}
+                />
+            </div>
+        </div>
+
+        {value === 0 && <TabContainer>
             <List>
           {Object.values(groupys).map(user => (
             <div key={user.name}>
             <ListItem key={user.uid} dense button className={classes.listItem}>
-              {(user.hasOwnProperty('imgUrl') && user.imgUrl !== 'null')
-              ?
-              <Avatar src={user.imgUrl} />
-              :
-              <Avatar className={classes.avatarBlue} ><AccountCircle/></Avatar>}
-              <ListItemText primary={`${user.name}`} />
-              <ListItemSecondaryAction>
-                <Checkbox
-                  onChange={this.handleToggle(user)}
-                  checked={user.hasOwnProperty('tour') && (user.tour !== 'null')}
-                />
-              </ListItemSecondaryAction>
+                {(user.hasOwnProperty('imgUrl') && user.imgUrl !== 'null')
+                ?
+                <Avatar src={user.imgUrl} />
+                :
+                <Avatar className={classes.avatarBlue} ><AccountCircle/></Avatar>}
+                <ListItemText primary={`${user.name}`} />
+                <ListItemSecondaryAction>
+                <IconButton aria-label="Delete"
+                            color="secondary"
+                            className={classes.addButton}
+                            onClick={this.handleRemoveUser(user)}
+                >
+                <DeleteIcon fontSize="small" />
+                </IconButton>
+                </ListItemSecondaryAction>
             </ListItem>
               <Divider />
             </div>
           ))}
         </List>
-            </TabContainer>
-            <AppBar position="static">
-            <Tab label="No Group Members" />
-            </AppBar>
-        <TabContainer>
+        </TabContainer>}
+        {value === 1 && <TabContainer>
+
             <List>
           {Object.values(freeBirds).map(user => (
             <div key={user.uid}>
@@ -259,19 +338,42 @@ constructor(props){
             </div>
           ))}
         </List>
-        </TabContainer>
+        </TabContainer>}
       </div>
 
 
         <Button variant="extendedFab" onClick={this.handleSave} color="primary" className={classes.button} >
             Save
         </Button>
-        <Button variant="extendedFab" onClick={this.handleCancel} color="primary" className={classes.button} >
-            {cancelButtonText}
+        <Button variant="extendedFab" onClick={this.handleBack} color="primary" className={classes.button} >
+            Back
         </Button>
 
         </Paper>
 
+        <div>
+            <Dialog
+            open={this.state.open}
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            >
+            <DialogTitle id="alert-dialog-title">{"Leave Without Save?"}</DialogTitle>
+            <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                Would you like to leave the page without saving the change?
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={this.handleLeave} color="primary">
+                Leave
+                </Button>
+                <Button onClick={this.handleClose} color="primary" autoFocus>
+                Cancel
+                </Button>
+            </DialogActions>
+            </Dialog>
+        </div>
       </div>
     );
   }

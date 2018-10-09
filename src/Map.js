@@ -7,7 +7,7 @@ import { Spot, Admin, User, OfflineUser, OfflineAdmin } from './Marker';
 import axios from 'axios'
 import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected, findSelectedMarker, getAnnouncement } from './store';
 import { connect } from 'react-redux';
-import {setCurrentUser} from './reducers/user'
+import {setCurrentUser, getHistoricalData} from './reducers/user'
 import {API_ROOT} from './api-config';
 import Modal from '@material-ui/core/Modal';
 import AddMarkerForm from './AddMarkerForm'
@@ -17,10 +17,10 @@ import {setGoogleMap} from './reducers/googlemap';
 const db = firebase.database();
 
 
-const options = {
+const createOptions = () => ({
   mapTypeControl: true,
   streetViewControl: true,
-}
+})
 
 class SimpleMap extends Component {
   static defaultProps = {
@@ -37,6 +37,7 @@ class SimpleMap extends Component {
         lat: 28.4177,
         lng: -81.5812,
         accuracy: 0,
+        lastSeen: null
       },
 
       // zoom: 18,
@@ -58,14 +59,14 @@ class SimpleMap extends Component {
     this.onApiLoaded = this.onApiLoaded.bind(this);
     this.handleClose = this.handleClose.bind(this);
   }
-  async writeCurrentPosition(lat, lng) {
+  async writeCurrentPosition(lat, lng, lastSeen) {
     const tourId = this.props.currentUser.tour;
     const userId = this.props.currentUser.uid;
     try {
       const idToken = await firebase.auth().currentUser.getIdToken();
       await axios.put(
         `${API_ROOT}/tours/${tourId}/users/${userId}?access_token=${idToken}`,
-        { lat, lng }
+        { lat, lng, lastSeen}
       );
     } catch (error) {
       console.error(error);
@@ -85,25 +86,30 @@ class SimpleMap extends Component {
       currentPosition: {
         lat: coords.latitude,
         lng: coords.longitude,
-        accuracy: coords.accuracy
+        accuracy: coords.accuracy,
+        lastSeen: position.timestamp
       },
+    }, () => {
+      if (this.circle){
+        this.updateAccuracyCircle();
+      }
     });
-    if (this.circle){
-      this.updateAccuracyCircle();
-    }
+
   }
   componentDidUpdate(prevProps, prevState) {
+
     let changedLat =
       prevState.currentPosition.lat !== this.state.currentPosition.lat;
     let changedLng =
       prevState.currentPosition.lng !== this.state.currentPosition.lng;
-    if (changedLat || changedLng) {
+    if (changedLat || changedLng ) {
       this.writeCurrentPosition(
         this.state.currentPosition.lat,
-        this.state.currentPosition.lng
+        this.state.currentPosition.lng,
+        this.state.currentPosition.lastSeen
       );
-
     }
+
     if (prevProps.recenter !== this.props.recenter){
       if (this.props.recenter){
         this.centerToPosition(this.state.currentPosition.lat, this.state.currentPosition.lng);
@@ -167,19 +173,65 @@ class SimpleMap extends Component {
     this.watchCurrentPosition();
     this.loadAfterAuthUser();
   }
+  writeLocationHistory = async(currentUser) => {
+    const tourId = currentUser.tour;
 
+    //check user is admin;
+    if (!tourId) return;
+    if (currentUser.status !== 'admin') return;
+
+    const tourRef = db.ref(`/tours/${tourId}`);
+    let tourInfo;
+    let snap;
+    try {
+      snap = await tourRef.once('value');
+
+    } catch (error) {
+      console.error(error);
+    }
+    tourInfo = snap.val();
+    //check if tour has started yet, if not, exit;
+    if (Date.now() < tourInfo.startDateTime || Date.now() > tourInfo.endDateTime) {
+      return;
+    }
+      this.locationHistoryId = setInterval(async()=>{
+      //if now is > end then clearInterval or if haven't started, clearInterval;
+        if (Date.now() > tourInfo.endDateTime || Date.now() < tourInfo.startDateTime){
+          clearInterval(this.locationHistoryId);
+        }
+      let allUsers = [...this.props.users, this.state.currentPosition];
+      //read users location data
+      const locationData = allUsers.reduce((usersUpdate, user) => {
+          if (!user.lat || !user.lng) return usersUpdate;
+          const key = tourRef.child('history').push().key;//generate key locally
+          usersUpdate[key] = {lat:user.lat, lng:user.lng, lastSeen: user.lastSeen || Date.now()};//store it
+          return usersUpdate;
+        }, {});
+      try {
+        const idToken = await firebase.auth().currentUser.getIdToken();
+        await axios.post(`${API_ROOT}/tours/${tourId}/history?access_token=${idToken}`, {locationData});
+      } catch (error) {
+        console.error(error);
+      }
+    }, 10000) //
+  }
   loadAfterAuthUser(){
     firebase.auth().onAuthStateChanged(async user => {
       if (user) {
-        // User is signed in.
+        // User is authenticated via firebase
         try {
           //get user's profile
-          // await db.ref(`/users/${user.uid}`).onDisconnect().update({loggedIn: false});
-          let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          let userInfo = snapshot.val();
+
+          const snapshot = await db.ref(`/users/${user.uid}`).once('value');
+          const userInfo = snapshot.val();
+          const tourId = userInfo.tour;
           this.props.setCurrentUser(userInfo);
           this.props.getSpots();
+          this.writeLocationHistory(userInfo);
           this.props.getUsers();
+
+
+
         } catch (error) {
           console.error(error);
         }
@@ -201,11 +253,16 @@ class SimpleMap extends Component {
     if ('geolocation' in navigator){
       navigator.geolocation.clearWatch(this.geoWatchId);
     }
+    clearInterval(this.locationHistoryId);
   }
   onApiLoaded({map, maps}){
     this.props.setMap(map, maps);
     this.renderAccuracyCircle(map, maps);
-    window.infoWindow = new this.props.maps.InfoWindow();
+
+    window.infoWindow = new maps.InfoWindow();
+    const {heatmapData } = this.props;
+
+
   }
   renderAccuracyCircle(map, maps){
     const {lat, lng, accuracy } = this.state.currentPosition
@@ -233,6 +290,7 @@ class SimpleMap extends Component {
       return null;
     });
   }
+
   renderUsers() {
     return this.props.users.map((user, index)=> {
       if (user.status === 'admin') {
@@ -267,6 +325,7 @@ class SimpleMap extends Component {
   }
   render() {
     const {usersListWindow, spotsListWindow, handleListClose} = this.props;
+
     return (
       // Important! Always set the container height explicitly
         <Fragment>
@@ -276,11 +335,13 @@ class SimpleMap extends Component {
               defaultCenter={this.props.center}
               defaultZoom={this.props.zoom}
               center={this.state.center}
-              options ={options}
+              options ={createOptions}
               onClick = {this.onMapClick}
               onChildClick={this.onMarkerClick}
               onGoogleApiLoaded={this.onApiLoaded}
               yesIWantToUseGoogleMapApiInternals = {true}
+              heatmapLibrary = {true}
+              // heatmap = {{data: heatmapData}}
               >
                 <GeolocationMarker
                   key = 'geolocationMarker'
@@ -296,9 +357,7 @@ class SimpleMap extends Component {
           <Modal
             key='add-marker-window'
             open={this.state.addMarkerWindow}
-            // onBackdropClick={this.handleClose}
             onClose={this.handleClose('addMarkerWindow')}
-            // style={{alignItems:'center',justifyContent:'center'}}
             >
             <AddMarkerForm
             handleClose= {this.handleClose}
@@ -325,8 +384,6 @@ class SimpleMap extends Component {
               />
           </Modal>
           </div>
-
-
         </Fragment>
     );
   }
@@ -338,7 +395,8 @@ const mapState = ({user, spots, googlemap})=>({
   currentUser: user.currentUser,
   selected: spots.selected,
   map: googlemap.map,
-  maps: googlemap.maps
+  maps: googlemap.maps,
+  heatmapData: user.historicalData
 })
 
 const mapDispatch = (dispatch) => ({
@@ -362,6 +420,9 @@ const mapDispatch = (dispatch) => ({
   },
   getAnnouncement(){
     dispatch(getAnnouncement());
+  },
+  getHistoricalData(data){
+    dispatch(getHistoricalData(data))
   }
 })
 export default connect(mapState, mapDispatch)(SimpleMap);

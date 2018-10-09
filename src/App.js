@@ -22,9 +22,16 @@ class App extends Component {
   componentDidMount() {
     auth.onAuthStateChanged(async user => {
       if (user) {
+        const connectedRef = db.ref('.info/connected');
+
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
+          console.log("On Auth current user")
+          console.log(auth.currentUser.emailVerified)
           console.log("user does exist!")
+          console.log(user)
+          console.log("what we have for the user")
+          console.log(snapshot.val())
           const userRef = db.ref(`/users/${user.uid}`)
           if (!snapshot.exists()) {
             let newUser = {
@@ -40,6 +47,9 @@ class App extends Component {
             await db.ref(`/users/${user.uid}`).set(newUser);
             newUser = await db.ref(`/users/${user.uid}`).once('value');
             user = newUser.val();
+
+
+
           } else {
             let theUser = {
               name: user.displayName,
@@ -58,6 +68,12 @@ class App extends Component {
           }
           this.props.setCurrentUser(user)
           userRef.onDisconnect().update({loggedIn: false});
+
+          connectedRef.on('value', (snap)=>{
+            if(snap.val() === true) userRef.update({loggedIn: true});
+            else userRef.update({loggedIn: false});
+          })
+
         } catch (error) {
           console.error(error);
         }
