@@ -14,13 +14,19 @@ import AddMarkerForm from './AddMarkerForm'
 import {SpotsListWindow, UsersListWindow} from './ListWindow';
 import {setGoogleMap} from './reducers/googlemap';
 
+import {retro, silver} from './MapStyles';
+
 const db = firebase.database();
 
 
 const createOptions = () => ({
   mapTypeControl: true,
   streetViewControl: true,
-})
+  mapTypeControlOptions: {
+    mapTypeIds: ['retro', 'silver']
+  },
+  styles: retro
+});
 
 class SimpleMap extends Component {
   static defaultProps = {
@@ -39,7 +45,6 @@ class SimpleMap extends Component {
         accuracy: 0,
         lastSeen: null
       },
-
       // zoom: 18,
       center: {
         lat: 28.4177,
@@ -260,8 +265,12 @@ class SimpleMap extends Component {
     this.renderAccuracyCircle(map, maps);
 
     window.infoWindow = new maps.InfoWindow();
-    const {heatmapData } = this.props;
-
+    const retroMap = new maps.StyledMapType(retro, {name: 'Retro'});
+    const silverMap = new maps.StyledMapType(silver, {name: 'Silver'});
+    map.mapTypes.set('retro', retroMap);
+    map.mapTypes.setMapTypeId;
+    map.mapTypes.set('silver', silverMap);
+    map.mapTypes.setMapTypeId;
 
   }
   renderAccuracyCircle(map, maps){
@@ -282,6 +291,7 @@ class SimpleMap extends Component {
     this.circle.setRadius(accuracy);
   }
   renderSpots() {
+    // if (this.map) console.log('MAP TYPE!!!', this.map.getMapTypeId());
     let spots = this.props.spots;
     return spots.map(loc => {
       if (loc.uid && loc.lat && loc.lng){

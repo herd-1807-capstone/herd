@@ -1,6 +1,7 @@
 import firebase from '../fire';
 import {API_ROOT} from '../api-config';
 import axios from 'axios'
+
 const db = firebase.database();
 
 // INITIAL STATE
@@ -53,13 +54,17 @@ export const toggleHeatMapThunk = () => async(dispatch, getState) => {
     dispatch(clearUsers());
     const maps = getState().googlemap.maps;
     const map = getState().googlemap.map;
+    map.setMapTypeId('silver');
     const heatmapData = getState().user.historicalData;
     if (!heatmapData) return;
+
     window.heatmap = new maps.visualization.HeatmapLayer({
       data: Object.keys(heatmapData).map(pointId => {
         let point = heatmapData[pointId];
         return new maps.LatLng(point.lat, point.lng)
-      })
+      }),
+      radius: 20,
+      opacity: 1
     })
     window.heatmap.setMap(map);
   } else {
