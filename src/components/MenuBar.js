@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import firebase from '../fire';
+import firebase from '../utils/api-config';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -17,16 +17,16 @@ import MenuIcon from '@material-ui/icons/Menu';
 
 import UserListItems from './UserListItems';
 import AdminListItems from './AdminListItems';
-import Map from '../Map';
+import Map from './Map';
 import Chat from './Chat';
-import BottomSheet from '../BottomSheet';
+import BottomSheet from './BottomSheet';
 import AnnouncementCreateModal from './AnnouncementCreateModal';
-import { setCurrentUser, sendTourAnnouncement } from '../store/index';
+import { setCurrentUser, sendTourAnnouncement, fetchUserTour } from '../store/index';
 import GpsFixed from '@material-ui/icons/GpsFixed';
 import PeopleIcon from '@material-ui/icons/People';
 import SpotsIcon from '@material-ui/icons/Place';
-
-
+import axios from 'axios';
+import {API_ROOT} from '../utils/api-config';
 
 const drawerWidth = 240;
 
@@ -87,6 +87,7 @@ class MenuBar extends React.Component {
     this.handleRecenter = this.handleRecenter.bind(this);
     this.sendTourAnnouncement = this.sendTourAnnouncement.bind(this);
     this.hidePSABar = this.hidePSABar.bind(this);
+    this.handleInvite = this.handleInvite.bind(this)
   }
 
   modalOpen = (type) => () =>{
@@ -124,6 +125,13 @@ class MenuBar extends React.Component {
     this.setState({recenter: true}, ()=>{
       this.setState({recenter: false})
     })
+  }
+
+  async handleInvite(evt){
+    let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
+
+    const result = await axios.post(`${API_ROOT}/tours/${"-LO9qp_CJeEownSICbbp"}/invitations/${"NCNNuK1w"}?access_token=${access_token}`)
+    console.log(result)
   }
 
   showAnnouncementModal = () => {
@@ -172,8 +180,16 @@ class MenuBar extends React.Component {
     })
   }
 
+  async componentDidMount(){
+    try{
+      await this.props.getCurrentTour();
+    }catch(err){
+      console.log(err);
+    }
+  }
+
   render() {
-    const { classes, theme, currentUser } = this.props;
+    const { classes, theme, currentUser, showHeatMap } = this.props;
 
     const drawer = (
       <div>
@@ -184,6 +200,7 @@ class MenuBar extends React.Component {
             menuToggle = {this.modalOpen}
             handleChatStart={this.handleChatStart}
             handleInfoSpot={this.handleInfoSpot}
+            handleInvite={this.handleInvite}
           />
         </List>
         <Divider />
@@ -211,14 +228,15 @@ class MenuBar extends React.Component {
               <MenuIcon />
             </IconButton>
             <Typography variant="title" color="inherit" noWrap>
-              Herd - Tour Groups Management
+              Herd - { this.props.tour ? this.props.tour.name: null }
             </Typography>
             <IconButton onClick ={this.handleRecenter}>
               <GpsFixed />
             </IconButton>
+            {showHeatMap ? null :
             <IconButton onClick = {this.modalOpen('usersListWindow')}>
               <PeopleIcon />
-            </IconButton>
+            </IconButton>}
             <IconButton onClick = {this.modalOpen('spotsListWindow')}>
               <SpotsIcon />
             </IconButton>
@@ -229,11 +247,16 @@ class MenuBar extends React.Component {
             ) : null}
           </Toolbar>
           <Divider />
-          <div style={{backgroundColor: "#37BC9B", display: this.state.showPSA}}>
-              <img style={{width:"24px", height:"24px", paddingRight:'5px'}} src="info_outline.png" />
-            <span style={{verticalAlign:"top"}}>{`${this.props.announcement}`}</span>
-            <span style={{float:"right", paddingRight:'10px'}}><a href="#" style={{textDecoration:'none', color: 'white'}} onClick={this.hidePSABar}>x</a></span>
-          </div>
+          {
+            this.props.announcement?
+            <div style={{backgroundColor: "#37BC9B", display: this.state.showPSA}}>
+                <img style={{width:"24px", height:"24px", paddingRight:'5px'}} src="info_outline.png" />
+              <span style={{verticalAlign:"top"}}>{`${this.props.announcement}`}</span>
+              <span style={{float:"right", paddingRight:'10px'}}><a href="#" style={{textDecoration:'none', color: 'white'}} onClick={this.hidePSABar}>x</a></span>
+            </div>
+            :
+            null
+          }
         </AppBar>
         <Hidden mdUp>
           <Drawer
@@ -299,12 +322,15 @@ MenuBar.propTypes = {
 
 const mapState = state => ({
   currentUser: state.user.currentUser,
-  announcement: state.tour.announcement
+  announcement: state.tour.announcement,
+  showHeatMap: state.user.showHeatMap,
+  tour: state.tour.tour,
 });
 
 const mapDispatch = dispatch => ({
   logout: () => dispatch(setCurrentUser({})),
   sendTourAnnouncement: (message) => dispatch(sendTourAnnouncement(message)),
+  getCurrentTour: () => dispatch(fetchUserTour()),
 });
 
 export default withStyles(styles, { withTheme: true })(

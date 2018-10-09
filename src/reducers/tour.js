@@ -1,15 +1,17 @@
 import axios from 'axios';
-import {API_ROOT} from '../api-config';
-import firebase from '../fire';
+import firebase, {API_ROOT} from '../utils/api-config';
 const db = firebase.database();
 
 // initial state
 const defaultTour = {
-  announcement:""
+  announcement: "",
+  tours: [],
 }
 
 // action types
 const SET_ANNOUNCEMENT = "SET_ANNOUNCEMENT"
+const GET_ALL_TOURS = 'GET_ALL_TOURS'
+const GET_CURRENT_TOUR = 'GET_CURRENT_TOUR'
 
 // action creators
 export const setAnnouncement = announcement => (
@@ -18,6 +20,18 @@ export const setAnnouncement = announcement => (
     announcement
   }
 )
+
+export const getAllTours = tours => ({
+  type: GET_ALL_TOURS,
+  tours
+})
+
+export const getCurrentTour = tour => {
+  return {
+  type: GET_CURRENT_TOUR,
+  tour,
+  }
+}
 
 // thunks
 export const sendTourAnnouncement = (announcement) => async (dispatch, getState) => {
@@ -55,10 +69,48 @@ export const getAnnouncement = () => async (dispatch, getState) => {
   }
 }
 
+export const fetchAllTours = () => async( dispatch, getState) => {
+  try{
+    const idToken = await firebase.auth().currentUser.getIdToken();
+    const {data} = await axios.get(`${API_ROOT}/tours?access_token=${idToken}`);
+
+    const tours = Object.keys(data).map(i => {
+      const tour = data[i];
+      tour.id = i;
+      return tour;
+    });
+
+    dispatch(getAllTours(tours));
+  }catch(err){
+    console.log(err);
+  }
+}
+
+export const fetchUserTour = () => async(dispatch, getState) => {
+  try{
+    const currentUser = await firebase.auth().currentUser;
+    let idToken = await currentUser.getIdToken();
+    const userData = await axios.get(`${API_ROOT}/users/${currentUser.uid}?access_token=${idToken}`);
+
+    const user = userData.data;
+    if(user.tour){
+      idToken = await currentUser.getIdToken();
+      const tourData = await axios.get(`${API_ROOT}/tours/${user.tour}?access_token=${idToken}`);
+      dispatch(getCurrentTour(tourData.data));
+    }
+  }catch(err){
+    console.log(err);
+  }
+}
+
 export default(state = defaultTour, action) => {
   switch(action.type){
     case SET_ANNOUNCEMENT:
       return {...state, announcement: action.announcement};
+    case GET_ALL_TOURS:
+      return {...state, tours: action.tours};
+    case GET_CURRENT_TOUR:
+      return {...state, tour: action.tour};
     default:
       return state;
   }

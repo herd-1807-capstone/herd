@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router-dom'
 import axios from 'axios'
-import firebase from '../fire';
-import './component.css'
-import {API_ROOT} from '../api-config';
+import '../css/component.css'
+import firebase, {API_ROOT} from '../utils/api-config';
 
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -21,12 +20,11 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import { setCurrentUser } from '../reducers/user'
-import LoadingState from './LoadingState'
 
 const style = theme => ({
     button: {
         margin: 3*theme.spacing.unit,
-        width: 80,
+        width: 150,
     },
     extendedIcon: {
         marginRight: theme.spacing.unit,
@@ -112,7 +110,7 @@ class Admin extends Component{
       // console.log(access_token)
         let tourInfo = await axios.get(`${API_ROOT}/tours/${this.props.currentUser.tour}?access_token=${access_token}`)
         tourInfo = tourInfo.data
-        if(!tourInfo.hasOwnProperty('name')){
+        if(!tourInfo){
             let newUser = {...this.props.currentUser}
             newUser.tour = 'null'
             this.props.updateCurrentUser(newUser)
@@ -129,15 +127,11 @@ class Admin extends Component{
     }
 
     render(){
-        const { classes, isLoading, currentUser } = this.props
+        const { classes, currentUser } = this.props
         // console.log(currentUser)
         const { tour } = this.state
-        if(isLoading){
-            return (
-                <div className='loadingParent'>
-                    <LoadingState className='loadingState' />
-                </div>
-            )
+        if(currentUser && currentUser.hasOwnProperty('status') && currentUser.status !== 'admin'){
+            this.props.history.push('/')
         }
         if(currentUser.hasOwnProperty('tour') && currentUser.tour !== 'null'){
             // console.log("has current user")
@@ -238,7 +232,6 @@ class Admin extends Component{
 
 const mapState = (state) => ({
     currentUser: state.user.currentUser,
-    isLoading: state.user.isLoading,
 })
 
 const mapDispatch = dispatch => {

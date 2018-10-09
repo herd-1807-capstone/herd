@@ -1,5 +1,13 @@
 import firebase from 'firebase'
 
+let backendHost;
+
+if(process.env.NODE_ENV === 'development'){
+  backendHost = 'http://localhost:8080';
+}else{
+  backendHost = 'https://herd-capstone.herokuapp.com';
+}
+
   // Initialize Firebase
 const config = {
     apiKey: "AIzaSyDSRqOg14rMt-PRggMXQcj_qzPdI6eOihk",
@@ -10,5 +18,7 @@ const config = {
     messagingSenderId: "875053589347"
 };
 firebase.initializeApp(config);
-export default firebase;
 
+
+export const API_ROOT = `${backendHost}/api`;
+export default firebase;
