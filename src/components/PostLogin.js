@@ -38,8 +38,9 @@ const styles = theme => ({
   tourDisplay: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    alignContent: 'space-around',
   },
   media: {
     height: 240,
@@ -62,6 +63,7 @@ class PostLogin extends Component{
   async addTourToUser(tourId){
     try{
       await this.props.addTourToUser(tourId);
+      this.props.history.push('/');
     }catch(err){
       console.log(err);
     }

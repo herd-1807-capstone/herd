@@ -181,7 +181,7 @@ constructor(props){
                 user.tour = 'null'
                 await axios.delete(`${API_ROOT}/tours/${currentUser.tour}/users/${user.uid}?access_token=${access_token}`)
             }
-            // update user's 'tour' property 
+            // update user's 'tour' property
             let putUser = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: user.tour})
             console.log("update user", putUser)
             console.log(currentUser.tour)
@@ -259,7 +259,7 @@ constructor(props){
     const { groupys, freeBirds, cancelButtonText, value } = this.state;
     // console.log(this.state.groupys)
     // console.log(this.state.freeBirds)
-    
+
     return (
       <div className={classes.subRoot}>
         <Paper className={classes.paperBack} elevation={3}>
@@ -300,8 +300,8 @@ constructor(props){
                 <Avatar className={classes.avatarBlue} ><AccountCircle/></Avatar>}
                 <ListItemText primary={`${user.name}`} />
                 <ListItemSecondaryAction>
-                <IconButton aria-label="Delete" 
-                            color="secondary" 
+                <IconButton aria-label="Delete"
+                            color="secondary"
                             className={classes.addButton}
                             onClick={this.handleRemoveUser(user)}
                 >
@@ -315,7 +315,6 @@ constructor(props){
         </List>
         </TabContainer>}
         {value === 1 && <TabContainer>
-            
             <List>
           {Object.values(freeBirds).map(user => (
             <div key={user.uid}>
