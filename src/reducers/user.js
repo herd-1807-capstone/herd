@@ -1,6 +1,7 @@
 import firebase from '../fire';
 import {API_ROOT} from '../api-config';
 import axios from 'axios'
+
 const db = firebase.database();
 
 // INITIAL STATE
@@ -53,13 +54,17 @@ export const toggleHeatMapThunk = () => async(dispatch, getState) => {
     dispatch(clearUsers());
     const maps = getState().googlemap.maps;
     const map = getState().googlemap.map;
+    map.setMapTypeId('silver');
     const heatmapData = getState().user.historicalData;
     if (!heatmapData) return;
+
     window.heatmap = new maps.visualization.HeatmapLayer({
       data: Object.keys(heatmapData).map(pointId => {
         let point = heatmapData[pointId];
         return new maps.LatLng(point.lat, point.lng)
-      })
+      }),
+      radius: 20,
+      opacity: 1
     })
     window.heatmap.setMap(map);
   } else {
@@ -86,34 +91,38 @@ export const getHistoricalData = () => async(dispatch, getState) => {
 
 
 export const getAllUsers = () => (dispatch, getState) => {
+  try{
     const loggedInUser = getState().user.currentUser;
 
     const userPermission = loggedInUser.status;
     const tourId = loggedInUser.tour;
-        const refUsers = db.ref('/users');
-          refUsers
-            .orderByChild('tour')
-            .equalTo(tourId)
-            .on('value',
-              snapshot => {
-                let usersObj = snapshot.val();
-                let users = Object.keys(usersObj)
-                  .filter(userId => {
-                    if (userPermission === 'admin'){
-                      return userId !== loggedInUser.uid;
-                    }
-                    //exclude self, include visible only
-                    return usersObj[userId].visible && userId !== loggedInUser.uid;
-                  })
-                  .map(userId => {
-                    return {...usersObj[userId], uid: userId, type:'user'};
-                  });
-                dispatch(setAllUsers(users));
-              },
-              error => {
-                console.log('ERROR:', error.code);
+    const refUsers = db.ref('/users');
+    refUsers
+      .orderByChild('tour')
+      .equalTo(tourId)
+      .on('value',
+        snapshot => {
+          let usersObj = snapshot.val();
+          let users = Object.keys(usersObj)
+            .filter(userId => {
+              if (userPermission === 'admin'){
+                return userId !== loggedInUser.uid;
               }
-            );
+              //exclude self, include visible only
+              return usersObj[userId].visible && userId !== loggedInUser.uid;
+            })
+            .map(userId => {
+              return {...usersObj[userId], uid: userId, type:'user'};
+            });
+          dispatch(setAllUsers(users));
+        },
+        error => {
+          console.log('ERROR:', error.code);
+        }
+      );
+    }catch(err){
+      console.log(err)
+    }
 }
 
 export const addTourToUser = tourId => async (dispatch, getState) => {
@@ -125,8 +134,12 @@ export const addTourToUser = tourId => async (dispatch, getState) => {
     let idToken = await firebase.auth().currentUser.getIdToken();
     const tourData = await axios.get(`${API_ROOT}/tours/${tourId}?access_token=${idToken}`);
     const tour = tourData.data;
-    const users = tour.users;
-    users.push(loggedInUser.uid);
+    const users = tour.users || [];
+    if(users.indexOf(loggedInUser.uid) < 0){
+      users.push(loggedInUser.uid);
+    }
+
+    idToken = await firebase.auth().currentUser.getIdToken();
     await axios.put(`${API_ROOT}/tours/${tourId}?access_token=${idToken}`, {...tour, users});
 
     // update the logged-in user's tourId to the selected tourId
@@ -136,7 +149,6 @@ export const addTourToUser = tourId => async (dispatch, getState) => {
     // get the updated user instance and set as a current user.
     idToken = await firebase.auth().currentUser.getIdToken();
     const {data} = await axios.get(`${API_ROOT}/users/${loggedInUser.uid}?access_token=${idToken}`);
-
     dispatch(setCurrentUser(data));
   }catch(err){
     console.log(err);

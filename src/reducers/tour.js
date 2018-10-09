@@ -92,12 +92,13 @@ export const fetchUserTour = () => async(dispatch, getState) => {
     const currentUser = await firebase.auth().currentUser;
     let idToken = await currentUser.getIdToken();
     const userData = await axios.get(`${API_ROOT}/users/${currentUser.uid}?access_token=${idToken}`);
+
     const user = userData.data;
-
-    idToken = await currentUser.getIdToken();
-    const tourData = await axios.get(`${API_ROOT}/tours/${user.tour}?access_token=${idToken}`);
-
-    dispatch(getCurrentTour(tourData.data));
+    if(user.tour){
+      idToken = await currentUser.getIdToken();
+      const tourData = await axios.get(`${API_ROOT}/tours/${user.tour}?access_token=${idToken}`);
+      dispatch(getCurrentTour(tourData.data));
+    }
   }catch(err){
     console.log(err);
   }

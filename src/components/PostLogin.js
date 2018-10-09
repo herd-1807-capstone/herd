@@ -18,14 +18,14 @@ import { setCurrentUser, fetchAllTours, addTourToUser } from '../store/index';
 const drawerWidth = 240;
 const styles = theme => ({
   root: {
-    //padding: '75px',
-    flexGrow: 1,
     height: '100vh',
     zIndex: 1,
     overflow: 'hidden',
     position: 'relative',
     display: 'flex',
     width: '100%',
+    flexDirection: 'column',
+    justifyContent: 'space-around',
   },
   appBar: {
     position: 'absolute',
@@ -37,13 +37,19 @@ const styles = theme => ({
   toolbar: theme.mixins.toolbar,
   tourDisplay: {
     display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    alignItem: 'space-between'
+  },
+  adminLink:{
+    alignSelf: 'center',
   },
   media: {
     height: 240,
   },
+  card: {
+    margin: '10px 10px'
+  }
 });
 
 class PostLogin extends Component{
@@ -62,6 +68,7 @@ class PostLogin extends Component{
   async addTourToUser(tourId){
     try{
       await this.props.addTourToUser(tourId);
+      this.props.history.push('/');
     }catch(err){
       console.log(err);
     }
@@ -99,30 +106,46 @@ class PostLogin extends Component{
           </Toolbar>
         </AppBar>
         <div className={classes.tourDisplay}>
-        {
-          (this.state.tours.length === 0)?
-          null
-          :
-          (this.state.tours.map(tour =>
-            <Card className={classes.card} key={tour.id} onClick={() => this.addTourToUser(tour.id)}>
-              <CardActionArea component={Link} to='#'>
-                <CardMedia
-                  component="img"
-                  className={classes.media}
-                  height="140"
-                  width="140"
-                  image={tour.imgUrl}
-                  title={tour.name}
-                />
-                <CardContent>
-                  <Typography gutterBottom variant="headline" component="h2">{tour.name}</Typography>
-                  <Typography component="p">{tour.description}</Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
+          {
+            (this.state.tours.length === 0)?
+            null
+            :
+            (this.state.tours.map(tour =>
+              <Card className={classes.card} key={tour.id} onClick={() => this.addTourToUser(tour.id)}>
+                <CardActionArea component={Link} to='#'>
+                  <CardMedia
+                    component="img"
+                    className={classes.media}
+                    height="140"
+                    width="140"
+                    image={tour.imgUrl}
+                    title={tour.name}
+                  />
+                  <CardContent>
+                    <Typography gutterBottom variant="headline" component="h2">{tour.name}</Typography>
+                    <Typography component="p">{tour.description}</Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+              )
             )
-          )
-        }
+          }
+          {
+            (
+              this.props.currentUser.status === 'admin' ?
+              <div className={classes.adminLink}>
+                <Link to="/admin">
+                  <Button
+                    variant="outlined"
+                    color="primary">
+                    Create A New Tour
+                  </Button>
+                </Link>
+              </div>
+              :
+              null
+            )
+          }
         </div>
       </div>
     )
