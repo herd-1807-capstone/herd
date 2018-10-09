@@ -13,7 +13,6 @@ import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
 import firebase from '../fire';
 import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -137,8 +136,8 @@ constructor(props){
         newChanged.push(user)
     }
     this.setState({...this.state,
-      groupys: newGroupys, 
-      freeBirds: newfreeBirds, 
+      groupys: newGroupys,
+      freeBirds: newfreeBirds,
       changedUser: newChanged,
     });
 
@@ -203,7 +202,7 @@ constructor(props){
     const { groupys, freeBirds, cancelButtonText } = this.state;
     // console.log(this.state.groupys)
     // console.log(this.state.freeBirds)
-    
+
     return (
       <div className={classes.subRoot}>
         <Paper className={classes.paperBack} elevation={3}>
