@@ -21,7 +21,6 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import { setCurrentUser } from '../reducers/user'
-import LoadingState from './LoadingState'
 
 const style = theme => ({
     button: {
@@ -129,15 +128,11 @@ class Admin extends Component{
     }
 
     render(){
-        const { classes, isLoading, currentUser } = this.props
+        const { classes, currentUser } = this.props
         // console.log(currentUser)
         const { tour } = this.state
-        if(isLoading){
-            return (
-                <div className='loadingParent'>
-                    <LoadingState className='loadingState' />
-                </div>
-            )
+        if(currentUser && currentUser.hasOwnProperty('status') && currentUser.status !== 'admin'){
+            this.props.history.push('/')
         }
         if(currentUser.hasOwnProperty('tour') && currentUser.tour !== 'null'){
             // console.log("has current user")
@@ -238,7 +233,6 @@ class Admin extends Component{
 
 const mapState = (state) => ({
     currentUser: state.user.currentUser,
-    isLoading: state.user.isLoading,
 })
 
 const mapDispatch = dispatch => {
