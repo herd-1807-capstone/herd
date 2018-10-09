@@ -35,18 +35,6 @@ class AdminListItems extends Component {
           </ListItemIcon>
           <ListItemText primary="Group Management" />
         </ListItem>
-        <ListItem button>
-          <ListItemIcon>
-            <Room />
-          </ListItemIcon>
-          <ListItemText primary="Add/Update a Spot" />
-        </ListItem>
-        <ListItem button>
-          <ListItemIcon>
-            <Room />
-          </ListItemIcon>
-          <ListItemText primary="Define Boundaries" />
-        </ListItem>
         <ListItem button onClick={this.props.showAnnouncementModal}>
           <ListItemIcon>
             <AddAlert />
