@@ -340,6 +340,7 @@ class BottomSheet extends React.Component {
     return (
       <Paper className={classes.root}>
         <p>Nothing to see here.</p>
+        {this.renderAddButton()}
         {this.renderAddSpotDialog()}
       </Paper>
     )
