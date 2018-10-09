@@ -72,8 +72,8 @@ const addNewMessage = (userId, text) => async (dispatch, getState) => {
       text,
       tourId
     );
-    const newMessage = { text, toId: userId, fomId, tourId };
-    dispatch(addmessage(newMessage));
+    const newMessage = { text, toId: userId, fromId, tourId };
+    dispatch(addMessage(newMessage));
   } catch (error) {
     console.error(error);
   }
