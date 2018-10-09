@@ -208,11 +208,12 @@ class SimpleMap extends Component {
           return usersUpdate;
         }, {});
       try {
-        await axios.post(`/${API_ROOT}/tour/${tourId}/history`, locationData);
+        const idToken = await firebase.auth().currentUser.getIdToken();
+        await axios.post(`${API_ROOT}/tours/${tourId}/history?access_token=${idToken}`, {locationData});
       } catch (error) {
         console.error(error);
       }
-    }, 60000) //update once a minute
+    }, 10000) //
   }
   loadAfterAuthUser(){
     firebase.auth().onAuthStateChanged(async user => {

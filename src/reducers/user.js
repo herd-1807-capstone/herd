@@ -54,7 +54,7 @@ export const toggleHeatMapThunk = () => async(dispatch, getState) => {
     const maps = getState().googlemap.maps;
     const map = getState().googlemap.map;
     const heatmapData = getState().user.historicalData;
-
+    if (!heatmapData) return;
     window.heatmap = new maps.visualization.HeatmapLayer({
       data: Object.keys(heatmapData).map(pointId => {
         let point = heatmapData[pointId];
