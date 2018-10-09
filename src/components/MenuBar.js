@@ -183,7 +183,7 @@ class MenuBar extends React.Component {
   }
 
   render() {
-    const { classes, theme, currentUser } = this.props;
+    const { classes, theme, currentUser, showHeatMap } = this.props;
 
     const drawer = (
       <div>
@@ -227,9 +227,10 @@ class MenuBar extends React.Component {
             <IconButton onClick ={this.handleRecenter}>
               <GpsFixed />
             </IconButton>
+            {showHeatMap ? null :
             <IconButton onClick = {this.modalOpen('usersListWindow')}>
               <PeopleIcon />
-            </IconButton>
+            </IconButton>}
             <IconButton onClick = {this.modalOpen('spotsListWindow')}>
               <SpotsIcon />
             </IconButton>
@@ -310,7 +311,8 @@ MenuBar.propTypes = {
 
 const mapState = state => ({
   currentUser: state.user.currentUser,
-  announcement: state.tour.announcement
+  announcement: state.tour.announcement,
+  showHeatMap: state.user.showHeatMap
 });
 
 const mapDispatch = dispatch => ({

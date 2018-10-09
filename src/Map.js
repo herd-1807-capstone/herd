@@ -82,7 +82,6 @@ class SimpleMap extends Component {
   }
   setCoords(position) {
     const {coords} = position;
-    console.log('POSITION OBJ', position);
     this.setState({
       currentPosition: {
         lat: coords.latitude,
@@ -179,32 +178,40 @@ class SimpleMap extends Component {
 
     //check user is admin;
     if (!tourId) return;
+    if (currentUser.status !== 'admin') return;
 
     const tourRef = db.ref(`/tours/${tourId}`);
     let tourInfo;
+    let snap;
     try {
-      tourInfo = await tourRef.once('value');
+      snap = await tourRef.once('value');
 
     } catch (error) {
       console.error(error);
     }
-
+    tourInfo = snap.val();
     //check if tour has started yet, if not, exit;
-    if (Date.now() < tourInfo.startDateTime) return;
-      this.locationHistoryId = setInterval(()=>{
+    if (Date.now() < tourInfo.startDateTime || Date.now() > tourInfo.endDateTime) {
+      return;
+    }
+      this.locationHistoryId = setInterval(async()=>{
       //if now is > end then clearInterval or if haven't started, clearInterval;
         if (Date.now() > tourInfo.endDateTime || Date.now() < tourInfo.startDateTime){
           clearInterval(this.locationHistoryId);
         }
       let allUsers = [...this.props.users, this.state.currentPosition];
       //read users location data
-      let data = allUsers.reduce((usersUpdate, user) => {
+      const locationData = allUsers.reduce((usersUpdate, user) => {
           if (!user.lat || !user.lng) return usersUpdate;
-          const key = tourRef.child('history').push().key;//generate key
-          usersUpdate[key] = {lat:user.lat, lng:user.lng};//store it
+          const key = tourRef.child('history').push().key;//generate key locally
+          usersUpdate[key] = {lat:user.lat, lng:user.lng, lastSeen: user.lastSeen || Date.now()};//store it
           return usersUpdate;
         }, {});
-      tourRef.child('history').update(data); //batch update at once
+      try {
+        await axios.post(`/${API_ROOT}/tour/${tourId}/history`, locationData);
+      } catch (error) {
+        console.error(error);
+      }
     }, 60000) //update once a minute
   }
   loadAfterAuthUser(){
@@ -214,13 +221,16 @@ class SimpleMap extends Component {
         try {
           //get user's profile
 
-          let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          let userInfo = snapshot.val();
+          const snapshot = await db.ref(`/users/${user.uid}`).once('value');
+          const userInfo = snapshot.val();
+          const tourId = userInfo.tour;
           this.props.setCurrentUser(userInfo);
           this.props.getSpots();
-          this.props.getUsers();
-          this.props.getHistoricalData();
           this.writeLocationHistory(userInfo);
+          this.props.getUsers();
+
+
+
         } catch (error) {
           console.error(error);
         }
@@ -243,26 +253,15 @@ class SimpleMap extends Component {
       navigator.geolocation.clearWatch(this.geoWatchId);
     }
     clearInterval(this.locationHistoryId);
-    clearInterval(this.locationHistoryId);
-
   }
   onApiLoaded({map, maps}){
     this.props.setMap(map, maps);
     this.renderAccuracyCircle(map, maps);
 
-    // const latLngData = this.props.heatmapData.map(coord => new maps.LatLng(coord.lat, coord.lng))
-
-
     window.infoWindow = new maps.InfoWindow();
     const {heatmapData } = this.props;
-    // console.log ('HEAT MAP DATA!!!', heatmapData);
-    let heatmap = new maps.visualization.HeatmapLayer({
-      data: Object.keys(heatmapData).map(pointId => {
-        let point = heatmapData[pointId];
-        return new maps.LatLng(point.lat, point.lng)
-      })
-    })
-    heatmap.setMap(map);
+
+
   }
   renderAccuracyCircle(map, maps){
     const {lat, lng, accuracy } = this.state.currentPosition
@@ -290,6 +289,7 @@ class SimpleMap extends Component {
       return null;
     });
   }
+
   renderUsers() {
     return this.props.users.map((user, index)=> {
       if (user.status === 'admin') {
@@ -323,8 +323,8 @@ class SimpleMap extends Component {
     });
   }
   render() {
-    const {usersListWindow, spotsListWindow, handleListClose, heatmapData} = this.props;
-    // console.log('HEAT MAP DATA!!!!', heatmapData);
+    const {usersListWindow, spotsListWindow, handleListClose} = this.props;
+
     return (
       // Important! Always set the container height explicitly
         <Fragment>
@@ -383,8 +383,6 @@ class SimpleMap extends Component {
               />
           </Modal>
           </div>
-
-
         </Fragment>
     );
   }

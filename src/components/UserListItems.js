@@ -12,6 +12,7 @@ import Divider from '@material-ui/core/Divider';
 import { connect } from 'react-redux';
 import MapIcon from '@material-ui/icons/Map';
 import { setSelected } from '../reducers/spots'
+import { toggleHeatMapThunk, getHistoricalData } from '../store';
 
 class UserListItems extends Component {
   constructor(props){
@@ -21,7 +22,7 @@ class UserListItems extends Component {
     }
   }
   tourPreview = () =>{
-    const {map, spots, menuToggle, reselect} = this.props
+    const {map, spots, menuToggle, reselect} = this.props;
     menuToggle()();
     this.setState({tourPreview: true}, async() => {
       let selected;
@@ -57,41 +58,61 @@ class UserListItems extends Component {
     this.setState({tourPreview: false});
     clearInterval(this.previewId);
   }
+
+  renderPreviewButton=()=>{
+    return this.state.tourPreview ?
+        (<ListItem button onClick= {this.stopPreview}>
+            <ListItemIcon>
+              <MapIcon/>
+              </ListItemIcon>
+            <ListItemText primary="Stop preview" />
+          </ListItem>)
+          : (
+          <ListItem button onClick= {this.tourPreview}>
+            <ListItemIcon>
+              <MapIcon/>
+            </ListItemIcon>
+            <ListItemText primary="Tour preview" />
+          </ListItem>
+          )
+  }
   render(){
-    const { handleInfoSpot, handleChatStart } = this.props;
+    const {
+      handleInfoSpot,
+      handleChatStart,
+      toggleHeatMap,
+      showHeatMap,
+      spots
+    } = this.props;
+
     return (
       <div>
+        {showHeatMap ? null :
         <ListItem button>
           <ListItemIcon>
             <AddAlert />
           </ListItemIcon>
           <ListItemText primary="Emergency Signal" />
+        </ListItem>}
+          <ListItem
+          button
+          onClick = {toggleHeatMap}
+          >
+          <ListItemIcon >
+            <MapIcon />
+          </ListItemIcon>
+          <ListItemText primary={
+            showHeatMap ? "Back to map" :
+            "Location history heat map"} />
         </ListItem>
-        <ListItem button>
-          <ListItemIcon>
-            <PeopleIcon />
-          </ListItemIcon>
-          <ListItemText primary="Add a Spot" />
-        </ListItem>
-        {this.state.tourPreview ?
-        <ListItem button onClick= {this.stopPreview}>
-          <ListItemIcon>
-            <MapIcon/>
-          </ListItemIcon>
-        <ListItemText primary="Stop preview" />
-      </ListItem>
-        : <ListItem button onClick= {this.tourPreview}>
-          <ListItemIcon>
-            <MapIcon/>
-          </ListItemIcon>
-          <ListItemText primary="Tour preview" />
-        </ListItem> }
+        { spots.length ? this.renderPreviewButton() : null }
+        {showHeatMap ? null :
         <ListItem button>
           <ListItemIcon>
             <VisibilityOff />
           </ListItemIcon>
           <ListItemText primary="Visibility on Map" />
-        </ListItem>
+        </ListItem>}
         <Divider />
         <ListItem button onClick={handleInfoSpot}>
           <ListItemIcon>
@@ -99,12 +120,13 @@ class UserListItems extends Component {
           </ListItemIcon>
           <ListItemText primary="Info on a Spot" />
         </ListItem>
-        <ListItem button onClick={handleChatStart}>
+        {showHeatMap ? null :
+          <ListItem button onClick={handleChatStart}>
           <ListItemIcon>
             <RecordVoiceOver />
           </ListItemIcon>
           <ListItemText primary="Start a Chat" />
-        </ListItem>
+        </ListItem>}
         {/* <ListItem button onClick={this.props.handleInvite}>
         <ListItemIcon>
           <PeopleIcon />
@@ -116,14 +138,23 @@ class UserListItems extends Component {
   }
 };
 
-const mapState = ({googlemap, spots}) => ({
+const mapState = ({googlemap, spots, user}) => ({
   map: googlemap.map,
-  spots: spots.list
+  spots: spots.list,
+  showHeatMap: user.showHeatMap
 })
 
 const mapDispatch = (dispatch) => ({
   reselect(spot){
     dispatch(setSelected(spot))
+  },
+  async toggleHeatMap(){
+    try {
+      await dispatch(getHistoricalData());
+      await dispatch(toggleHeatMapThunk());
+    } catch (error) {
+      console.error(error)
+    }
   }
 })
 export default connect(mapState, mapDispatch)(UserListItems);
