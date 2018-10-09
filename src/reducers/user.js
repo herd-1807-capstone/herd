@@ -63,9 +63,9 @@ export const toggleHeatMapThunk = () => async(dispatch, getState) => {
     })
     window.heatmap.setMap(map);
   } else {
-      if (window.heatmap) return window.heatmap.setMap(null);
-      try {
-        await dispatch(getAllUsers());
+    try {
+      await dispatch(getAllUsers());
+      if (window.heatmap) window.heatmap.setMap(null);
       } catch (error) {
         console.error(error);
       }
