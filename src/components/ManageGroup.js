@@ -315,7 +315,6 @@ constructor(props){
         </List>
         </TabContainer>}
         {value === 1 && <TabContainer>
-
             <List>
           {Object.values(freeBirds).map(user => (
             <div key={user.uid}>

@@ -92,7 +92,6 @@ export const getAllUsers = () => (dispatch, getState) => {
     const userPermission = loggedInUser.status;
     const tourId = loggedInUser.tour;
     const refUsers = db.ref('/users');
-
     refUsers
       .orderByChild('tour')
       .equalTo(tourId)
@@ -116,10 +115,9 @@ export const getAllUsers = () => (dispatch, getState) => {
           console.log('ERROR:', error.code);
         }
       );
-
-  }catch(err){
-    console.log(err);
-  }
+    }catch(err){
+      console.log(err)
+    }
 }
 
 export const addTourToUser = tourId => async (dispatch, getState) => {
