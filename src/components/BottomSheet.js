@@ -5,20 +5,25 @@ import {withStyles} from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button'
-import {removeSpotThunk, editSpotThunk, setSelected} from '../reducers/spots'
+import {removeSpotThunk, editSpotThunk, setSelected, toggleAdd} from '../reducers/spots'
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import CancelIcon from '@material-ui/icons/Close';
+import AddIcon from '@material-ui/icons/Add';
+import PinDropIcon from '@material-ui/icons/PinDrop'
+import Modal from '@material-ui/core/Modal';
+import AddMarkerForm from './AddMarkerForm'
 
 
 const styles = {
   root:{
     // padding: 10,
     height: '35vh',
-    position: 'fixed',
+    position: 'relative',
     overflowY: 'scroll',
     width: '100vw',
     display: 'flex',
@@ -46,6 +51,11 @@ const styles = {
   image:{
     objectFit: 'cover',
     height:'20vh'
+  },
+  addButton:{
+    position: 'absolute',
+    top: 0,
+    right: 10,
   }
 }
 
@@ -53,6 +63,11 @@ class BottomSheet extends React.Component {
   constructor(props){
     super(props);
     this.state = {
+      addMarkerWindow: false,
+      addMarkerForm: {
+        lat: null,
+        lng: null
+      },
       editFormOpen: false,
       removeDialogOpen: false,
       removeSuccess: false,
@@ -120,10 +135,86 @@ class BottomSheet extends React.Component {
       console.error(error)
     }
   }
+  toggleAdd = async() =>{
+    const {map} = this.props
+    try {
+      await this.props.toggleAdding();
+      if (this.props.addSpotOnClick){
+        window.spotCrosshair.bindTo('position', map, 'center');
+        window.spotCrosshair.setVisible(true);
+      } else {
+        window.spotCrosshair.setVisible(false);
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+  dropPin = () => {
+    const {currentUser, map} = this.props;
+    if(currentUser && currentUser.status === 'admin'){
+      this.setState({
+        addMarkerWindow: true,
+        addMarkerForm: {
+          lat: map && map.getCenter().lat(),
+          lng: map && map.getCenter().lng()
+        }
+      })
+    }
+  }
+  renderAddSpotDialog(){
+    const {addMarkerForm, addMarkerWindow} = this.state;
+    return (<Modal
+      key='add-marker-window'
+      open={addMarkerWindow}
+      onClose={this.handleClose('addMarkerWindow')}
+      >
+      <AddMarkerForm
+        handleClose= {this.handleClose}
+        lat={addMarkerForm.lat}
+        lng={addMarkerForm.lng}
+        />
+    </Modal>)
+  }
+  renderAddButton(){
+    const {classes, currentUser, addSpotOnClick} = this.props;
+    if (currentUser.status === 'admin'){
 
+      return addSpotOnClick ?
+      (
+      <div className = {classes.addButton}>
+        <Button
+          onClick = {this.toggleAdd}
+          // className = {classes.addButton}
+          variant="fab"
+          color="secondary"
+          aria-label="Add">
+                <CancelIcon />
+          </Button>
+          <Button
+          onClick = {this.dropPin}
+          // className = {classes.addButton}
+          variant="fab"
+          color="primary"
+          aria-label="Add">
+                <PinDropIcon />
+          </Button>
+      </div>
+      )
+        :(<Button
+        onClick = {this.toggleAdd}
+        className = {classes.addButton}
+        variant="fab"
+        color="primary"
+        aria-label="Add">
+              <AddIcon />
+        </Button>
+      )
+    }
+
+  }
   render() {
 
-    let {classes, selected, currentUser} = this.props
+    let {classes, selected, currentUser, addMarkerWindow} = this.props
 
     if (selected && selected.name){
         return (
@@ -134,7 +225,9 @@ class BottomSheet extends React.Component {
               src = {selected.imgUrl || '#'} />
             </div>
              <div className = {classes.content}>
-               <h2 className = {classes.heading}>{selected.name || selected.uid}</h2>
+            {this.renderAddButton()}
+                  <h2 className = {classes.heading}>{selected.name || selected.uid}</h2>
+
              {selected && selected.type === 'spot' ?
              (<Fragment>
                 <p>{selected.description}</p>
@@ -163,6 +256,7 @@ class BottomSheet extends React.Component {
               </div> : null}
              </div>
           </Paper>
+          {this.renderAddSpotDialog()}
           <Dialog
             open={this.state.editFormOpen || this.state.removeDialogOpen}
             onClose={this.handleClose((this.state.editFormOpen && 'editFormOpen')|| (this.state.removeDialogOpen && 'removeDialogOpen'))}
@@ -246,6 +340,8 @@ class BottomSheet extends React.Component {
     return (
       <Paper className={classes.root}>
         <p>Nothing to see here.</p>
+        {this.renderAddButton()}
+        {this.renderAddSpotDialog()}
       </Paper>
     )
   }
@@ -254,10 +350,12 @@ BottomSheet.propTypes = {
   classes: PropTypes.object.isRequired
 }
 
-const mapState = ({spots, user}) => ({
+const mapState = ({spots, user, googlemap}) => ({
   selected: spots.selected || spots.list[0],
   currentUser: user.currentUser,
-  spots: spots.list
+  spots: spots.list,
+  addSpotOnClick: spots.addSpotOnClick,
+  map: googlemap.map
 })
 
 const mapDispatch = (dispatch) => ({
@@ -269,6 +367,9 @@ const mapDispatch = (dispatch) => ({
   },
   reselect(selected){
     dispatch(setSelected(selected))
+  },
+  toggleAdding(){
+    dispatch(toggleAdd());
   }
 })
 

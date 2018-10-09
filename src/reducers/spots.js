@@ -6,7 +6,7 @@ const db = firebase.database();
 const defaultSpots = {
   list: [],
   selected: null,
-  addSpotOnClick: true
+  addSpotOnClick: false
 };
 
 //SELECTORS
@@ -29,15 +29,20 @@ const SET_SPOTS = "SET_SPOTS";
 const ADD_SPOT = "ADD_SPOT";
 const SET_SELECTED = 'SET_SELECTED';
 const REMOVE_SPOT = "REMOVE_SPOT";
-
+const TOGGLE_ADD = 'TOGGLE_ADD';
 
 
 // ACTION CREATORS
+
+export const toggleAdd = () => ({
+  type: TOGGLE_ADD
+})
 
 export const removeSpot = spotId => ({
   type: REMOVE_SPOT,
   spotId
 })
+
 
 const setSpots = spots => ({
   type: SET_SPOTS,
@@ -145,6 +150,11 @@ export default (state = defaultSpots, action) => {
         list: state.list.filter(spot => {
           return spot.uid !== action.spotId
         })
+      }
+    case TOGGLE_ADD:
+      return {
+        ...state,
+        addSpotOnClick: !state.addSpotOnClick
       }
     default:
       return state;
