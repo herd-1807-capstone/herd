@@ -109,6 +109,12 @@ class UserListItems extends Component {
           </ListItemIcon>
           <ListItemText primary="Start a Chat" />
         </ListItem>
+        {/* <ListItem button onClick={this.props.handleInvite}>
+        <ListItemIcon>
+          <PeopleIcon />
+        </ListItemIcon>
+        <ListItemText primary="Invite Friends" />
+      </ListItem> */}
       </div>
     );
   }
