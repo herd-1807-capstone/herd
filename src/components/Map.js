@@ -10,7 +10,6 @@ import { connect } from 'react-redux';
 import {setCurrentUser, getHistoricalData} from '../reducers/user'
 import {API_ROOT} from '../utils/api-config';
 import Modal from '@material-ui/core/Modal';
-import AddMarkerForm from './AddMarkerForm'
 import {SpotsListWindow, UsersListWindow} from './ListWindow';
 import {setGoogleMap} from '../reducers/googlemap';
 
@@ -54,11 +53,11 @@ class SimpleMap extends Component {
       addMarkerLat: null,
       addMarkerLng: null,
     };
-    this.onMapClick = this.onMapClick.bind(this);
+
     this.onMarkerClick = this.onMarkerClick.bind(this);
     this.setCoords = this.setCoords.bind(this);
     this.watchCurrentPosition = this.watchCurrentPosition.bind(this);
-    this.centerToPosition = this.centerToPosition.bind(this);
+
     this.writeCurrentPosition = this.writeCurrentPosition.bind(this);
     this.renderAccuracyCircle = this.renderAccuracyCircle.bind(this);
     this.onApiLoaded = this.onApiLoaded.bind(this);
@@ -117,7 +116,7 @@ class SimpleMap extends Component {
 
     if (prevProps.recenter !== this.props.recenter){
       if (this.props.recenter){
-        this.centerToPosition(this.state.currentPosition.lat, this.state.currentPosition.lng);
+        this.props.map.panTo({lat: this.state.currentPosition.lat, lng:this.state.currentPosition.lng});
       }
     }
   }
@@ -129,16 +128,6 @@ class SimpleMap extends Component {
   }
   hidePosition() {
     //TODO: hide from other users, but not admin
-  }
-  onMapClick(evt) {
-
-    if(this.props.currentUser && this.props.currentUser.status === 'admin'){
-      this.setState({
-        addMarkerWindow: true,
-        addMarkerLat: evt.lat,
-        addMarkerLng: evt.lng,
-      })
-    }
   }
   handleClose=(type)=>()=>{
     this.setState({
@@ -156,22 +145,6 @@ class SimpleMap extends Component {
     this.props.selectSpot(marker);
     this.props.map.panTo(coords);
     window.infoWindow.open(this.props.map);
-  }
-  centerToPosition(lat, lng) {
-    this.setState(
-      {
-        center: {
-          lat,
-          lng
-        },
-      },
-      () => {
-        //reset center even user location didn't change
-        this.setState({
-          center: {},
-        });
-      }
-    );
   }
 
   componentDidMount() {
@@ -209,7 +182,7 @@ class SimpleMap extends Component {
       const locationData = allUsers.reduce((usersUpdate, user) => {
           if (!user.lat || !user.lng) return usersUpdate;
           const key = tourRef.child('history').push().key;//generate key locally
-          usersUpdate[key] = {lat:user.lat, lng:user.lng, lastSeen: user.lastSeen || Date.now()};//store it
+          usersUpdate[key] = {lat:user.lat, lng:user.lng, lastSeen: user.lastSeen || Date.now()};//save
           return usersUpdate;
         }, {});
       try {
@@ -272,6 +245,22 @@ class SimpleMap extends Component {
     map.mapTypes.set('silver', silverMap);
     map.mapTypes.setMapTypeId;
 
+    window.spotCrosshair = new maps.Marker({
+      map,
+      icon: {
+        url: 'Crosshair.svg',
+        anchor: new maps.Point(12, 12),
+        // size: new maps.Size(40, 40),
+      }
+    });
+
+  }
+  updateCenter = ({center}) => {
+    console.log('CENTER!!!!', center)
+    this.setState({center: {
+      lat: center.lat,
+      lng: center.lng
+    }})
   }
   renderAccuracyCircle(map, maps){
     const {lat, lng, accuracy } = this.state.currentPosition
@@ -334,7 +323,7 @@ class SimpleMap extends Component {
     });
   }
   render() {
-    const {usersListWindow, spotsListWindow, handleListClose} = this.props;
+    const {usersListWindow, spotsListWindow, handleListClose, map, addSpotOnClick} = this.props;
 
     return (
       // Important! Always set the container height explicitly
@@ -344,19 +333,20 @@ class SimpleMap extends Component {
               bootstrapURLKeys={{ key: GOOGLE_API_KEY}}
               defaultCenter={this.props.center}
               defaultZoom={this.props.zoom}
-              center={this.state.center}
+
               options ={createOptions}
-              onClick = {this.onMapClick}
+
               onChildClick={this.onMarkerClick}
               onGoogleApiLoaded={this.onApiLoaded}
               yesIWantToUseGoogleMapApiInternals = {true}
               heatmapLibrary = {true}
-              // heatmap = {{data: heatmapData}}
+
               >
                 <GeolocationMarker
                   key = 'geolocationMarker'
                   lat={this.state.currentPosition.lat}
                   lng={this.state.currentPosition.lng} />
+
                 {
                   this.renderSpots()
                 }
@@ -364,17 +354,6 @@ class SimpleMap extends Component {
                   this.renderUsers()
                 }
             </GoogleMapReact>
-          <Modal
-            key='add-marker-window'
-            open={this.state.addMarkerWindow}
-            onClose={this.handleClose('addMarkerWindow')}
-            >
-            <AddMarkerForm
-            handleClose= {this.handleClose}
-            lat={this.state.addMarkerLat}
-            lng={this.state.addMarkerLng}
-            />
-          </Modal>
           <Modal
             key='users-list-window'
             open={usersListWindow || false}
@@ -406,7 +385,8 @@ const mapState = ({user, spots, googlemap})=>({
   selected: spots.selected,
   map: googlemap.map,
   maps: googlemap.maps,
-  heatmapData: user.historicalData
+  heatmapData: user.historicalData,
+  addSpotOnClick: spots.addSpotOnClick
 })
 
 const mapDispatch = (dispatch) => ({
