@@ -122,6 +122,7 @@ class MenuBar extends React.Component {
   }
 
   handleRecenter(evt){
+
     this.setState({recenter: true}, ()=>{
       this.setState({recenter: false})
     })
@@ -325,6 +326,7 @@ const mapState = state => ({
   announcement: state.tour.announcement,
   showHeatMap: state.user.showHeatMap,
   tour: state.tour.tour,
+  map: state.googlemap.map
 });
 
 const mapDispatch = dispatch => ({
