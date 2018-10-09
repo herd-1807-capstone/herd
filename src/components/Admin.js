@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router-dom'
 import axios from 'axios'
-import './component.css'
+import '../css/component.css'
 import firebase, {API_ROOT} from '../utils/api-config';
 
 import TextField from '@material-ui/core/TextField';
