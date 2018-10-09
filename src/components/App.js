@@ -86,7 +86,7 @@ class App extends Component {
 
 
   render() {
-    const { tour, status } = this.props.currentUser;
+    const { tour } = this.props.currentUser;
     return (
       <div className="App">
         <Switch>
@@ -94,7 +94,7 @@ class App extends Component {
           {this.props.currentUser.hasOwnProperty('email') && (
             <Switch>
               {
-                tour || status === 'admin' ?
+                tour ?
                 <Route exact path="/" component={MenuBar} />
                 :
                 <Route exact path="/" component={PostLogin} />
