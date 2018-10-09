@@ -131,3 +131,22 @@ body {
   height: 20px;
   opacity: 0.5;
 }
+
+#crosshair-bkgd{
+  border-radius: 50%;
+  /* transform: translate(-50%, -50%); */
+  width: 40px;
+  height: 40px;
+  opacity: 0.3;
+  background-color: red;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 100;
+}
+
+.crosshair{
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  /* padding: 20px; */
+}
