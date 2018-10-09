@@ -1,6 +1,6 @@
-import firebase from '../fire';
+import firebase from '../utils/api-config';
 import axios from 'axios';
-import { API_ROOT } from '../api-config';
+import { API_ROOT } from '../utils/api-config';
 const db = firebase.database();
 
 // Actions
@@ -41,20 +41,35 @@ export const getConversation = toId => async (dispatch, getState) => {
     const fromId = getState().user.currentUser.uid;
     const tourId = getState().user.currentUser.tour || 'disney_tour'; //fallback value
 
-    const snapshot = await db.ref(`/tours/${tourId}/messages/`).on('value');
+    const conversationSnapshot = await db
+      .ref(`/users/${fromId}/conversations`)
+      .orderByValue()
+      .equalTo(toId)
+      .once('value');
 
-    const toUser = await db.ref(`/users/${toId}`).once('value');
-    const toName = toUser.val().name;
-    const fromUser = await db.ref(`/users/${fromId}`).once('value');
-    const fromName = fromUser.val().name;
+    const conversationObj = conversationSnapshot.val();
 
-    const conversation = transformObjWithNames(
-      snapshot.val(),
-      fromId,
-      toId,
-      fromName,
-      toName
-    ).reverse();
+    let conversation = [];
+
+    if (conversationObj) {
+      const conversationKey = Object.keys(conversationObj)[0];
+      const conversationSnapshot = await db
+        .ref(`/tours/${tourId}/conversations/${conversationKey}`)
+        .on('value');
+
+      const toUser = await db.ref(`/users/${toId}`).once('value');
+      const toName = toUser.val().name;
+      const fromUser = await db.ref(`/users/${fromId}`).once('value');
+      const fromName = fromUser.val().name;
+
+      conversation = transformObjWithNames(
+        conversationSnapshot.val(),
+        fromId,
+        toId,
+        fromName,
+        toName
+      ).reverse();
+    }
 
     dispatch(setConversation(conversation));
   } catch (error) {
