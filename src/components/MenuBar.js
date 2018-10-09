@@ -131,7 +131,6 @@ class MenuBar extends React.Component {
     let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
 
     const result = await axios.post(`${API_ROOT}/tours/${"-LO9qp_CJeEownSICbbp"}/invitations/${"NCNNuK1w"}?access_token=${access_token}`)
-    console.log(result)
   }
 
   showAnnouncementModal = () => {

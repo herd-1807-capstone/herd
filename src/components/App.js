@@ -26,12 +26,6 @@ class App extends Component {
 
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          console.log("On Auth current user")
-          console.log(auth.currentUser.emailVerified)
-          console.log("user does exist!")
-          console.log(user)
-          console.log("what we have for the user")
-          console.log(snapshot.val())
           const userRef = db.ref(`/users/${user.uid}`)
           if (!snapshot.exists()) {
             let newUser = {
@@ -47,9 +41,6 @@ class App extends Component {
             await db.ref(`/users/${user.uid}`).set(newUser);
             newUser = await db.ref(`/users/${user.uid}`).once('value');
             user = newUser.val();
-
-
-
           } else {
             let theUser = {
               name: user.displayName,
@@ -66,6 +57,7 @@ class App extends Component {
             theUser.tour = snapshot.val().tour
             user = theUser
           }
+
           this.props.setCurrentUser(user)
           userRef.onDisconnect().update({loggedIn: false});
 
@@ -86,19 +78,14 @@ class App extends Component {
 
 
   render() {
-    const { tour, status } = this.props.currentUser;
+    const { tour } = this.props.currentUser;
     return (
       <div className="App">
         <Switch>
           <Route path="/signin" component={Login} />
           {this.props.currentUser.hasOwnProperty('email') && (
             <Switch>
-              {
-                tour || status === 'admin' ?
-                <Route exact path="/" component={MenuBar} />
-                :
-                <Route exact path="/" component={PostLogin} />
-              }
+              <Route exact path="/" component={tour ? MenuBar : PostLogin} />
               <Route path="/error/:id" component={Error} />
               <Route exact path="/admin" component={Admin} />
               <Route exact path="/admin/group" component={ManageGroup} />

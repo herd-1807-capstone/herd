@@ -68,7 +68,7 @@ class PostLogin extends Component{
   async addTourToUser(tourId){
     try{
       await this.props.addTourToUser(tourId);
-      this.props.history.push('/');
+      //this.props.history.push('/');
     }catch(err){
       console.log(err);
     }
