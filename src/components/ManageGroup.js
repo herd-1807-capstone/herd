@@ -118,13 +118,11 @@ constructor(props){
     super(props)
     this.state = {
         groupys: [],
-        freeBirds: [],
         access_token: "",
         changedUser:[],
-        cacheGroupys:[],
-        cacheFreeBirds: [],
         value: 0,
         open: false,
+        inputText: ""
       }
 
     this.handleSave = this.handleSave.bind(this)
@@ -136,24 +134,15 @@ constructor(props){
 
   async componentDidMount(){
     let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
-    let resGroupys = axios.get(`${API_ROOT}/users?access_token=${access_token}`)
-    let resFreeBirds = axios.get(`${API_ROOT}/users/free?access_token=${access_token}`)
-    Promise.all([resGroupys, resFreeBirds])
-            .then(([resGroupysdata, resFreeBirdsdata]) => {
-        let groupys = resGroupysdata.data
-        let freeBirds = resFreeBirdsdata.data
-        if(groupys && groupys[0].hasOwnProperty('tour') && groupys.length !== 0 && groupys[0].tour === 'null'){
-            groupys = []
-        }
+    let resGroupys = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
+    let groupys = resGroupys.data
+    if(groupys && groupys.length > 0 && groupys[0].hasOwnProperty('tour') && groupys[0].tour === 'null'){
+        groupys = []
+    }
     this.setState({...this.state,
                     groupys,
-                    freeBirds,
                     access_token,
-                    cacheGroupys: [...groupys],
-                    cacheFreeBirds: [...freeBirds],
-                    inputText: ""
-        })
-    });
+                })
   }
 
   handleRemoveUser = user => () => {
@@ -232,7 +221,7 @@ constructor(props){
     try {
         if(inputText !== ''){
             let resUser = await axios.get(`${API_ROOT}/users/email/${inputText}?access_token=${access_token}`)
-            let [user] = resUser.data
+            let user = resUser.data
             console.log(`Get the user!!!`)
             console.log(user)
             if(user){
