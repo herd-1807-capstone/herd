@@ -101,7 +101,6 @@ class CreateGroup extends Component {
               label="Tour Group Name"
               fullWidth
               autoComplete="organization"
-              multiline={true}
               onChange={this.handleChange}
             />
           </Grid>
@@ -145,7 +144,6 @@ class CreateGroup extends Component {
           </Grid>
           </form>
         </Grid>
-        <LoadingState />
       </div>
     );
   }
