@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import firebase from '../fire';
+import firebase from '../utils/api-config';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -8,11 +8,12 @@ import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import { setCurrentUser } from '../reducers/user';
 import { withRouter } from 'react-router-dom';
-import {API_ROOT} from '../api-config';
+import {API_ROOT} from '../utils/api-config';
 import { changeLoadingState } from '../reducers/user';
-import LoadingState from './LoadingState'
+import PropTypes from 'prop-types';
+import { withStyles } from '@material-ui/core/styles';
 
-const styles =  {
+const styles ={
   outer:{
     marginTop: 20,
     display: 'flex',
@@ -22,6 +23,7 @@ const styles =  {
   },
   inner:{
     width: 300,
+    alignItems: 'center',
   },
   header:{
     marginTop: 50,
@@ -31,6 +33,15 @@ const styles =  {
     marginTop: 10,
     marginLeft: 10,
     marginRight: 10,
+  },
+  container: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  textField: {
+    marginLeft: 10,
+    marginRight: 10,
+    width: 300,
   },
   }
 
@@ -42,9 +53,14 @@ class CreateGroup extends Component {
       address: "",
       imgUrl: "",
       description: "",
+      tourStart: this.getCurrentDate(),
+      tourEnd: this.getCurrentDate(),
+      formTip: "",
     }
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleChange = this.handleChange.bind(this)
+    this.handleTimeChange = this.handleTimeChange.bind(this)
+    this.handleBack = this.handleBack.bind(this)
   }
 
   async handleSubmit (evt){
@@ -54,13 +70,23 @@ class CreateGroup extends Component {
     if(newName){
       // console.log(this.state)
       evt.persist()
-      const { tourName, imgUrl, description } = this.state
+      const { tourName, imgUrl, description, tourStart, tourEnd, formTip } = this.state
+      let tourStartTime = new Date(tourStart).getTime()
+      let tourEndTime = new Date(tourEnd).getTime()
+      if(formTip !== '') {
+        return
+      }
+      if(tourStartTime >= tourEndTime) {
+        this.setState({formTip: "The Tour Ending Time should be later than Starting Time"})
+        return
+      }
       let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
-      // console.log(access_token)
       let createResult = await axios.post(`${API_ROOT}/tours?access_token=${access_token}`, {
                           "name": tourName,
                           "imgUrl": imgUrl,
                           "description": description,
+                          "startDateTime": new Date(tourStart).getTime(),
+                          "endDateTime": new Date(tourEnd).getTime(),
                           })
       if(createResult.status === 200){
         let newCurrentUser = {...this.props.currentUser, tour: createResult.data.key}
@@ -73,26 +99,75 @@ class CreateGroup extends Component {
   }
 
   handleChange (evt) {
-    // console.log(evt.target.name)
     this.setState({
       [evt.target.name]: evt.target.value
     })
   }
 
+  handleTimeChange (evt) {
+    let target = evt.target.id
+    let targetValue = new Date(evt.target.value).getTime()
+    let isValid = true
+    let newMsg = ""
+      if(Number.isNaN(targetValue)) {
+        this.setState({formTip: "Tour Start / End Time Can Not Be Empty."})
+        return
+      }
+    if(target === "tourStart"){
+      if(targetValue >= new Date(this.state.tourEnd).getTime()){
+        isValid = false
+      } 
+    } else {
+      if(targetValue <= new Date(this.state.tourStart).getTime()){
+        isValid = false
+      }
+      if(targetValue < new Date().getTime()){
+        newMsg = "The Tour Ending Time Should Be Later Than Current Time"
+      }
+    }
+    if(!isValid){
+      newMsg = "The Tour Ending Time Should Be Later Than Starting Time"
+    }
+    this.setState({[target]: [evt.target.value], formTip: newMsg})
+  }
+
+  handleBack(evt) {
+    this.props.history.push('/admin')
+  }
+
+  getCurrentDate(){
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1; //January is 0!
+    var yyyy = today.getFullYear();
+    let hh = today.getHours();
+
+    if(dd<10) {
+        dd = '0'+dd
+    } 
+
+    if(mm<10) {
+        mm = '0'+mm
+    } 
+    today = yyyy + '-' + mm + '-' + dd + 'T' + hh + ':00';
+    return today
+  }
+
   render(){
-    const { currentUser } = this.props
-    console.log(currentUser.tour)
+    const { currentUser, classes } = this.props
     if(currentUser && currentUser.hasOwnProperty('tour') && currentUser.tour !== 'null'){
       this.props.history.push('/admin/group')
     }
 
+    console.log("Starting time: ",new Date(this.state.tourStart).getTime())
+    console.log("Ending time:   ",new Date(this.state.tourEnd).getTime())
     return (
       <div>
         <Typography style={styles.header} variant="title" gutterBottom>
           Create New Tour Group
         </Typography>
         <Grid container style={styles.outer}  spacing={24}>
-          <form onSubmit={this.handleSubmit} id='createTour'>
+          {/* <form onSubmit={this.handleSubmit} id='createTour'> */}
           <Grid style={styles.inner} item xs={12} sm={8}>
             <TextField
               required
@@ -128,6 +203,7 @@ class CreateGroup extends Component {
           </Grid>
           <Grid style={styles.inner} item xs={12} sm={8}>
             <TextField
+              required
               id="description"
               name="description"
               label="Tour Description"
@@ -136,13 +212,54 @@ class CreateGroup extends Component {
               onChange={this.handleChange}
             />
           </Grid>
+          {/* </form> */}
           <Grid style={styles.inner} item xs={12} sm={8}>
+            <form className={classes.container} noValidate>
+              <TextField
+                id="tourStart"
+                label="Tour Starts At:"
+                type="datetime-local"
+                defaultValue={this.getCurrentDate()}
+                className={classes.textField}
+                onChange={this.handleTimeChange}
+                InputLabelProps={{
+                shrink: true,
+                
+                }}
+              />
+            </form>
+            <form className={classes.container} noValidate>
+              <TextField
+                id="tourEnd"
+                label="Tour Ends At:"
+                type="datetime-local"
+                defaultValue={this.getCurrentDate()}
+                className={classes.textField}
+                onChange={this.handleTimeChange}
+                InputLabelProps={{
+                shrink: true,
+                }}
+              />
+            </form>
+            <label>
+              <font color="red">
+                {this.state.formTip}
+              </font>
+            </label>
           </Grid>
           <Grid style={styles.inner} item xs={12} sm={8}>
-          <Button style={styles.button} variant="contained" color="primary" type="submit" onClick={this.handleSubmit} >Save</Button>
-            <Button style={styles.button} variant="contained" color="primary" >Cancel</Button>
+            <Button style={styles.button} 
+                  variant="contained" 
+                  color="primary" 
+                  type="submit" 
+                  onClick={this.handleSubmit} 
+            >Save</Button>
+            <Button style={styles.button} 
+                    variant="contained" 
+                    color="primary"
+                    onClick={this.handleBack} 
+            >Back</Button>
           </Grid>
-          </form>
         </Grid>
       </div>
     );
@@ -161,4 +278,8 @@ const mapDispatch = (dispatch) => ({
   changeLoadingState: () => dispatch(changeLoadingState())
 })
 
-export default withRouter(connect(mapProps, mapDispatch)(CreateGroup));
+CreateGroup.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
+export default withRouter(connect(mapProps, mapDispatch)(withStyles(styles)(CreateGroup)));

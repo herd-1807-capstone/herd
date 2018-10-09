@@ -1,4 +1,4 @@
-import firebase from '../fire';
+import firebase from '../utils/api-config';
 const db = firebase.database();
 
 // Actions

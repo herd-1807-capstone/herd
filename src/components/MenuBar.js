@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import firebase from '../fire';
+import firebase from '../utils/api-config';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -17,16 +17,16 @@ import MenuIcon from '@material-ui/icons/Menu';
 
 import UserListItems from './UserListItems';
 import AdminListItems from './AdminListItems';
-import Map from '../Map';
+import Map from './Map';
 import Chat from './Chat';
-import BottomSheet from '../BottomSheet';
+import BottomSheet from './BottomSheet';
 import AnnouncementCreateModal from './AnnouncementCreateModal';
 import { setCurrentUser, sendTourAnnouncement, fetchUserTour } from '../store/index';
 import GpsFixed from '@material-ui/icons/GpsFixed';
 import PeopleIcon from '@material-ui/icons/People';
 import SpotsIcon from '@material-ui/icons/Place';
 import axios from 'axios';
-import {API_ROOT} from '../api-config';
+import {API_ROOT} from '../utils/api-config';
 
 const drawerWidth = 240;
 
