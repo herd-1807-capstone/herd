@@ -5,7 +5,7 @@ import {withStyles} from '@material-ui/core';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from '@material-ui/core/Button'
-import {removeSpotThunk, editSpotThunk, setSelected} from './reducers/spots'
+import {removeSpotThunk, editSpotThunk, setSelected} from '../reducers/spots'
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';

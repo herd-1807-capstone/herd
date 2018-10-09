@@ -1,6 +1,5 @@
 import axios from 'axios';
-import {API_ROOT} from '../api-config';
-import firebase from '../fire';
+import firebase, {API_ROOT} from '../utils/api-config';
 const db = firebase.database();
 
 // initial state

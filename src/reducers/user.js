@@ -1,5 +1,4 @@
-import firebase from '../fire';
-import {API_ROOT} from '../api-config';
+import firebase, {API_ROOT} from '../utils/api-config';
 import axios from 'axios'
 
 const db = firebase.database();

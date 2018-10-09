@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import firebase from '../fire';
+import firebase from '../utils/api-config';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -8,7 +8,7 @@ import Button from '@material-ui/core/Button';
 import { connect } from 'react-redux';
 import { setCurrentUser } from '../reducers/user';
 import { withRouter } from 'react-router-dom';
-import {API_ROOT} from '../api-config';
+import {API_ROOT} from '../utils/api-config';
 import { changeLoadingState } from '../reducers/user';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';

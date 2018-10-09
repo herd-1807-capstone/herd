@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import firebase from '../fire';
+import firebase from '../utils/api-config';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 

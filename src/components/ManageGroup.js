@@ -11,7 +11,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
-import firebase from '../fire';
+import firebase from '../utils/api-config';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -30,7 +30,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
 
-import {API_ROOT} from '../api-config';
+import {API_ROOT} from '../utils/api-config';
 
 const styles = theme => ({
     root: {
