@@ -32,7 +32,7 @@ function ChatView(props) {
         {conversation.map(item => (
           <ListItem key={item.key}>
             <ListItemText
-              primary={`${item.fromName}=> ${item.toName}: ${item.text}`}
+              primary={`${item.fromName} => ${item.toName}: ${item.text}`}
             />
           </ListItem>
         ))}

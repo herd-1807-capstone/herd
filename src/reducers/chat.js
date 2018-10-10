@@ -21,21 +21,6 @@ export const addMessage = newMessage => ({
 
 // Thunk creators
 
-const transformObjWithNames = (obj, str1, str2, name1, name2) => {
-  const list = Object.keys(obj);
-  const newArray = list.map(item => {
-    const { fromId, toId } = obj[item];
-    const fromName = fromId === str1 ? name1 : name2;
-    const toName = toId === str1 ? name1 : name2;
-    return { key: item, ...obj[item], fromName, toName };
-  });
-  return newArray.filter(
-    item =>
-      (item.fromId === str1 && item.toId === str2) ||
-      (item.fromId === str2 && item.toId === str1)
-  );
-};
-
 export const getConversation = toId => async (dispatch, getState) => {
   try {
     const fromId = getState().user.currentUser.uid;
@@ -47,21 +32,25 @@ export const getConversation = toId => async (dispatch, getState) => {
       .equalTo(toId)
       .once('value');
 
-    let conversation = [];
     const conversationObj = conversationSnapshot.val();
     if (!conversationObj) return;
     const conversationKey = Object.keys(conversationObj)[0];
 
-    const singleConversationSnapshot = await db
-      .ref(`/tours/${tourId}/conversations/${conversationKey}`)
-      .once('value');
+    // const singleConversationSnapshot = await db
+    //   .ref(`/tours/${tourId}/conversations/${conversationKey}`)
+    //   .once('value');
 
-    const singleConversation = singleConversationSnapshot.val();
-    console.log('====================================');
-    console.log('single conv', Object.values(singleConversation));
-    console.log('====================================');
+    // const singleConversation = singleConversationSnapshot.val();
+    // console.log('====================================');
+    // console.log('single conv', Object.values(singleConversation));
+    // console.log('====================================');
 
-    dispatch(setConversation(conversation));
+    db.ref(`/tours/${tourId}/conversations/${conversationKey}`).on(
+      'value',
+      function(snapshot) {
+        dispatch(setConversation(Object.values(snapshot.val()).reverse()));
+      }
+    );
   } catch (error) {
     console.error(error);
   }
