@@ -47,31 +47,19 @@ export const getConversation = toId => async (dispatch, getState) => {
       .equalTo(toId)
       .once('value');
 
-    const conversationObj = conversationSnapshot.val();
-
     let conversation = [];
+    const conversationObj = conversationSnapshot.val();
+    if (!conversationObj) return;
+    const conversationKey = Object.keys(conversationObj)[0];
 
-    if (conversationObj) {
-      const conversationKey = Object.keys(conversationObj)[0];
+    const singleConversationSnapshot = await db
+      .ref(`/tours/${tourId}/conversations/${conversationKey}`)
+      .once('value');
 
-      const conversationSnapshot = await db
-        .ref(`/tours/${tourId}/conversations/${conversationKey}`)
-        .once('value');
-      const singleConversation = conversationSnapshot.val();
-
-      const toUser = await db.ref(`/users/${toId}`).once('value');
-      const toName = toUser.val().name;
-      const fromUser = await db.ref(`/users/${fromId}`).once('value');
-      const fromName = fromUser.val().name;
-
-      conversation = transformObjWithNames(
-        singleConversation,
-        fromId,
-        toId,
-        fromName,
-        toName
-      ).reverse();
-    }
+    const singleConversation = singleConversationSnapshot.val();
+    console.log('====================================');
+    console.log('single conv', Object.values(singleConversation));
+    console.log('====================================');
 
     dispatch(setConversation(conversation));
   } catch (error) {
@@ -101,6 +89,7 @@ export const addNewMessage = (userId, text) => async (dispatch, getState) => {
 
 const initialState = {
   conversation: [],
+  newMessage: {},
 };
 
 export default (state = initialState, action) => {
