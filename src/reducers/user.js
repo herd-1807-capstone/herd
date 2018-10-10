@@ -45,7 +45,7 @@ export const toggleHeatMapThunk = () => async(dispatch, getState) => {
   const user = getState().user;
   const tourId = user.currentUser.tour;
   const showHeatMap = user.showHeatMap;
-  if (showHeatMap){
+  if (showHeatMap && tourId){
     db.ref('/users/')
       .orderByChild('tour')
       .equalTo(tourId)
@@ -60,10 +60,13 @@ export const toggleHeatMapThunk = () => async(dispatch, getState) => {
     window.heatmap = new maps.visualization.HeatmapLayer({
       data: Object.keys(heatmapData).map(pointId => {
         let point = heatmapData[pointId];
-        return new maps.LatLng(point.lat, point.lng)
+        return {
+          location: new maps.LatLng(point.lat, point.lng),
+          weight: point.weight || 1
+        }
       }),
-      radius: 20,
-      opacity: 1
+      radius: 50,
+      opacity: 0.8
     })
     window.heatmap.setMap(map);
   } else {
@@ -96,6 +99,7 @@ export const getAllUsers = () => (dispatch, getState) => {
     const userPermission = loggedInUser.status;
     const tourId = loggedInUser.tour;
     const refUsers = db.ref('/users');
+    if (!tourId) return;
     refUsers
       .orderByChild('tour')
       .equalTo(tourId)

@@ -13,7 +13,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import CancelIcon from '@material-ui/icons/Close';
-import AddIcon from '@material-ui/icons/Add';
+import AddIcon from '@material-ui/icons/AddLocationOutlined';
 import PinDropIcon from '@material-ui/icons/PinDrop'
 import Modal from '@material-ui/core/Modal';
 import AddMarkerForm from './AddMarkerForm'
@@ -50,7 +50,8 @@ const styles = {
   },
   image:{
     objectFit: 'cover',
-    height:'20vh'
+    height:'20vh',
+    width: '20vh'
   },
   addButton:{
     position: 'absolute',
@@ -202,7 +203,7 @@ class BottomSheet extends React.Component {
         :(<Button
         onClick = {this.toggleAdd}
         className = {classes.addButton}
-        variant="fab"
+        variant = 'fab'
         color="primary"
         aria-label="Add">
               <AddIcon />

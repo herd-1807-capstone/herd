@@ -104,6 +104,7 @@ class Admin extends Component{
     }
 
     async componentDidMount(){
+
         let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
         const { currentUser, updateCurrentUser } = this.props
         let tourInfo

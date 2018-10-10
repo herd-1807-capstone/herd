@@ -195,17 +195,9 @@ class MenuBar extends React.Component {
     }
   }
 
-  async componentWillUpdate(){
-    try{
-      const prevAnnouncement = this.props.announcement;
-      await this.props.getCurrentTour();
-
-      // if any announcement changes detected, get the psa bar back.
-      if(prevAnnouncement !== this.props.announcement){
-        this.showPSABar();
-      }
-    }catch(err){
-      console.log(err);
+  componentDidUpdate(prevProps){
+    if (prevProps.announcement !== this.props.announcement){
+      this.showPSABar();
     }
   }
 
@@ -251,14 +243,20 @@ class MenuBar extends React.Component {
             <Typography variant="title" color="inherit" noWrap>
               Herd - { this.props.tour ? this.props.tour.name: null }
             </Typography>
-            <IconButton onClick ={this.handleRecenter}>
+            <IconButton
+              color = 'inherit'
+              onClick ={this.handleRecenter}>
               <GpsFixed />
             </IconButton>
             {showHeatMap ? null :
-            <IconButton onClick = {this.modalOpen('usersListWindow')}>
+            <IconButton
+            color = 'inherit'
+            onClick = {this.modalOpen('usersListWindow')}>
               <PeopleIcon />
             </IconButton>}
-            <IconButton onClick = {this.modalOpen('spotsListWindow')}>
+            <IconButton
+              color = 'inherit'
+              onClick = {this.modalOpen('spotsListWindow')}>
               <SpotsIcon />
             </IconButton>
             {this.props.currentUser ? (
