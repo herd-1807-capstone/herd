@@ -260,7 +260,7 @@ class MenuBar extends React.Component {
               <SpotsIcon />
             </IconButton>
             {this.props.currentUser ? (
-              <Button color="inherit" onClick={this.handleLogout}>
+              <Button color="inherit" onClick={this.handleLogout} classes={{paper: classes.buttonPaper}}>
                 Log out
               </Button>
             ) : null}
@@ -324,9 +324,9 @@ class MenuBar extends React.Component {
               <input placeholder="Type here..." type="text" className="psa-input" name="message" />
             </div>
             <br />
-              <Button variant="outlined" color="primary" size="small" type="submit">Send
+              <Button variant="outlined" color="primary" size="small" type="submit" classes={{paper: classes.buttonPaper}}>Send
               </Button>
-              <Button color="primary" variant="outlined" size="small" aria-label="Add" onClick={this.hideAnnouncementModal} type="button">Cancel</Button>
+              <Button color="primary" variant="outlined" size="small" aria-label="Add" onClick={this.hideAnnouncementModal} type="button" classes={{paper: classes.buttonPaper}}>Cancel</Button>
 
               <p id="modal-msg">{this.state.announcementResult}</p>
           </form>
