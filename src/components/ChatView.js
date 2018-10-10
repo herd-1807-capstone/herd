@@ -31,7 +31,7 @@ function ChatView(props) {
     <List className={classes.root}>
       <ul className={classes.ul}>
         {conversation.map(item => (
-          <ListItem key={item.key} divider>
+          <ListItem key={item.text} divider>
             <Typography color="primary" variant="caption">
               {`${item.fromName} to  ${item.toName}`}
             </Typography>

@@ -58,6 +58,10 @@ class Chat extends Component {
     );
   };
 
+  // componentDidMount() {
+  //   this.props.fetchConversation(this.state.selectedUid);
+  // }
+
   render() {
     const { classes } = this.props;
     return (
@@ -75,7 +79,13 @@ class Chat extends Component {
           onClose={this.handleClose}
           value={this.state.value}
         />
-        <ChatView conversation={this.props.conversation} />
+        <ChatView
+          conversation={
+            this.props.conversation === [] && this.props.message.name
+              ? this.props.message
+              : this.props.conversation
+          }
+        />
         <ChatForm
           selectedName={this.state.value}
           handleChange={this.handleChange}
@@ -93,6 +103,7 @@ Button.propTypes = {
 
 const mapState = ({ chat, user }) => ({
   conversation: chat.conversation,
+  message: chat.newMessage,
   currentUser: user.currentUser,
 });
 

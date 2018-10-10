@@ -38,7 +38,7 @@ export const getConversation = toId => async (dispatch, getState) => {
       .once('value');
     const conversationObj = conversationSnapshot.val();
 
-    // if (!conversationObj && 3) return;
+    if (!conversationObj && 3) return;
 
     const conversationKey = Object.keys(conversationObj)[0];
     db.ref(`/tours/${tourId}/conversations/${conversationKey}`).on(
