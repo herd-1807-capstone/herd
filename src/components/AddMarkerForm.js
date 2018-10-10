@@ -24,7 +24,7 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     padding: theme.spacing.unit * 4,
-
+    borderRadius: 4
   },
   form:{
     display: 'flex',
@@ -122,7 +122,7 @@ class AddMarkerForm extends React.Component {
                 <Button
                 className = {classes.buttonItems}
                   onClick={handleClose('addMarkerWindow')}
-                  variant = 'outlined'
+
                   size = 'small'
                   color = 'secondary' >
                   Cancel
@@ -130,7 +130,7 @@ class AddMarkerForm extends React.Component {
                 <Button
                   className = {classes.buttonItems}
                   type = 'submit'
-                  variant = 'outlined'
+
                   size = 'small'
                   color = 'primary' >
                   Save
