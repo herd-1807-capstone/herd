@@ -63,7 +63,7 @@ class Admin extends Component{
         this.state = {
             tour: {
                 name: "",
-                imgUrl: "/defaultGroup.png",
+                imgUrl: "defaultGroup.png",
                 description: 'This is a fake information for a unreal tour group!',
                 creator: "",
             },
