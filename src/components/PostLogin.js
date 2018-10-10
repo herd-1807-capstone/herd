@@ -20,7 +20,7 @@ const styles = theme => ({
   root: {
     height: '100vh',
     zIndex: 1,
-    overflow: 'hidden',
+    overflow: 'auto',
     position: 'relative',
     display: 'flex',
     width: '100%',
@@ -48,8 +48,10 @@ const styles = theme => ({
     height: 240,
   },
   card: {
-    margin: '10px 10px'
-  }
+    margin: '20px 10px',
+    width: '25vw',
+    height: '25vw'
+  },
 });
 
 class PostLogin extends Component{
@@ -123,7 +125,7 @@ class PostLogin extends Component{
                   />
                   <CardContent>
                     <Typography gutterBottom variant="headline" component="h2">{tour.name}</Typography>
-                    <Typography component="p">{tour.description}</Typography>
+                    <Typography component="p" noWrap="true">{tour.description}</Typography>
                   </CardContent>
                 </CardActionArea>
               </Card>
