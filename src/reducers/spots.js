@@ -68,6 +68,7 @@ export const addSpotThunk = spot => async (dispatch, getState) => {
       const idToken = await firebase.auth().currentUser.getIdToken()
       const {data} = await axios.post(`${API_ROOT}/tours/${tourId}/spots?access_token=${idToken}`, spot);
 
+
       if (data.key){
         dispatch(addSpot(spot));
         return data.key;
