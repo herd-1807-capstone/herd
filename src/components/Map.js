@@ -235,9 +235,9 @@ class SimpleMap extends Component {
     const retroMap = new maps.StyledMapType(retro, {name: 'Retro'});
     const silverMap = new maps.StyledMapType(silver, {name: 'Silver'});
     map.mapTypes.set('retro', retroMap);
-    //map.mapTypes.setMapTypeId;
+    // map.mapTypes.setMapTypeId;
     map.mapTypes.set('silver', silverMap);
-    //map.mapTypes.setMapTypeId;
+    // map.mapTypes.setMapTypeId;
 
     window.spotCrosshair = new maps.Marker({
       map,

@@ -97,7 +97,9 @@ export const getAllUsers = () => (dispatch, getState) => {
     const userPermission = loggedInUser.status;
     const tourId = loggedInUser.tour;
     const refUsers = db.ref('/users');
+    
     if (!tourId) return;
+  
     refUsers
       .orderByChild('tour')
       .equalTo(tourId)

@@ -27,6 +27,11 @@ import PeopleIcon from '@material-ui/icons/People';
 import SpotsIcon from '@material-ui/icons/Place';
 import axios from 'axios';
 import {auth, db, API_ROOT} from '../utils/api-config';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Avatar from '@material-ui/core/Avatar';
 
 const drawerWidth = 240;
 
@@ -64,6 +69,20 @@ const styles = theme => ({
     backgroundColor: theme.palette.background.default,
     // padding: theme.spacing.unit * 3,
   },
+  avatarBlue: {
+    backgroundColor: '#536DFE'
+  },
+  icons: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    width: '100%'
+  },
+  title: {
+    width: '100%'
+  },
+  logoutButton: {
+    margin: '0, auto'
+  }
 });
 
 class MenuBar extends React.Component {
@@ -207,6 +226,17 @@ class MenuBar extends React.Component {
     const drawer = (
       <div>
         <div className={classes.toolbar} />
+        <ListItem >
+        <ListItemIcon>
+            {
+              currentUser.imgUrl ?
+            <Avatar alt = {currentUser.name || currentUser.uid} src = {currentUser.imgUrl} />
+              : <Avatar className = {classes.avatarBlue}
+              alt = {currentUser.name || currentUser.uid}><AccountCircle/></Avatar>
+          }
+          </ListItemIcon>
+          <ListItemText primary={currentUser.name} />
+        </ListItem>
         <Divider />
         <List>
           <UserListItems
@@ -225,6 +255,15 @@ class MenuBar extends React.Component {
           null
           }
         </List>
+        <Divider />
+        {this.props.currentUser ? (
+              <Button
+              fullWidth
+                className = {classes.logoutButton}
+              color="inherit" onClick={this.handleLogout}>
+                Log out
+              </Button>
+            ) : null}
       </div>
     );
 
@@ -240,30 +279,31 @@ class MenuBar extends React.Component {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="title" color="inherit" noWrap>
-              Herd - { this.props.tour ? this.props.tour.name: null }
-            </Typography>
-            <IconButton
+                <Typography
+                align = {"left"}
+                  className = {classes.title}
+                variant="title" color="inherit" noWrap>
+                  Herd - { this.props.tour ? this.props.tour.name: null }
+                </Typography>
+            <div className = {classes.icons}>
+              {showHeatMap ? null :
+              <IconButton
               color = 'inherit'
-              onClick ={this.handleRecenter}>
-              <GpsFixed />
-            </IconButton>
-            {showHeatMap ? null :
-            <IconButton
-            color = 'inherit'
-            onClick = {this.modalOpen('usersListWindow')}>
-              <PeopleIcon />
-            </IconButton>}
-            <IconButton
-              color = 'inherit'
-              onClick = {this.modalOpen('spotsListWindow')}>
-              <SpotsIcon />
-            </IconButton>
-            {this.props.currentUser ? (
-              <Button color="inherit" onClick={this.handleLogout} classes={{paper: classes.buttonPaper}}>
-                Log out
-              </Button>
-            ) : null}
+              onClick = {this.modalOpen('usersListWindow')}>
+                <PeopleIcon />
+              </IconButton>}
+              <IconButton
+                color = 'inherit'
+                onClick = {this.modalOpen('spotsListWindow')}>
+                <SpotsIcon />
+              </IconButton>
+              <IconButton
+                color = 'inherit'
+                onClick ={this.handleRecenter}>
+                <GpsFixed />
+              </IconButton>
+            </div>
+
           </Toolbar>
           <Divider />
           {

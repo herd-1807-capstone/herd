@@ -12,6 +12,8 @@ import { connect } from 'react-redux';
 import MapIcon from '@material-ui/icons/Map';
 import { setSelected } from '../reducers/spots'
 import { toggleHeatMapThunk, getHistoricalData } from '../store';
+import PlaceIcon from '@material-ui/icons/Place';
+
 
 class UserListItems extends Component {
   constructor(props){
@@ -68,7 +70,7 @@ class UserListItems extends Component {
           : (
           <ListItem button onClick= {this.tourPreview}>
             <ListItemIcon>
-              <MapIcon/>
+              <PlaceIcon/>
             </ListItemIcon>
             <ListItemText primary="Tour preview" />
           </ListItem>
@@ -85,13 +87,13 @@ class UserListItems extends Component {
 
     return (
       <div>
-        {showHeatMap ? null :
+        {/* {showHeatMap ? null :
         <ListItem button>
           <ListItemIcon>
             <AddAlert />
           </ListItemIcon>
           <ListItemText primary="Emergency Signal" />
-        </ListItem>}
+        </ListItem>} */}
           <ListItem
           button
           onClick = {toggleHeatMap}
@@ -101,16 +103,16 @@ class UserListItems extends Component {
           </ListItemIcon>
           <ListItemText primary={
             showHeatMap ? "Back to map" :
-            "Location history heat map"} />
+            "Location history"} />
         </ListItem>
         { spots.length ? this.renderPreviewButton() : null }
-        {showHeatMap ? null :
+        {/* {showHeatMap ? null :
         <ListItem button>
           <ListItemIcon>
             <VisibilityOff />
           </ListItemIcon>
           <ListItemText primary="Visibility on Map" />
-        </ListItem>}
+        </ListItem>} */}
         <Divider />
         <ListItem button onClick={handleInfoSpot}>
           <ListItemIcon>

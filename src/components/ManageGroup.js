@@ -28,23 +28,31 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {auth, API_ROOT} from '../utils/api-config';
+import { setCurrentUser } from '../reducers/user'
 
 const styles = theme => ({
     root: {
         flexGrow: 1,
         backgroundColor: theme.palette.background.paper,
+        height: 'fitContent',
+        width: '100%',
+
     },
     subRoot:{
         display: 'flex',
         justifyContent: 'center',
+        height: '100%',
+        width: '100%',
     },
     paperBack: {
         width: '100%',
-        maxWidth: 360,
+        height: '100%',
+        maxWidth: 414,
         backgroundColor: theme.palette.background.paper,
+        marginTop: theme.spacing.unit * 20,
     },
     button: {
-        margin: 2*theme.spacing.unit,
+        margin: theme.spacing.unit * 5,
         width: 80,
     },
     extendedIcon: {
@@ -79,21 +87,39 @@ const styles = theme => ({
         paddingBottom: theme.spacing.unit,
         paddingLeft: theme.spacing.unit,
         transition: theme.transitions.create('width'),
-        width: '100%',
+        width: '85%',
         [theme.breakpoints.up('sm')]: {
-        width: 250,
+        width: 320,
         '&:focus': {
-            width: 240,
+            width: 310,
             },
         },
+        [theme.breakpoints.up('md')]: {
+            width: 320,
+            '&:focus': {
+                width: 310,
+                },
+            },
         backgroundColor: '#EEEEEE',
     },
     addButton: {
         margin: theme.spacing.unit,
+        width: 45,
+        // height: 20,
+        [theme.breakpoints.up('sm')]: {
+            width: 40,
+            },
     },
     searchBar: {
         display: 'flex',
         flexDirection: 'row',
+    },
+    cTitle: {
+        display: 'flex',
+        alignItem: 'center',
+    },
+    cLabel: {
+        width: '100%'
     }
 });
 function TabContainer(props) {
@@ -117,9 +143,11 @@ constructor(props){
         groupys: [],
         access_token: "",
         changedUser:[],
-        value: 0,
+        // value: 0,
         open: false,
-        inputText: ""
+        inputText: "",
+        warning: "",
+        includeMe: false,
       }
 
     this.handleSave = this.handleSave.bind(this)
@@ -131,15 +159,18 @@ constructor(props){
 
   async componentDidMount(){
     let access_token = await auth.currentUser.getIdToken(/* forceRefresh */ true)
-    let resGroupys = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
-    let groupys = resGroupys.data
-    if(groupys && groupys.length > 0 && !groupys[0].hasOwnProperty('tour')){
-        groupys = []
+    if(this.props.currentUser.tour){
+        let resGroupys = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
+        let groupys = resGroupys.data
+        if(groupys && groupys.length > 0 && !groupys[0].hasOwnProperty('tour')){
+            groupys = []
+        }
+        this.setState(
+            {...this.state,
+                groupys,
+                access_token,
+        })
     }
-    this.setState({...this.state,
-                    groupys,
-                    access_token,
-                })
   }
 
   handleRemoveUser = user => () => {
@@ -159,12 +190,16 @@ constructor(props){
     let newGroupys = this.state.groupys.filter((gUser)=>{
         return gUser.uid !== user.uid
     })
-    this.setState({...this.state, groupys: newGroupys, changedUser: newChangeUser})
+    let includeMe = this.state.includeMe
+    if(user.uid === this.props.currentUser.uid){
+        includeMe = true
+    }
+    this.setState({...this.state, groupys: newGroupys, changedUser: newChangeUser, includeMe})
   }
 
   handleSave = async (evt) => {
-    const { currentUser } = this.props
-    const { access_token, changedUser } = this.state
+    const { currentUser, setCurrentUser } = this.props
+    const { access_token, changedUser, includeMe } = this.state
     try {
         for(let i = 0; i < changedUser.length; i++){
             let user = changedUser[i]
@@ -178,8 +213,11 @@ constructor(props){
             // update user's 'tour' property
             await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: user.tour})
         }
-        this.setState({...this.state, changedUser: []})
 
+        this.setState({...this.state, changedUser: []})
+        if(includeMe){
+            setCurrentUser({...currentUser, tour: null})
+        }
     } catch (error) {
         console.error(error)
     }
@@ -221,14 +259,18 @@ constructor(props){
                     }
                 })
                 if(!isExist){
-                    this.setState({...this.state, groupys: [...groupys, newUser], changedUser: [...changedUser, newUser], inputText: ''})
+                    let includeMe = this.state.includeMe
+                    if(user.uid === this.props.currentUser.uid){
+                        includeMe = true
+                    }
+                    this.setState({...this.state, groupys: [...groupys, newUser], changedUser: [...changedUser, newUser], inputText: '', includeMe})
                 }
             } else {
-                this.setState({...this.state, inputText: 'User not exsit'})
+                this.setState({...this.state, warning: 'User not found or already in a tour.', inputText: ''})
             }
         }
     } catch (error) {
-        this.setState({...this.state, inputText: error})
+        this.setState({...this.state, warning: 'User not found or already in a tour.'})
         console.error(error)
     }
   }
@@ -243,7 +285,7 @@ constructor(props){
 
   render() {
     const { classes, currentUser } = this.props;
-    const { groupys, freeBirds, value } = this.state;
+    const { groupys, value } = this.state;
     if(!currentUser.tour){
         this.props.history.push('/admin')
     }
@@ -252,14 +294,17 @@ constructor(props){
       <div className={classes.subRoot}>
         <Paper className={classes.paperBack} elevation={3}>
         <div className={classes.root}>
-        <AppBar position="static">
-        <Tabs value={value} onChange={this.handleChange}>
-            <Tab label="Group Members" />
-            <Tab label="No Group Members" />
-        </Tabs>
+        <AppBar position="static" className={classes.cTitle}>
+        {/* <Tabs value={value} onChange={this.handleChange}> */}
+            <Tab label="Group Members" className={classes.cLabel} />
+
+            {/* <Tab label="No Group Members" /> */}
+        {/* </Tabs> */}
         </AppBar>
         <div className={classes.searchBar} >
-            <Button variant="fab" mini color="secondary" aria-label="Add" onClick={this.handleAddUser} className={classes.addButton}>
+            <Button variant="fab" mini color="secondary"
+                    aria-label="Add" onClick={this.handleAddUser}
+                    className={classes.addButton}>
             <AddIcon />
             </Button>
             <div className={classes.search}>
@@ -275,8 +320,12 @@ constructor(props){
                 />
             </div>
         </div>
-
-        {value === 0 && <TabContainer>
+        <label>
+            <font color="red">
+                {this.state.warning}
+            </font>
+        </label>
+        <TabContainer>
             <List>
           {Object.values(groupys).map(user => (
             <div key={user.name}>
@@ -301,8 +350,8 @@ constructor(props){
             </div>
           ))}
         </List>
-        </TabContainer>}
-        {value === 1 && <TabContainer>
+        </TabContainer>
+        {/* {value === 1 && <TabContainer>
             <List>
           {Object.values(freeBirds).map(user => (
             <div key={user.uid}>
@@ -325,14 +374,20 @@ constructor(props){
             </div>
           ))}
         </List>
-        </TabContainer>}
+        </TabContainer>} */}
       </div>
 
 
-        <Button variant="extendedFab" onClick={this.handleSave} color="primary" className={classes.button} >
+        <Button variant="extendedFab"
+                onClick={this.handleSave}
+                color="primary"
+                className={classes.button} >
             Save
         </Button>
-        <Button variant="extendedFab" onClick={this.handleBack} color="primary" className={classes.button} >
+        <Button variant="extendedFab"
+                onClick={this.handleBack}
+                color="primary"
+                className={classes.button} >
             Back
         </Button>
 
@@ -374,8 +429,8 @@ const mapState = (state) => ({
     currentUser: state.user.currentUser,
 })
 
-const mapDispatch = (dispatch) => {
-
-}
+const mapDispatch = (dispatch) => ({
+    setCurrentUser: (user) => dispatch(setCurrentUser(user))
+})
 
 export default connect(mapState, mapDispatch)(withStyles(styles)(ManageGroup));

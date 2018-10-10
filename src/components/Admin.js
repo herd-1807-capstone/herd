@@ -30,19 +30,29 @@ const style = theme => ({
     },
     card: {
         maxWidth: 5245,
+        height: 900,
+        [theme.breakpoints.up('md')]: {
+            marginTop: theme.spacing.unit * 5,
+        },
     },
     media: {
-        height: 240,
+        // height: 300,
+        width: '100%',
+        [theme.breakpoints.up('md')]: {
+            // height: 340,
+            width: '100%',
+        },
     },
     tourDisplay: {
-        margin: 60,
+        // marginTop: 60,
         display: 'flex',
         justifyContent: 'center',
+        width: '100%'
     },
     dialog: {
         display: 'flex',
         justifyContent: 'center',
-    }
+    },
   })
 
 class Admin extends Component{
@@ -142,15 +152,17 @@ class Admin extends Component{
                         <CardMedia
                         component="img"
                         className={classes.media}
-                        height="140"
+                        height="340"
                         image={tour.imgUrl}
                         title={tour.name}
                         />
                         <CardContent>
-                        <Typography gutterBottom variant="headline" component="h2">
+                        <Typography gutterBottom variant="headline" 
+                                    component="h2">
                             {tour.name}
                         </Typography>
-                        <Typography component="p">
+                        <Typography component="p" 
+                                    align='left' >
                             {tour.description}
                         </Typography>
                         </CardContent>
@@ -160,8 +172,10 @@ class Admin extends Component{
                     <Button variant="extendedFab"
                             color="primary"
                             className={classes.button}
-                            onClick={this.handleClickOpen}
-                    >Delete</Button>
+                            component={Link} 
+                            to='/admin/group'
+                            // onClick={this.handleClickOpen}
+                    >Members</Button>
 
                     <Button variant="extendedFab"
                             color="primary"
