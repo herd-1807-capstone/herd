@@ -21,10 +21,10 @@ import AddMarkerForm from './AddMarkerForm'
 
 const styles = {
   root:{
-    // padding: 10,
+    backgroundColor: '#b9d3c1',
     height: '35vh',
     position: 'relative',
-    overflowY: 'scroll',
+    overflow: 'auto',
     // width: '100vw',
     display: 'flex',
     justifyContent: 'center',
@@ -39,10 +39,12 @@ const styles = {
     alignItems: 'flex-end'
   },
   content: {
-
+    marginTop: 35,
+    paddingBottom: 10,
     display: 'flex',
     flexDirection: 'column',
-    flex:3
+    flex:3,
+    // overflow: 'auto'
   },
   imageDiv:{
     flex: 1,
@@ -53,10 +55,23 @@ const styles = {
     height:'20vh',
     width: '20vh'
   },
-  addButton:{
+  addButtons:{
     position: 'absolute',
     top: 0,
     right: 10,
+  },
+  addButton: {
+    margin: 5,
+    width: 35,
+    height: 30
+  },
+  soloAdd: {
+    position: 'absolute',
+    top: 0,
+    right: 10,
+    margin: 5,
+    width: 35,
+    height: 30
   }
 }
 
@@ -181,10 +196,11 @@ class BottomSheet extends React.Component {
 
       return addSpotOnClick ?
       (
-      <div className = {classes.addButton}>
+      <div className = {classes.addButtons}>
         <Button
           onClick = {this.toggleAdd}
-          // className = {classes.addButton}
+          className = {classes.addButton}
+
           variant="fab"
           color="secondary"
           aria-label="Add">
@@ -192,7 +208,7 @@ class BottomSheet extends React.Component {
           </Button>
           <Button
           onClick = {this.dropPin}
-          // className = {classes.addButton}
+          className = {classes.addButton}
           variant="fab"
           color="primary"
           aria-label="Add">
@@ -202,7 +218,7 @@ class BottomSheet extends React.Component {
       )
         :(<Button
         onClick = {this.toggleAdd}
-        className = {classes.addButton}
+        className = {classes.soloAdd}
         variant = 'fab'
         color="primary"
         aria-label="Add">
@@ -221,10 +237,11 @@ class BottomSheet extends React.Component {
         <div>
           <Paper className={classes.root}>
             <div className = {classes.imageDiv}>
-              <img className = {classes.image} alt="" src = {selected.imgUrl || '#'} />
+              <img className = {classes.image}
+              src = {selected.imgUrl || 'https://images.unsplash.com/photo-1512757776214-26d36777b513'} />
             </div>
-             <div className = {classes.content}>
             {this.renderAddButton()}
+             <div className = {classes.content}>
                   <h2 className = {classes.heading}>{selected.name || selected.uid}</h2>
 
              {selected && selected.type === 'spot' ?
@@ -283,6 +300,7 @@ class BottomSheet extends React.Component {
                         label="Description"
                         name = "description"
                         fullWidth
+                        inputProps = {{maxlength: '154'}}
                         value={this.state.description}
                         onChange = {this.handleChange}
                       />

@@ -28,6 +28,7 @@ const styles = theme => ({
     justifyContent: 'space-around',
   },
   appBar: {
+    backgroundColor: '#e88c58',
     position: 'absolute',
     marginLeft: drawerWidth,
     [theme.breakpoints.up('md')]: {

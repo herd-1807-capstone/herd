@@ -109,6 +109,7 @@ class AddMarkerForm extends React.Component {
                 value = {this.state.description}
                 name = 'description'
                 label = 'Description'
+                inputProps = {{maxlength: '154'}}
                 multiline = {true}/>
                 <TextField
                   type = 'url'
