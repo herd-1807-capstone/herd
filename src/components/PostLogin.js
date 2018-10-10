@@ -20,7 +20,7 @@ const styles = theme => ({
   root: {
     height: '100vh',
     zIndex: 1,
-    overflow: 'hidden',
+    overflow: 'auto',
     position: 'relative',
     display: 'flex',
     width: '100%',
@@ -48,7 +48,12 @@ const styles = theme => ({
     height: 240,
   },
   card: {
-    margin: '10px 10px'
+    margin: '20px 10px',
+    width: '25vw',
+    height: '25vw'
+  },
+  cardContent:{
+    overflow: 'auto'
   }
 });
 
@@ -121,7 +126,7 @@ class PostLogin extends Component{
                     image={tour.imgUrl}
                     title={tour.name}
                   />
-                  <CardContent>
+                  <CardContent className={classes.cardContent}>
                     <Typography gutterBottom variant="headline" component="h2">{tour.name}</Typography>
                     <Typography component="p">{tour.description}</Typography>
                   </CardContent>
