@@ -1,18 +1,18 @@
 import React, { Component } from 'react';
-import { Route, Switch, withRouter } from 'react-router-dom';
-import firebase from '../utils/api-config';
+import { Route, Switch, Redirect, withRouter } from 'react-router-dom';
+import firebase from './fire';
 import { connect } from 'react-redux';
-import '../css/App.css';
+import './App.css';
 import Login from './Login';
 import Error from './Error';
-import MenuBar from './MenuBar';
-import PostLogin from './PostLogin';
-import { setCurrentUser } from '../store/index';
-import Admin from './Admin';
-import CreateGroup from './CreateGroup';
-import ManageGroup from './ManageGroup';
-import LoadingState from './LoadingState'
-import { changeLoadingState } from '../reducers/user';
+import MenuBar from './components/MenuBar';
+import PostLogin from './components/PostLogin';
+import { setCurrentUser } from './store/index';
+import Admin from './components/Admin';
+import CreateGroup from './components/CreateGroup';
+import ManageGroup from './components/ManageGroup';
+import LoadingState from './components/LoadingState'
+import { changeLoadingState } from './reducers/user';
 
 const auth = firebase.auth();
 const db = firebase.database();
@@ -64,6 +64,8 @@ class App extends Component {
             theUser.status = snapshot.val().status
             theUser.visible = snapshot.val().visible
             theUser.tour = snapshot.val().tour
+            console.log("Tour in app")
+            console.log(snapshot.val().tour)
             user = theUser
           }
           this.props.setCurrentUser(user)
@@ -86,10 +88,11 @@ class App extends Component {
 
 
   render() {
-    const { tour } = this.props.currentUser;
+    const tour = this.props.currentUser.tour;
     console.log(tour)
     return (
       <div className="App">
+
         <Switch>
           <Route path="/signin" component={Login} />
           {this.props.currentUser.hasOwnProperty('email') && (

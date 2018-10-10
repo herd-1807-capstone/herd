@@ -90,14 +90,14 @@ class Admin extends Component{
             axios.delete(`${API_ROOT}/tours/${currentUser.tour}?access_token=${access_token}`)
             let allDelete = []
             for(let i = 0; i < groupMember.length; i++){
-                let deleteFromUser = axios.put(`${API_ROOT}/users/${groupMember[i].uid}?access_token=${access_token}`, {tour: 'null'})
+                let deleteFromUser = axios.put(`${API_ROOT}/users/${groupMember[i].uid}?access_token=${access_token}`, {tour: null})
                 console.log(`Send to ${groupMember[i].name}`)
                 allDelete.push(deleteFromUser)
             }
             console.log(`Current User is ${currentUser}`)
             Promise.all(allDelete)
                     .then(([...userResult])=>{
-                        updateCurrentUser({...currentUser, tour: 'null'})
+                        updateCurrentUser({...currentUser, tour: null})
                     })
 
         } else {
@@ -107,23 +107,27 @@ class Admin extends Component{
 
     async componentDidMount(){
         let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
-      // console.log(access_token)
-        let tourInfo = await axios.get(`${API_ROOT}/tours/${this.props.currentUser.tour}?access_token=${access_token}`)
-        tourInfo = tourInfo.data
-        if(!tourInfo){
-            let newUser = {...this.props.currentUser}
-            newUser.tour = 'null'
-            this.props.updateCurrentUser(newUser)
+        const { currentUser, updateCurrentUser } = this.props
+        let tourInfo
+        if(currentUser.tour){
+            tourInfo = await axios.get(`${API_ROOT}/tours/${currentUser.tour}?access_token=${access_token}`)
+            tourInfo = tourInfo.data
+            if(!tourInfo){
+                let newUser = {...currentUser}
+                updateCurrentUser(newUser)
+            }
+            let { tour } = this.state
+            this.setState({...this.state,
+                tour:{
+                    name: tourInfo.name || tour.name,
+                    imgUrl: tourInfo.imgUrl || tour.imgUrl,
+                    description: tourInfo.description || tour.description,
+                    creator: tourInfo.guideUId || tour.creator,
+                }, access_token })
+        } else {
+            this.setState({ access_token })
         }
-        let { tour } = this.state
 
-        this.setState({...this.state,
-            tour:{
-                name: tourInfo.name || tour.name,
-                imgUrl: tourInfo.imgUrl || tour.imgUrl,
-                description: tourInfo.description || tour.description,
-                creator: tourInfo.guideUId || tour.creator,
-            }, access_token })
     }
 
     render(){
@@ -133,7 +137,7 @@ class Admin extends Component{
         if(currentUser && currentUser.hasOwnProperty('status') && currentUser.status !== 'admin'){
             this.props.history.push('/')
         }
-        if(currentUser.hasOwnProperty('tour') && currentUser.tour !== 'null'){
+        if(currentUser.tour){
             // console.log("has current user")
             return(
                 <div className={classes.tourDisplay}>
