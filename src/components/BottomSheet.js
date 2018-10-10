@@ -214,15 +214,14 @@ class BottomSheet extends React.Component {
   }
   render() {
 
-    let {classes, selected, currentUser, addMarkerWindow} = this.props
+    let {classes, selected, currentUser} = this.props
 
     if (selected && selected.name){
         return (
         <div>
           <Paper className={classes.root}>
             <div className = {classes.imageDiv}>
-              <img className = {classes.image}
-              src = {selected.imgUrl || '#'} />
+              <img className = {classes.image} alt="" src = {selected.imgUrl || '#'} />
             </div>
              <div className = {classes.content}>
             {this.renderAddButton()}

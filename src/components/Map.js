@@ -203,7 +203,6 @@ class SimpleMap extends Component {
           //get user's profile
           const snapshot = await db.ref(`/users/${user.uid}`).once('value');
           const userInfo = snapshot.val();
-          const tourId = userInfo.tour;
           this.props.setCurrentUser(userInfo);
           this.props.getSpots();
           this.writeLocationHistory(userInfo);
@@ -240,9 +239,9 @@ class SimpleMap extends Component {
     const retroMap = new maps.StyledMapType(retro, {name: 'Retro'});
     const silverMap = new maps.StyledMapType(silver, {name: 'Silver'});
     map.mapTypes.set('retro', retroMap);
-    map.mapTypes.setMapTypeId;
+    //map.mapTypes.setMapTypeId;
     map.mapTypes.set('silver', silverMap);
-    map.mapTypes.setMapTypeId;
+    //map.mapTypes.setMapTypeId;
 
     window.spotCrosshair = new maps.Marker({
       map,
@@ -324,7 +323,7 @@ class SimpleMap extends Component {
   }
 
   render() {
-    const {usersListWindow, spotsListWindow, handleListClose, map, addSpotOnClick} = this.props;
+    const {usersListWindow, spotsListWindow, handleListClose} = this.props;
 
     return (
       // Important! Always set the container height explicitly

@@ -5,7 +5,6 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListSubheader from '@material-ui/core/ListSubheader';
 
 import PeopleIcon from '@material-ui/icons/People';
-import Room from '@material-ui/icons/Room';
 import AddAlert from '@material-ui/icons/AddAlert';
 
 class AdminListItems extends Component {
@@ -22,12 +21,6 @@ class AdminListItems extends Component {
     return (
       <div>
         <ListSubheader inset>Tour guide functions</ListSubheader>
-        {/* <ListItem button>
-          <ListItemIcon>
-            <AssignmentIcon />
-          </ListItemIcon>
-          <ListItemText primary="Create a Tour" />
-        </ListItem> */}
         <ListItem button onClick={this.handleToGroup} >
           <ListItemIcon>
             <PeopleIcon />

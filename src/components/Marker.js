@@ -21,16 +21,16 @@ const Admin = () => {
 
 const User = ({imgUrl, idx}) => {
   if (imgUrl){
-    return <img className = 'user-marker' src={imgUrl} />
+    return <img className = 'user-marker' alt="" src={imgUrl} />
   }
-  return <img className = 'user-marker' src ={`https://robohash.org/${idx}.png?set=set4`}/>
+  return <img className = 'user-marker' alt="" src ={`https://robohash.org/${idx}.png?set=set4`}/>
 }
 
 const OfflineUser = ({imgUrl, idx}) => {
   if (imgUrl){
-    return <img className = 'user-marker-offline' src={imgUrl} />
+    return <img className = 'user-marker-offline' alt="" src={imgUrl} />
   }
-  return <img className = 'user-marker-offline' src ={`https://robohash.org/${idx}.png?set=set4`}/>
+  return <img className = 'user-marker-offline' alt="" src ={`https://robohash.org/${idx}.png?set=set4`}/>
 }
 
 const OfflineAdmin = () => {

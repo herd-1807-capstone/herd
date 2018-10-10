@@ -46,7 +46,7 @@ export default class Login extends Component {
           uiConfig={uiConfig}
           firebaseAuth={firebase.auth()}
         />
-        <img alt="herd-event-img"
+        <img alt=""
           src="http://herd.careers/wp-content/uploads/2016/04/Event-Ad-1.gif"
           width="400px"
           height="400px"

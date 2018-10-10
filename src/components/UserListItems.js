@@ -4,7 +4,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 
 import RecordVoiceOver from '@material-ui/icons/RecordVoiceOver';
-import PeopleIcon from '@material-ui/icons/People';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import Announcement from '@material-ui/icons/Announcement';
 import AddAlert from '@material-ui/icons/AddAlert';

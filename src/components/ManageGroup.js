@@ -173,13 +173,13 @@ constructor(props){
             let user = changedUser[i]
             // update tour's users property
             if(user && user.tour){
-                let putTour = await axios.post(`${API_ROOT}/tours/${currentUser.tour}/users?access_token=${access_token}`, {userId: user.uid})
+                await axios.post(`${API_ROOT}/tours/${currentUser.tour}/users?access_token=${access_token}`, {userId: user.uid})
             } else {
                 user.tour = null
                 await axios.delete(`${API_ROOT}/tours/${currentUser.tour}/users/${user.uid}?access_token=${access_token}`)
             }
             // update user's 'tour' property
-            let putUser = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: user.tour})
+            await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: user.tour})
         }
         this.setState({...this.state, changedUser: []})
 
