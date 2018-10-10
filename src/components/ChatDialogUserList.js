@@ -63,9 +63,9 @@ class ChatDialogUserList extends Component {
   };
 
   async componentDidMount() {
-    await this.props.getUsers;
+    await this.props.getusers();
     const userlist = this.props.userlist;
-    if(userlist.length > 1){
+    if (userlist.length > 1) {
       const value = userlist[0].name;
       const selectedUid = userlist[0].uid;
       this.setState({ value, selectedUid, userlist });
@@ -129,12 +129,12 @@ const mapState = ({ user }) => ({
 });
 
 const mapDispatch = dispatch => ({
-  getUsers() {
+  getusers() {
     dispatch(getAllUsers());
   },
-  getCurrentUser() {
-    dispatch(setCurrentUser());
-  },
+  // getCurrentUser() {
+  //   dispatch(setCurrentUser());
+  // },
 });
 
 export default withStyles(styles)(

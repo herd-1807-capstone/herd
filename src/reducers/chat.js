@@ -53,9 +53,11 @@ export const getConversation = toId => async (dispatch, getState) => {
 
     if (conversationObj) {
       const conversationKey = Object.keys(conversationObj)[0];
+
       const conversationSnapshot = await db
         .ref(`/tours/${tourId}/conversations/${conversationKey}`)
-        .on('value');
+        .once('value');
+      const singleConversation = conversationSnapshot.val();
 
       const toUser = await db.ref(`/users/${toId}`).once('value');
       const toName = toUser.val().name;
@@ -63,7 +65,7 @@ export const getConversation = toId => async (dispatch, getState) => {
       const fromName = fromUser.val().name;
 
       conversation = transformObjWithNames(
-        conversationSnapshot.val(),
+        singleConversation,
         fromId,
         toId,
         fromName,
@@ -77,18 +79,19 @@ export const getConversation = toId => async (dispatch, getState) => {
   }
 };
 
-const addNewMessage = (userId, text) => async (dispatch, getState) => {
+export const addNewMessage = (userId, text) => async (dispatch, getState) => {
   const fromId = getState().user.currentUser.uid;
   const tourId = getState().user.currentUser.tour || 'disney_tour'; //fallback value
   const idToken = await firebase.auth().currentUser.getIdToken();
   try {
-    await axios.post(
-      `${API_ROOT}/tours/${tourId}/${userId}?access_token=${idToken}`,
+    await axios.post(`${API_ROOT}/chat/${userId}?access_token=${idToken}`, {
+      fromId,
       text,
-      tourId
-    );
+      tourId,
+    });
     const newMessage = { text, toId: userId, fromId, tourId };
     dispatch(addMessage(newMessage));
+    getConversation(userId);
   } catch (error) {
     console.error(error);
   }
@@ -98,7 +101,6 @@ const addNewMessage = (userId, text) => async (dispatch, getState) => {
 
 const initialState = {
   conversation: [],
-  newMessage: {},
 };
 
 export default (state = initialState, action) => {

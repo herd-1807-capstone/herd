@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getConversation } from '../reducers/chat';
+import { getConversation, addNewMessage } from '../reducers/chat';
 
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -33,6 +33,7 @@ class Chat extends Component {
   handleClickOpen = () => {
     this.setState({ open: true });
   };
+
   handleClose = (value, selectedUid) => {
     this.setState({ value, selectedUid, open: false }, () =>
       this.props.fetchConversation(this.state.selectedUid)
@@ -41,12 +42,15 @@ class Chat extends Component {
   };
 
   handleChange = event => {
+    event.preventDefault();
     this.setState({
       text: event.target.value,
     });
   };
 
-  handleClick = () => {};
+  handleClick = () => {
+    this.props.setNewMessage(this.state.selectedUid, this.state.text);
+  };
 
   render() {
     const { classes } = this.props;
@@ -66,7 +70,11 @@ class Chat extends Component {
           value={this.state.value}
         />
         <ChatView conversation={this.props.conversation} />
-        <ChatForm selectedName={this.state.value} />
+        <ChatForm
+          selectedName={this.state.value}
+          handleChange={this.handleChange}
+          handleClick={this.handleClick}
+        />
       </div>
     );
   }
@@ -84,6 +92,9 @@ const mapState = ({ chat, user }) => ({
 const mapDispatch = dispatch => ({
   fetchConversation(toId) {
     dispatch(getConversation(toId));
+  },
+  setNewMessage(toId, text) {
+    dispatch(addNewMessage(toId, text));
   },
 });
 
