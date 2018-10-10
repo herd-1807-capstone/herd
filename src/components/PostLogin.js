@@ -39,6 +39,7 @@ const styles = theme => ({
   tourDisplay: {
     display: 'flex',
     flexWrap: 'wrap',
+    paddingTop: '50px',
     justifyContent: 'center',
     alignItem: 'space-between'
   },
