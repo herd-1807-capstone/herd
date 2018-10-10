@@ -183,7 +183,7 @@ class SimpleMap extends Component {
       const locationData = allUsers.reduce((usersUpdate, user) => {
           if (!user.lat || !user.lng) return usersUpdate;
           const key = tourRef.child('history').push().key;//generate key locally
-          usersUpdate[key] = {lat:user.lat, lng:user.lng, lastSeen: user.lastSeen || Date.now()};//save
+          usersUpdate[key] = {lat:user.lat, lng:user.lng, lastSeen: user.lastSeen || Date.now(), weight: 1};//save
           return usersUpdate;
         }, {});
       try {
@@ -192,7 +192,7 @@ class SimpleMap extends Component {
       } catch (error) {
         console.error(error);
       }
-    }, 10000) //
+    }, 60000) //
   }
 
   loadAfterAuthUser(){
