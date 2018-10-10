@@ -99,6 +99,8 @@ export const getAllUsers = () => (dispatch, getState) => {
     const userPermission = loggedInUser.status;
     const tourId = loggedInUser.tour;
     const refUsers = db.ref('/users');
+    console.log("Get all users, and the user tour is ",tourId)
+
     if (!tourId) return;
     refUsers
       .orderByChild('tour')
@@ -138,7 +140,7 @@ export const addTourToUser = tourId => async (dispatch, getState) => {
     const tourData = await axios.get(`${API_ROOT}/tours/${tourId}?access_token=${idToken}`);
     const tour = tourData.data;
     const users = tour.users || [];
-    if(loggedInUser && loggedInUser.id && users.indexOf(loggedInUser.uid) < 0){
+    if(loggedInUser && loggedInUser.uid && users.indexOf(loggedInUser.uid) < 0){
       users.push(loggedInUser.uid);
     }
 

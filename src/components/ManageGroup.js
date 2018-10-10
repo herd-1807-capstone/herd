@@ -145,9 +145,10 @@ constructor(props){
         groupys: [],
         access_token: "",
         changedUser:[],
-        value: 0,
+        // value: 0,
         open: false,
-        inputText: ""
+        inputText: "",
+        warning: "",
       }
 
     this.handleSave = this.handleSave.bind(this)
@@ -159,15 +160,17 @@ constructor(props){
 
   async componentDidMount(){
     let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
-    let resGroupys = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
-    let groupys = resGroupys.data
-    if(groupys && groupys.length > 0 && !groupys[0].hasOwnProperty('tour')){
-        groupys = []
+    if(this.props.currentUser.tour){
+        let resGroupys = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
+        let groupys = resGroupys.data
+        if(groupys && groupys.length > 0 && !groupys[0].hasOwnProperty('tour')){
+            groupys = []
+        }
+        this.setState({...this.state,
+                        groupys,
+                        access_token,
+                    })
     }
-    this.setState({...this.state,
-                    groupys,
-                    access_token,
-                })
   }
 
   handleRemoveUser = user => () => {
@@ -206,8 +209,9 @@ constructor(props){
             // update user's 'tour' property
             let putUser = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: user.tour})
         }
-        this.setState({...this.state, changedUser: []})
 
+        this.setState({...this.state, changedUser: []})
+        this.props.history.push('/admin')
     } catch (error) {
         console.error(error)
     }
@@ -252,11 +256,11 @@ constructor(props){
                     this.setState({...this.state, groupys: [...groupys, newUser], changedUser: [...changedUser, newUser], inputText: ''})
                 }
             } else {
-                this.setState({...this.state, inputText: 'User not exsit'})
+                this.setState({...this.state, warning: 'User exists in this tour.', inputText: ''})
             }
         }
     } catch (error) {
-        this.setState({...this.state, inputText: error})
+        this.setState({...this.state, warning: 'User not found or already in a tour.'})
         console.error(error)
     }
   }
@@ -271,10 +275,10 @@ constructor(props){
 
   render() {
     const { classes, currentUser } = this.props;
-    const { groupys, freeBirds, value } = this.state;
-    if(!currentUser.tour){
-        this.props.history.push('/admin')
-    }
+    const { groupys, value } = this.state;
+    // if(!currentUser.tour){
+    //     this.props.history.push('/admin')
+    // }
 
     return (
       <div className={classes.subRoot}>
@@ -288,7 +292,9 @@ constructor(props){
         {/* </Tabs> */}
         </AppBar>
         <div className={classes.searchBar} >
-            <Button variant="fab" mini color="secondary" aria-label="Add" onClick={this.handleAddUser} className={classes.addButton}>
+            <Button variant="fab" mini color="secondary" 
+                    aria-label="Add" onClick={this.handleAddUser} 
+                    className={classes.addButton}>
             <AddIcon />
             </Button>
             <div className={classes.search}>
@@ -304,8 +310,12 @@ constructor(props){
                 />
             </div>
         </div>
-
-        {value === 0 && <TabContainer>
+        <label>
+            <font color="red">
+                {this.state.warning}
+            </font>
+        </label>
+        <TabContainer>
             <List>
           {Object.values(groupys).map(user => (
             <div key={user.name}>
@@ -330,7 +340,7 @@ constructor(props){
             </div>
           ))}
         </List>
-        </TabContainer>}
+        </TabContainer>
         {/* {value === 1 && <TabContainer>
             <List>
           {Object.values(freeBirds).map(user => (
@@ -358,10 +368,16 @@ constructor(props){
       </div>
 
 
-        <Button variant="extendedFab" onClick={this.handleSave} color="primary" className={classes.button} >
+        <Button variant="extendedFab" 
+                onClick={this.handleSave} 
+                color="primary" 
+                className={classes.button} >
             Save
         </Button>
-        <Button variant="extendedFab" onClick={this.handleBack} color="primary" className={classes.button} >
+        <Button variant="extendedFab" 
+                onClick={this.handleBack} 
+                color="primary" 
+                className={classes.button} >
             Back
         </Button>
 
