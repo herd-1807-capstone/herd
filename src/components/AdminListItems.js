@@ -15,7 +15,6 @@ class AdminListItems extends Component {
     this.handleToGroup = this.handleToGroup.bind(this)
   }
   handleToGroup(evt){
-    console.log(this.props.props.history)
     this.props.props.history.push('/admin')
   }
 

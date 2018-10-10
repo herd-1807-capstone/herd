@@ -175,7 +175,6 @@ class HeatMap extends Component {
     this.renderAccuracyCircle(map, maps);
     window.infoWindow = new maps.InfoWindow();
     const {heatmapData } = this.props;
-    // console.log ('HEAT MAP DATA!!!', heatmapData);
     let heatmap = new maps.visualization.HeatmapLayer({
       data: Object.keys(heatmapData).map(pointId => {
         let point = heatmapData[pointId];

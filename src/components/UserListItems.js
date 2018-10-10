@@ -30,7 +30,6 @@ class UserListItems extends Component {
 
       const loop = () => {
         this.timeOut = setTimeout(()=>{
-          console.log('CURRENT SPOT!!!', selected);
           selected = spots[i];
           if (!this.state.tourPreview) {
             if (this.timeOut) clearTimeout(this.timeOut);

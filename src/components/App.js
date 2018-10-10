@@ -26,12 +26,6 @@ class App extends Component {
 
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          console.log("On Auth current user")
-          console.log(auth.currentUser.emailVerified)
-          console.log("user does exist!")
-          console.log(user)
-          console.log("what we have for the user")
-          console.log(snapshot.val())
           const userRef = db.ref(`/users/${user.uid}`)
           if (!snapshot.exists()) {
             let newUser = {
@@ -86,15 +80,16 @@ class App extends Component {
 
 
   render() {
-    const { tour, status } = this.props.currentUser;
+    const tour = this.props.currentUser.tour;
     return (
       <div className="App">
+
         <Switch>
           <Route path="/signin" component={Login} />
           {this.props.currentUser.hasOwnProperty('email') && (
             <Switch>
               {
-                tour || status === 'admin' ?
+                tour ?
                 <Route exact path="/" component={MenuBar} />
                 :
                 <Route exact path="/" component={PostLogin} />

@@ -38,7 +38,6 @@ class Chat extends Component {
     this.setState({ value, selectedUid, open: false }, () =>
       this.props.fetchConversation(this.state.selectedUid)
     );
-    console.log('props after conversation', this.props);
   };
 
   handleChange = event => {

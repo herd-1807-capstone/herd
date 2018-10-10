@@ -87,6 +87,7 @@ class MenuBar extends React.Component {
     this.handleRecenter = this.handleRecenter.bind(this);
     this.sendTourAnnouncement = this.sendTourAnnouncement.bind(this);
     this.hidePSABar = this.hidePSABar.bind(this);
+    this.showPSABar = this.showPSABar.bind(this);
     this.handleInvite = this.handleInvite.bind(this)
   }
 
@@ -132,7 +133,6 @@ class MenuBar extends React.Component {
     let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
 
     const result = await axios.post(`${API_ROOT}/tours/${"-LO9qp_CJeEownSICbbp"}/invitations/${"NCNNuK1w"}?access_token=${access_token}`)
-    console.log(result)
   }
 
   showAnnouncementModal = () => {
@@ -181,11 +181,23 @@ class MenuBar extends React.Component {
     })
   }
 
+  showPSABar(){
+    this.setState({
+      showPSA: 'block'
+    })
+  }
+
   async componentDidMount(){
     try{
       await this.props.getCurrentTour();
     }catch(err){
       console.log(err);
+    }
+  }
+
+  componentDidUpdate(prevProps){
+    if (prevProps.announcement !== this.props.announcement){
+      this.showPSABar();
     }
   }
 
@@ -231,14 +243,20 @@ class MenuBar extends React.Component {
             <Typography variant="title" color="inherit" noWrap>
               Herd - { this.props.tour ? this.props.tour.name: null }
             </Typography>
-            <IconButton onClick ={this.handleRecenter}>
+            <IconButton
+              color = 'inherit'
+              onClick ={this.handleRecenter}>
               <GpsFixed />
             </IconButton>
             {showHeatMap ? null :
-            <IconButton onClick = {this.modalOpen('usersListWindow')}>
+            <IconButton
+            color = 'inherit'
+            onClick = {this.modalOpen('usersListWindow')}>
               <PeopleIcon />
             </IconButton>}
-            <IconButton onClick = {this.modalOpen('spotsListWindow')}>
+            <IconButton
+              color = 'inherit'
+              onClick = {this.modalOpen('spotsListWindow')}>
               <SpotsIcon />
             </IconButton>
             {this.props.currentUser ? (
