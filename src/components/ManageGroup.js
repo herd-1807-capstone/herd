@@ -288,9 +288,9 @@ constructor(props){
   render() {
     const { classes, currentUser } = this.props;
     const { groupys, value } = this.state;
-    // if(!currentUser.tour){
-    //     this.props.history.push('/admin')
-    // }
+    if(!currentUser.tour){
+        this.props.history.push('/admin')
+    }
 
     return (
       <div className={classes.subRoot}>
