@@ -25,7 +25,7 @@ const styles = {
     height: '35vh',
     position: 'relative',
     overflowY: 'scroll',
-    width: '100vw',
+    // width: '100vw',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center'
@@ -241,14 +241,14 @@ class BottomSheet extends React.Component {
               <div className = {classes.buttons}>
                 <Button
                   color='secondary'
-                  variant= "outlined"
+                  // variant= "outlined"
                   onClick={this.handleOpen('removeDialogOpen')}
                   >
                   Remove
                 </Button>
                 <Button
                   color='primary'
-                  variant= "outlined"
+                  // variant= "outlined"
                   onClick={this.handleOpen('editFormOpen')}
                   >
                   Edit
