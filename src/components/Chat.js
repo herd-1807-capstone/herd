@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getConversation, addNewMessage } from '../reducers/chat';
+import {
+  getConversation,
+  addNewMessage,
+  clearConversation,
+} from '../reducers/chat';
 
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -31,7 +35,7 @@ class Chat extends Component {
   state = { value: '', selectedUid: '', text: '', open: false };
 
   handleClickOpen = () => {
-    this.setState({ open: true });
+    this.setState({ open: true }, () => this.props.clearList());
   };
 
   handleClose = (value, selectedUid) => {
@@ -49,6 +53,9 @@ class Chat extends Component {
 
   handleClick = () => {
     this.props.setNewMessage(this.state.selectedUid, this.state.text);
+    this.setState({ text: '' }, () =>
+      this.props.fetchConversation(this.state.selectedUid)
+    );
   };
 
   render() {
@@ -73,6 +80,7 @@ class Chat extends Component {
           selectedName={this.state.value}
           handleChange={this.handleChange}
           handleClick={this.handleClick}
+          textMessage={this.state.text}
         />
       </div>
     );
@@ -94,6 +102,9 @@ const mapDispatch = dispatch => ({
   },
   setNewMessage(toId, text) {
     dispatch(addNewMessage(toId, text));
+  },
+  clearList() {
+    dispatch(clearConversation());
   },
 });
 

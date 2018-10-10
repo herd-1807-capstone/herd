@@ -28,12 +28,19 @@ const styles = theme => ({
   },
 });
 
-const ChatForm = ({ classes, handleChange, handleClick, selectedName }) => {
+const ChatForm = ({
+  classes,
+  handleChange,
+  handleClick,
+  selectedName,
+  textMessage,
+}) => {
   return (
     <form className={classes.container}>
       <TextField
         id="outlined-textarea"
         label={`To: ${selectedName || ''}`}
+        value={textMessage}
         multiline
         className={classes.textField}
         onChange={handleChange}

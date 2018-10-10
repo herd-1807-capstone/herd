@@ -6,6 +6,7 @@ const db = firebase.database();
 // Actions
 const GET_CONVERSATION = 'GET_CONVERSATION';
 const ADD_MESSAGE = 'ADD_MESSAGE';
+const CLEAR_CONVERSATION = 'CLEAR_CONVERSATION';
 
 // Action Creators
 
@@ -17,6 +18,10 @@ export const setConversation = conversation => ({
 export const addMessage = newMessage => ({
   type: ADD_MESSAGE,
   newMessage,
+});
+
+export const clearConversation = () => ({
+  type: CLEAR_CONVERSATION,
 });
 
 // Thunk creators
@@ -31,20 +36,11 @@ export const getConversation = toId => async (dispatch, getState) => {
       .orderByValue()
       .equalTo(toId)
       .once('value');
-
     const conversationObj = conversationSnapshot.val();
+
     if (!conversationObj) return;
+
     const conversationKey = Object.keys(conversationObj)[0];
-
-    // const singleConversationSnapshot = await db
-    //   .ref(`/tours/${tourId}/conversations/${conversationKey}`)
-    //   .once('value');
-
-    // const singleConversation = singleConversationSnapshot.val();
-    // console.log('====================================');
-    // console.log('single conv', Object.values(singleConversation));
-    // console.log('====================================');
-
     db.ref(`/tours/${tourId}/conversations/${conversationKey}`).on(
       'value',
       function(snapshot) {
@@ -68,7 +64,6 @@ export const addNewMessage = (userId, text) => async (dispatch, getState) => {
     });
     const newMessage = { text, toId: userId, fromId, tourId };
     dispatch(addMessage(newMessage));
-    getConversation(userId);
   } catch (error) {
     console.error(error);
   }
@@ -88,6 +83,9 @@ export default (state = initialState, action) => {
 
     case ADD_MESSAGE:
       return { ...state, newMessage: action.newMessage };
+
+    case CLEAR_CONVERSATION:
+      return { conversation: [] };
 
     default:
       return state;

@@ -12,7 +12,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-import { setCurrentUser, getAllUsers } from '../reducers/user';
+import { getAllUsers } from '../reducers/user';
 
 const styles = theme => ({
   root: {
@@ -132,9 +132,6 @@ const mapDispatch = dispatch => ({
   getusers() {
     dispatch(getAllUsers());
   },
-  // getCurrentUser() {
-  //   dispatch(setCurrentUser());
-  // },
 });
 
 export default withStyles(styles)(
