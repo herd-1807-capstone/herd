@@ -64,11 +64,9 @@ class CreateGroup extends Component {
   }
 
   async handleSubmit (evt){
-    // let inputs = document.getElementById('createTour').elements["groupName"]
     let newName = this.state.tourName.split(' ').join('')
     evt.preventDefault()
     if(newName){
-      // console.log(this.state)
       evt.persist()
       const { tourName, imgUrl, description, tourStart, tourEnd, formTip } = this.state
       let tourStartTime = new Date(tourStart).getTime()
@@ -116,7 +114,7 @@ class CreateGroup extends Component {
     if(target === "tourStart"){
       if(targetValue >= new Date(this.state.tourEnd).getTime()){
         isValid = false
-      } 
+      }
     } else {
       if(targetValue <= new Date(this.state.tourStart).getTime()){
         isValid = false
@@ -144,23 +142,21 @@ class CreateGroup extends Component {
 
     if(dd<10) {
         dd = '0'+dd
-    } 
+    }
 
     if(mm<10) {
         mm = '0'+mm
-    } 
+    }
     today = yyyy + '-' + mm + '-' + dd + 'T' + hh + ':00';
     return today
   }
 
   render(){
     const { currentUser, classes } = this.props
-    if(currentUser && currentUser.hasOwnProperty('tour') && currentUser.tour !== 'null'){
+    if(currentUser && currentUser.tour){
       this.props.history.push('/admin/group')
     }
 
-    console.log("Starting time: ",new Date(this.state.tourStart).getTime())
-    console.log("Ending time:   ",new Date(this.state.tourEnd).getTime())
     return (
       <div>
         <Typography style={styles.header} variant="title" gutterBottom>
@@ -224,7 +220,7 @@ class CreateGroup extends Component {
                 onChange={this.handleTimeChange}
                 InputLabelProps={{
                 shrink: true,
-                
+
                 }}
               />
             </form>
@@ -248,16 +244,16 @@ class CreateGroup extends Component {
             </label>
           </Grid>
           <Grid style={styles.inner} item xs={12} sm={8}>
-            <Button style={styles.button} 
-                  variant="contained" 
-                  color="primary" 
-                  type="submit" 
-                  onClick={this.handleSubmit} 
+            <Button style={styles.button}
+                  variant="contained"
+                  color="primary"
+                  type="submit"
+                  onClick={this.handleSubmit}
             >Save</Button>
-            <Button style={styles.button} 
-                    variant="contained" 
+            <Button style={styles.button}
+                    variant="contained"
                     color="primary"
-                    onClick={this.handleBack} 
+                    onClick={this.handleBack}
             >Back</Button>
           </Grid>
         </Grid>
@@ -267,7 +263,6 @@ class CreateGroup extends Component {
 }
 
 const mapProps = (state) => {
-  // console.log(state.user.currentUser)
   return ({
   currentUser: state.user.currentUser,
   })
