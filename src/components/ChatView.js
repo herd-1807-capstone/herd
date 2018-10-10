@@ -4,6 +4,7 @@ import { withStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
   root: {
@@ -30,10 +31,11 @@ function ChatView(props) {
     <List className={classes.root}>
       <ul className={classes.ul}>
         {conversation.map(item => (
-          <ListItem key={item.key}>
-            <ListItemText
-              primary={`${item.fromName}=> ${item.toName}: ${item.text}`}
-            />
+          <ListItem key={item.text} divider>
+            <Typography color="primary" variant="caption">
+              {`${item.fromName} to  ${item.toName}`}
+            </Typography>
+            <ListItemText primary={`${item.text}`} />
           </ListItem>
         ))}
       </ul>
