@@ -64,6 +64,8 @@ class App extends Component {
             theUser.status = snapshot.val().status
             theUser.visible = snapshot.val().visible
             theUser.tour = snapshot.val().tour
+            console.log("Tour in app")
+            console.log(snapshot.val().tour)
             user = theUser
           }
           this.props.setCurrentUser(user)
@@ -87,6 +89,7 @@ class App extends Component {
 
   render() {
     const tour = this.props.currentUser.tour;
+    console.log(tour)
     return (
       <div className="App">
 

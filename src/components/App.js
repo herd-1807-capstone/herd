@@ -87,6 +87,7 @@ class App extends Component {
 
   render() {
     const { tour } = this.props.currentUser;
+    console.log(tour)
     return (
       <div className="App">
         <Switch>

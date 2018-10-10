@@ -90,14 +90,14 @@ class Admin extends Component{
             axios.delete(`${API_ROOT}/tours/${currentUser.tour}?access_token=${access_token}`)
             let allDelete = []
             for(let i = 0; i < groupMember.length; i++){
-                let deleteFromUser = axios.put(`${API_ROOT}/users/${groupMember[i].uid}?access_token=${access_token}`, {tour: 'null'})
+                let deleteFromUser = axios.put(`${API_ROOT}/users/${groupMember[i].uid}?access_token=${access_token}`, {tour: null})
                 console.log(`Send to ${groupMember[i].name}`)
                 allDelete.push(deleteFromUser)
             }
             console.log(`Current User is ${currentUser}`)
             Promise.all(allDelete)
                     .then(([...userResult])=>{
-                        updateCurrentUser({...currentUser, tour: 'null'})
+                        updateCurrentUser({...currentUser, tour: null})
                     })
 
         } else {
@@ -109,12 +109,11 @@ class Admin extends Component{
         let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
         const { currentUser, updateCurrentUser } = this.props
         let tourInfo
-        if(currentUser.hasOwnProperty('tour') && currentUser.tour !== 'null'){
+        if(currentUser.tour){
             tourInfo = await axios.get(`${API_ROOT}/tours/${currentUser.tour}?access_token=${access_token}`)
             tourInfo = tourInfo.data
             if(!tourInfo){
                 let newUser = {...currentUser}
-                newUser.tour = 'null'
                 updateCurrentUser(newUser)
             }
             let { tour } = this.state
@@ -138,7 +137,7 @@ class Admin extends Component{
         if(currentUser && currentUser.hasOwnProperty('status') && currentUser.status !== 'admin'){
             this.props.history.push('/')
         }
-        if(currentUser.hasOwnProperty('tour') && currentUser.tour !== 'null'){
+        if(currentUser.tour){
             // console.log("has current user")
             return(
                 <div className={classes.tourDisplay}>
