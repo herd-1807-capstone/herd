@@ -138,12 +138,13 @@ export const addTourToUser = tourId => async (dispatch, getState) => {
     const tourData = await axios.get(`${API_ROOT}/tours/${tourId}?access_token=${idToken}`);
     const tour = tourData.data;
     const users = tour.users || [];
-    if(users.indexOf(loggedInUser.uid) < 0){
+    if(loggedInUser && loggedInUser.id && users.indexOf(loggedInUser.uid) < 0){
       users.push(loggedInUser.uid);
     }
 
     idToken = await firebase.auth().currentUser.getIdToken();
-    await axios.put(`${API_ROOT}/tours/${tourId}?access_token=${idToken}`, {...tour, users});
+    tour.users = users;
+    await axios.put(`${API_ROOT}/tours/${tourId}?access_token=${idToken}`, tour);
 
     // update the logged-in user's tourId to the selected tourId
     idToken = await firebase.auth().currentUser.getIdToken();
