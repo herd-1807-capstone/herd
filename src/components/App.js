@@ -26,12 +26,6 @@ class App extends Component {
 
         try {
           let snapshot = await db.ref(`/users/${user.uid}`).once('value');
-          console.log("On Auth current user")
-          console.log(auth.currentUser.emailVerified)
-          console.log("user does exist!")
-          console.log(user)
-          console.log("what we have for the user")
-          console.log(snapshot.val())
           const userRef = db.ref(`/users/${user.uid}`)
           if (!snapshot.exists()) {
             let newUser = {
@@ -64,8 +58,6 @@ class App extends Component {
             theUser.status = snapshot.val().status
             theUser.visible = snapshot.val().visible
             theUser.tour = snapshot.val().tour
-            console.log("Tour in app")
-            console.log(snapshot.val().tour)
             user = theUser
           }
           this.props.setCurrentUser(user)
@@ -89,7 +81,6 @@ class App extends Component {
 
   render() {
     const tour = this.props.currentUser.tour;
-    console.log(tour)
     return (
       <div className="App">
 
