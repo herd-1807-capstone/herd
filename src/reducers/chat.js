@@ -1,8 +1,12 @@
 import firebase from '../utils/api-config';
+import axios from 'axios';
+import { API_ROOT } from '../utils/api-config';
 const db = firebase.database();
 
 // Actions
 const GET_CONVERSATION = 'GET_CONVERSATION';
+const ADD_MESSAGE = 'ADD_MESSAGE';
+const CLEAR_CONVERSATION = 'CLEAR_CONVERSATION';
 
 // Action Creators
 
@@ -11,44 +15,60 @@ export const setConversation = conversation => ({
   conversation,
 });
 
-// Thunk creators
+export const addMessage = newMessage => ({
+  type: ADD_MESSAGE,
+  newMessage,
+});
 
-const transformObjWithNames = (obj, str1, str2, name1, name2) => {
-  const list = Object.keys(obj);
-  const newArray = list.map(item => {
-    const { fromId, toId } = obj[item];
-    const fromName = fromId === str1 ? name1 : name2;
-    const toName = toId === str1 ? name1 : name2;
-    return { key: item, ...obj[item], fromName, toName };
-  });
-  return newArray.filter(
-    item =>
-      (item.fromId === str1 && item.toId === str2) ||
-      (item.fromId === str2 && item.toId === str1)
-  );
-};
+export const clearConversation = () => ({
+  type: CLEAR_CONVERSATION,
+});
+
+// Thunk creators
 
 export const getConversation = toId => async (dispatch, getState) => {
   try {
     const fromId = getState().user.currentUser.uid;
     const tourId = getState().user.currentUser.tour || 'disney_tour'; //fallback value
 
-    const snapshot = await db.ref(`/tours/${tourId}/messages/`).once('value');
+    const conversationSnapshot = await db
+      .ref(`/users/${fromId}/conversations`)
+      .orderByValue()
+      .equalTo(toId)
+      .once('value');
+    const conversationObj = conversationSnapshot.val();
 
-    const toUser = await db.ref(`/users/${toId}`).once('value');
-    const toName = toUser.val().name;
-    const fromUser = await db.ref(`/users/${fromId}`).once('value');
-    const fromName = fromUser.val().name;
+    if (!conversationObj && 3) return;
 
-    const conversation = transformObjWithNames(
-      snapshot.val(),
+    const conversationKey = Object.keys(conversationObj)[0];
+    db.ref(`/tours/${tourId}/conversations/${conversationKey}`).on(
+      'value',
+      function(snapshot) {
+        dispatch(setConversation(Object.values(snapshot.val()).reverse()));
+      }
+    );
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const addNewMessage = (userId, text) => async (dispatch, getState) => {
+  const fromId = getState().user.currentUser.uid;
+  const tourId = getState().user.currentUser.tour || 'disney_tour'; //fallback value
+  const idToken = await firebase.auth().currentUser.getIdToken();
+  const fromSnapshot = await db.ref(`/users/${fromId}`).once('value');
+  const fromName = fromSnapshot.val().name;
+  const toSnapshot = await db.ref(`/users/${userId}`).once('value');
+  const toName = toSnapshot.val().name;
+
+  try {
+    await axios.post(`${API_ROOT}/chat/${userId}?access_token=${idToken}`, {
       fromId,
-      toId,
-      fromName,
-      toName
-    ).reverse();
-
-    dispatch(setConversation(conversation));
+      text,
+      tourId,
+    });
+    const newMessage = { text, toId: userId, fromId, fromName, toName };
+    dispatch(addMessage(newMessage));
   } catch (error) {
     console.error(error);
   }
@@ -56,12 +76,24 @@ export const getConversation = toId => async (dispatch, getState) => {
 
 // Reducer for Chat
 
-const initialState = { conversation: [] };
+const initialState = {
+  conversation: [],
+  newMessage: {},
+};
 
 export default (state = initialState, action) => {
   switch (action.type) {
     case GET_CONVERSATION:
       return { conversation: action.conversation };
+
+    case ADD_MESSAGE:
+      return {
+        ...state,
+        newMessage: action.newMessage,
+      };
+
+    case CLEAR_CONVERSATION:
+      return { conversation: [] };
 
     default:
       return state;
