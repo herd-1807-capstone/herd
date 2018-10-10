@@ -146,7 +146,6 @@ constructor(props){
   }
 
   handleRemoveUser = user => () => {
-    console.log(user)
     let hasChanged = false
     let newChangeUser = this.state.changedUser.filter((cUser)=>{
         if(cUser.uid === user.uid){
@@ -173,19 +172,14 @@ constructor(props){
         for(let i = 0; i < changedUser.length; i++){
             let user = changedUser[i]
             // update tour's users property
-            console.log(user)
             if(user && user.tour){
                 let putTour = await axios.post(`${API_ROOT}/tours/${currentUser.tour}/users?access_token=${access_token}`, {userId: user.uid})
-                console.log(`Put the tour!!!${putTour}`)
             } else {
                 user.tour = null
                 await axios.delete(`${API_ROOT}/tours/${currentUser.tour}/users/${user.uid}?access_token=${access_token}`)
             }
             // update user's 'tour' property
             let putUser = await axios.put(`${API_ROOT}/users/${user.uid}?access_token=${access_token}`, {tour: user.tour})
-            console.log("update user", putUser)
-            console.log(currentUser.tour)
-            console.log("Check!")
         }
         this.setState({...this.state, changedUser: []})
 
@@ -199,7 +193,6 @@ constructor(props){
   }
 
   handleBack = () => {
-    console.log(this.state.changedUser.length)
     if(this.state.changedUser.length === 0){
         this.handleLeave()
     } else {
@@ -222,10 +215,7 @@ constructor(props){
         if(inputText !== ''){
             let resUser = await axios.get(`${API_ROOT}/users/email/${inputText}?access_token=${access_token}`)
             let user = resUser.data
-            console.log(`Get the user!!!`)
-            console.log(user)
             if(user){
-                console.log("update local state")
                 let newUser = {...user, tour: currentUser.tour}
                 let isExist = false
                 changedUser.forEach((cUser)=>{
@@ -256,9 +246,7 @@ constructor(props){
 
   render() {
     const { classes, currentUser } = this.props;
-    const { groupys, freeBirds, cancelButtonText, value } = this.state;
-    // console.log(this.state.groupys)
-    // console.log(this.state.freeBirds)
+    const { groupys, freeBirds, value } = this.state;
     if(!currentUser.tour){
         this.props.history.push('/admin')
     }
