@@ -64,6 +64,8 @@ class App extends Component {
             theUser.status = snapshot.val().status
             theUser.visible = snapshot.val().visible
             theUser.tour = snapshot.val().tour
+            console.log("Tour in app")
+            console.log(snapshot.val().tour)
             user = theUser
           }
           this.props.setCurrentUser(user)
@@ -86,15 +88,17 @@ class App extends Component {
 
 
   render() {
-    const { tour, status } = this.props.currentUser;
+    const tour = this.props.currentUser.tour;
+    console.log(tour)
     return (
       <div className="App">
+
         <Switch>
           <Route path="/signin" component={Login} />
           {this.props.currentUser.hasOwnProperty('email') && (
             <Switch>
               {
-                tour || status === 'admin' ?
+                tour ?
                 <Route exact path="/" component={MenuBar} />
                 :
                 <Route exact path="/" component={PostLogin} />

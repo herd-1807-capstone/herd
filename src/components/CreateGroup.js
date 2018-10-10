@@ -155,12 +155,10 @@ class CreateGroup extends Component {
 
   render(){
     const { currentUser, classes } = this.props
-    if(currentUser && currentUser.hasOwnProperty('tour') && currentUser.tour !== 'null'){
+    if(currentUser && currentUser.tour){
       this.props.history.push('/admin/group')
     }
 
-    console.log("Starting time: ",new Date(this.state.tourStart).getTime())
-    console.log("Ending time:   ",new Date(this.state.tourEnd).getTime())
     return (
       <div>
         <Typography style={styles.header} variant="title" gutterBottom>

@@ -136,7 +136,7 @@ constructor(props){
     let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
     let resGroupys = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
     let groupys = resGroupys.data
-    if(groupys && groupys.length > 0 && groupys[0].hasOwnProperty('tour') && groupys[0].tour === 'null'){
+    if(groupys && groupys.length > 0 && !groupys[0].hasOwnProperty('tour')){
         groupys = []
     }
     this.setState({...this.state,
@@ -157,7 +157,7 @@ constructor(props){
         }
     })
     if(!hasChanged){
-        let newUser = {...user, tour: 'null'}
+        let newUser = {...user, tour: null}
         newChangeUser.push(newUser)
     }
     let newGroupys = this.state.groupys.filter((gUser)=>{
@@ -174,11 +174,11 @@ constructor(props){
             let user = changedUser[i]
             // update tour's users property
             console.log(user)
-            if(user.hasOwnProperty('tour') && user.tour !== 'null'){
+            if(user && user.tour){
                 let putTour = await axios.post(`${API_ROOT}/tours/${currentUser.tour}/users?access_token=${access_token}`, {userId: user.uid})
                 console.log(`Put the tour!!!${putTour}`)
             } else {
-                user.tour = 'null'
+                user.tour = null
                 await axios.delete(`${API_ROOT}/tours/${currentUser.tour}/users/${user.uid}?access_token=${access_token}`)
             }
             // update user's 'tour' property
@@ -255,10 +255,13 @@ constructor(props){
   };
 
   render() {
-    const { classes } = this.props;
+    const { classes, currentUser } = this.props;
     const { groupys, freeBirds, cancelButtonText, value } = this.state;
     // console.log(this.state.groupys)
     // console.log(this.state.freeBirds)
+    if(!currentUser.tour){
+        this.props.history.push('/admin')
+    }
 
     return (
       <div className={classes.subRoot}>
@@ -293,7 +296,7 @@ constructor(props){
           {Object.values(groupys).map(user => (
             <div key={user.name}>
             <ListItem key={user.uid} dense button className={classes.listItem}>
-                {(user.hasOwnProperty('imgUrl') && user.imgUrl !== 'null')
+                {(user.hasOwnProperty('imgUrl'))
                 ?
                 <Avatar src={user.imgUrl} />
                 :
@@ -319,7 +322,7 @@ constructor(props){
           {Object.values(freeBirds).map(user => (
             <div key={user.uid}>
             <ListItem key={user.uid} dense button className={classes.listItem}>
-            {(user.hasOwnProperty('imgUrl') && user.imgUrl !== 'null')
+            {(user.hasOwnProperty('imgUrl'))
               ?
               <Avatar src={user.imgUrl} sizes={'30'} />
               :
@@ -329,7 +332,7 @@ constructor(props){
               <ListItemSecondaryAction>
                 <Checkbox
                   onChange={this.handleToggle(user)}
-                  checked={user.hasOwnProperty('tour') && (user.tour !== 'null')}
+                  checked={user.hasOwnProperty('tour')}
                 />
               </ListItemSecondaryAction>
             </ListItem>
