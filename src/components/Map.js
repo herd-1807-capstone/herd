@@ -17,7 +17,6 @@ import {retro, silver} from './MapStyles';
 
 const db = firebase.database();
 
-
 const createOptions = () => ({
   mapTypeControl: true,
   streetViewControl: true,
@@ -101,7 +100,6 @@ class SimpleMap extends Component {
 
   }
   componentDidUpdate(prevProps, prevState) {
-
     let changedLat =
       prevState.currentPosition.lat !== this.state.currentPosition.lat;
     let changedLng =
@@ -120,15 +118,18 @@ class SimpleMap extends Component {
       }
     }
   }
+
   clearWatchPosition() {
     //disable GPS monitoring
     if ('geolocation' in navigator) {
       navigator.geolocation.clearWatch(this.geoWatchId);
     }
   }
+
   hidePosition() {
     //TODO: hide from other users, but not admin
   }
+
   handleClose=(type)=>()=>{
     this.setState({
       [type]: false
@@ -136,7 +137,6 @@ class SimpleMap extends Component {
   }
 
   onMarkerClick(...evt){
-
     const key = evt[0];
     const coords = evt[1];
     let marker = findSelectedMarker(key, this.props.spots, this.props.users);
@@ -151,27 +151,28 @@ class SimpleMap extends Component {
     this.watchCurrentPosition();
     this.loadAfterAuthUser();
   }
+
   writeLocationHistory = async(currentUser) => {
-    const tourId = currentUser.tour;
+      const tourId = currentUser.tour;
 
-    //check user is admin;
-    if (!tourId) return;
-    if (currentUser.status !== 'admin') return;
+      //check user is admin;
+      if (!tourId) return;
+      if (currentUser.status !== 'admin') return;
 
-    const tourRef = db.ref(`/tours/${tourId}`);
-    let tourInfo;
-    let snap;
-    try {
-      snap = await tourRef.once('value');
+      const tourRef = db.ref(`/tours/${tourId}`);
+      let tourInfo;
+      let snap;
+      try {
+        snap = await tourRef.once('value');
+      } catch (error) {
+        console.error(error);
+      }
 
-    } catch (error) {
-      console.error(error);
-    }
-    tourInfo = snap.val();
-    //check if tour has started yet, if not, exit;
-    if (Date.now() < tourInfo.startDateTime || Date.now() > tourInfo.endDateTime) {
-      return;
-    }
+      tourInfo = snap.val();
+      //check if tour has started yet, if not, exit;
+      if (Date.now() < tourInfo.startDateTime || Date.now() > tourInfo.endDateTime) {
+        return;
+      }
       this.locationHistoryId = setInterval(async()=>{
       //if now is > end then clearInterval or if haven't started, clearInterval;
         if (Date.now() > tourInfo.endDateTime || Date.now() < tourInfo.startDateTime){
@@ -193,13 +194,13 @@ class SimpleMap extends Component {
       }
     }, 10000) //
   }
+
   loadAfterAuthUser(){
     firebase.auth().onAuthStateChanged(async user => {
       if (user) {
         // User is authenticated via firebase
         try {
           //get user's profile
-
           const snapshot = await db.ref(`/users/${user.uid}`).once('value');
           const userInfo = snapshot.val();
           const tourId = userInfo.tour;
@@ -207,9 +208,6 @@ class SimpleMap extends Component {
           this.props.getSpots();
           this.writeLocationHistory(userInfo);
           this.props.getUsers();
-
-
-
         } catch (error) {
           console.error(error);
         }
@@ -233,6 +231,7 @@ class SimpleMap extends Component {
     }
     clearInterval(this.locationHistoryId);
   }
+
   onApiLoaded({map, maps}){
     this.props.setMap(map, maps);
     this.renderAccuracyCircle(map, maps);
@@ -253,15 +252,15 @@ class SimpleMap extends Component {
         // size: new maps.Size(40, 40),
       }
     });
-
   }
+
   updateCenter = ({center}) => {
-    console.log('CENTER!!!!', center)
     this.setState({center: {
       lat: center.lat,
       lng: center.lng
     }})
   }
+
   renderAccuracyCircle(map, maps){
     const {lat, lng, accuracy } = this.state.currentPosition
     this.circle = new maps.Circle({
@@ -274,13 +273,14 @@ class SimpleMap extends Component {
       strokeOpacity: 0.1,//opacity from 0.0 to 1.0
      });
   }
+
   updateAccuracyCircle(){
     const {lat, lng, accuracy } = this.state.currentPosition
     this.circle.setCenter({lat, lng})
     this.circle.setRadius(accuracy);
   }
+
   renderSpots() {
-    // if (this.map) console.log('MAP TYPE!!!', this.map.getMapTypeId());
     let spots = this.props.spots;
     return spots.map(loc => {
       if (loc.uid && loc.lat && loc.lng){
@@ -322,6 +322,7 @@ class SimpleMap extends Component {
       return null
     });
   }
+
   render() {
     const {usersListWindow, spotsListWindow, handleListClose, map, addSpotOnClick} = this.props;
 
@@ -415,4 +416,5 @@ const mapDispatch = (dispatch) => ({
     dispatch(getHistoricalData(data))
   }
 })
+
 export default connect(mapState, mapDispatch)(SimpleMap);

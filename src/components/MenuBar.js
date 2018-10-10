@@ -87,6 +87,7 @@ class MenuBar extends React.Component {
     this.handleRecenter = this.handleRecenter.bind(this);
     this.sendTourAnnouncement = this.sendTourAnnouncement.bind(this);
     this.hidePSABar = this.hidePSABar.bind(this);
+    this.showPSABar = this.showPSABar.bind(this);
     this.handleInvite = this.handleInvite.bind(this)
   }
 
@@ -132,7 +133,6 @@ class MenuBar extends React.Component {
     let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
 
     const result = await axios.post(`${API_ROOT}/tours/${"-LO9qp_CJeEownSICbbp"}/invitations/${"NCNNuK1w"}?access_token=${access_token}`)
-    console.log(result)
   }
 
   showAnnouncementModal = () => {
@@ -181,9 +181,29 @@ class MenuBar extends React.Component {
     })
   }
 
+  showPSABar(){
+    this.setState({
+      showPSA: 'block'
+    })
+  }
+
   async componentDidMount(){
     try{
       await this.props.getCurrentTour();
+    }catch(err){
+      console.log(err);
+    }
+  }
+
+  async componentWillUpdate(){
+    try{
+      const prevAnnouncement = this.props.announcement;
+      await this.props.getCurrentTour();
+
+      // if any announcement changes detected, get the psa bar back.
+      if(prevAnnouncement !== this.props.announcement){
+        this.showPSABar();
+      }
     }catch(err){
       console.log(err);
     }

@@ -86,7 +86,6 @@ class Admin extends Component{
             //delete the group, set group members' tour info all to null in users
             let resGroupMember = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
             let groupMember = resGroupMember.data
-            console.log("OMG! You deleted a group!")
             axios.delete(`${API_ROOT}/tours/${currentUser.tour}?access_token=${access_token}`)
             let allDelete = []
             for(let i = 0; i < groupMember.length; i++){
@@ -131,13 +130,11 @@ class Admin extends Component{
 
     render(){
         const { classes, currentUser } = this.props
-        // console.log(currentUser)
         const { tour } = this.state
         if(currentUser && currentUser.hasOwnProperty('status') && currentUser.status !== 'admin'){
             this.props.history.push('/')
         }
         if(currentUser.tour){
-            // console.log("has current user")
             return(
                 <div className={classes.tourDisplay}>
                     <Card className={classes.card}>
@@ -208,7 +205,6 @@ class Admin extends Component{
             </div>
             )
         }
-        // console.log(currentUser.hasOwnProperty('tour'))
         return(
             <div className={classes.tourDisplay}>
                 <div>

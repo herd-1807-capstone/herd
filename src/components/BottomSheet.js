@@ -78,7 +78,6 @@ class BottomSheet extends React.Component {
     };
   }
   handleOpen = (type) => () => {
-    console.log(this.props);
 
     this.setState({
       [type]: true,
