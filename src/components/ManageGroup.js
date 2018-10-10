@@ -36,18 +36,25 @@ const styles = theme => ({
     root: {
         flexGrow: 1,
         backgroundColor: theme.palette.background.paper,
+        height: 'fitContent',
+        width: '100%',
+        
     },
     subRoot:{
         display: 'flex',
         justifyContent: 'center',
+        height: '100%',
+        width: '100%',
     },
     paperBack: {
         width: '100%',
-        maxWidth: 360,
+        height: '100%',
+        maxWidth: 414,
         backgroundColor: theme.palette.background.paper,
+        marginTop: theme.spacing.unit * 20,
     },
     button: {
-        margin: 2*theme.spacing.unit,
+        margin: theme.spacing.unit * 5,
         width: 80,
     },
     extendedIcon: {
@@ -82,21 +89,39 @@ const styles = theme => ({
         paddingBottom: theme.spacing.unit,
         paddingLeft: theme.spacing.unit,
         transition: theme.transitions.create('width'),
-        width: '100%',
+        width: '85%',
         [theme.breakpoints.up('sm')]: {
-        width: 250,
+        width: 320,
         '&:focus': {
-            width: 240,
+            width: 310,
             },
         },
+        [theme.breakpoints.up('md')]: {
+            width: 320,
+            '&:focus': {
+                width: 310,
+                },
+            },
         backgroundColor: '#EEEEEE',
     },
     addButton: {
         margin: theme.spacing.unit,
+        width: 45,
+        // height: 20,
+        [theme.breakpoints.up('sm')]: {
+            width: 40,
+            },
     },
     searchBar: {
         display: 'flex',
         flexDirection: 'row',
+    },
+    cTitle: {
+        display: 'flex',
+        alignItem: 'center',
+    },
+    cLabel: {
+        width: '100%'
     }
 });
 function TabContainer(props) {
@@ -255,11 +280,12 @@ constructor(props){
       <div className={classes.subRoot}>
         <Paper className={classes.paperBack} elevation={3}>
         <div className={classes.root}>
-        <AppBar position="static">
-        <Tabs value={value} onChange={this.handleChange}>
-            <Tab label="Group Members" />
-            <Tab label="No Group Members" />
-        </Tabs>
+        <AppBar position="static" className={classes.cTitle}>
+        {/* <Tabs value={value} onChange={this.handleChange}> */}
+            <Tab label="Group Members" className={classes.cLabel} />
+
+            {/* <Tab label="No Group Members" /> */}
+        {/* </Tabs> */}
         </AppBar>
         <div className={classes.searchBar} >
             <Button variant="fab" mini color="secondary" aria-label="Add" onClick={this.handleAddUser} className={classes.addButton}>
@@ -305,7 +331,7 @@ constructor(props){
           ))}
         </List>
         </TabContainer>}
-        {value === 1 && <TabContainer>
+        {/* {value === 1 && <TabContainer>
             <List>
           {Object.values(freeBirds).map(user => (
             <div key={user.uid}>
@@ -328,7 +354,7 @@ constructor(props){
             </div>
           ))}
         </List>
-        </TabContainer>}
+        </TabContainer>} */}
       </div>
 
 
