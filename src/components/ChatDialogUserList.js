@@ -12,7 +12,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 
-import { setCurrentUser, getAllUsers } from '../reducers/user';
+import { getAllUsers } from '../reducers/user';
 
 const styles = theme => ({
   root: {
@@ -63,9 +63,9 @@ class ChatDialogUserList extends Component {
   };
 
   async componentDidMount() {
-    await this.props.getUsers;
+    await this.props.getusers();
     const userlist = this.props.userlist;
-    if(userlist.length > 1){
+    if (userlist.length > 1) {
       const value = userlist[0].name;
       const selectedUid = userlist[0].uid;
       this.setState({ value, selectedUid, userlist });
@@ -129,11 +129,8 @@ const mapState = ({ user }) => ({
 });
 
 const mapDispatch = dispatch => ({
-  getUsers() {
+  getusers() {
     dispatch(getAllUsers());
-  },
-  getCurrentUser() {
-    dispatch(setCurrentUser());
   },
 });
 

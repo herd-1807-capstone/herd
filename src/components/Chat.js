@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { getConversation } from '../reducers/chat';
+import {
+  getConversation,
+  addNewMessage,
+  clearConversation,
+} from '../reducers/chat';
 
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
@@ -28,16 +32,35 @@ const styles = theme => ({
 });
 
 class Chat extends Component {
-  state = { value: '', selectedUid: '', open: false };
+  state = { value: '', selectedUid: '', text: '', open: false };
 
   handleClickOpen = () => {
-    this.setState({ open: true });
+    this.setState({ open: true }, () => this.props.clearList());
   };
+
   handleClose = (value, selectedUid) => {
     this.setState({ value, selectedUid, open: false }, () =>
       this.props.fetchConversation(this.state.selectedUid)
     );
   };
+
+  handleChange = event => {
+    event.preventDefault();
+    this.setState({
+      text: event.target.value,
+    });
+  };
+
+  handleClick = () => {
+    this.props.setNewMessage(this.state.selectedUid, this.state.text);
+    this.setState({ text: '' }, () =>
+      this.props.fetchConversation(this.state.selectedUid)
+    );
+  };
+
+  // componentDidMount() {
+  //   this.props.fetchConversation(this.state.selectedUid);
+  // }
 
   render() {
     const { classes } = this.props;
@@ -56,8 +79,19 @@ class Chat extends Component {
           onClose={this.handleClose}
           value={this.state.value}
         />
-        <ChatView conversation={this.props.conversation} />
-        <ChatForm />
+        <ChatView
+          conversation={
+            this.props.conversation === [] && this.props.message.name
+              ? this.props.message
+              : this.props.conversation
+          }
+        />
+        <ChatForm
+          selectedName={this.state.value}
+          handleChange={this.handleChange}
+          handleClick={this.handleClick}
+          textMessage={this.state.text}
+        />
       </div>
     );
   }
@@ -69,12 +103,19 @@ Button.propTypes = {
 
 const mapState = ({ chat, user }) => ({
   conversation: chat.conversation,
+  message: chat.newMessage,
   currentUser: user.currentUser,
 });
 
 const mapDispatch = dispatch => ({
   fetchConversation(toId) {
     dispatch(getConversation(toId));
+  },
+  setNewMessage(toId, text) {
+    dispatch(addNewMessage(toId, text));
+  },
+  clearList() {
+    dispatch(clearConversation());
   },
 });
 
