@@ -1,0 +1,18 @@
+.tourDisplay {
+    display: flex
+}
+
+.loadingState {
+    position: absolute;
+    left: 30vw;
+    top: 30vh;
+    /* margin: 25vw; */
+    width: 25vw;
+
+}
+
+.loadingParent {
+    /* display: flex;
+    align-content: center; */
+    position: relative;
+}
