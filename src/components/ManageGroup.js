@@ -28,6 +28,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { setCurrentUser } from '../reducers/user'
 
 
 import {API_ROOT} from '../utils/api-config';
@@ -149,6 +150,7 @@ constructor(props){
         open: false,
         inputText: "",
         warning: "",
+        includeMe: false,
       }
 
     this.handleSave = this.handleSave.bind(this)
@@ -190,12 +192,16 @@ constructor(props){
     let newGroupys = this.state.groupys.filter((gUser)=>{
         return gUser.uid !== user.uid
     })
-    this.setState({...this.state, groupys: newGroupys, changedUser: newChangeUser})
+    let includeMe = this.state.includeMe
+    if(user.uid === this.props.currentUser.uid){
+        includeMe = true
+    }
+    this.setState({...this.state, groupys: newGroupys, changedUser: newChangeUser, includeMe})
   }
 
   handleSave = async (evt) => {
-    const { currentUser } = this.props
-    const { access_token, changedUser } = this.state
+    const { currentUser, setCurrentUser } = this.props
+    const { access_token, changedUser, includeMe } = this.state
     try {
         for(let i = 0; i < changedUser.length; i++){
             let user = changedUser[i]
@@ -211,7 +217,9 @@ constructor(props){
         }
 
         this.setState({...this.state, changedUser: []})
-        this.props.history.push('/admin')
+        if(includeMe){
+            setCurrentUser({...currentUser, tour: null})
+        }
     } catch (error) {
         console.error(error)
     }
@@ -253,10 +261,14 @@ constructor(props){
                     }
                 })
                 if(!isExist){
-                    this.setState({...this.state, groupys: [...groupys, newUser], changedUser: [...changedUser, newUser], inputText: ''})
+                    let includeMe = this.state.includeMe
+                    if(user.uid === this.props.currentUser.uid){
+                        includeMe = true
+                    }
+                    this.setState({...this.state, groupys: [...groupys, newUser], changedUser: [...changedUser, newUser], inputText: '', includeMe})
                 }
             } else {
-                this.setState({...this.state, warning: 'User exists in this tour.', inputText: ''})
+                this.setState({...this.state, warning: 'User not found or already in a tour.', inputText: ''})
             }
         }
     } catch (error) {
@@ -419,8 +431,8 @@ const mapState = (state) => ({
     currentUser: state.user.currentUser,
 })
 
-const mapDispatch = (dispatch) => {
-
-}
+const mapDispatch = (dispatch) => ({
+    setCurrentUser: (user) => dispatch(setCurrentUser(user))
+})
 
 export default connect(mapState, mapDispatch)(withStyles(styles)(ManageGroup));
