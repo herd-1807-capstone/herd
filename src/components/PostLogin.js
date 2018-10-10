@@ -52,9 +52,6 @@ const styles = theme => ({
     width: '25vw',
     height: '25vw'
   },
-  cardContent:{
-    overflow: 'auto'
-  }
 });
 
 class PostLogin extends Component{
@@ -126,9 +123,9 @@ class PostLogin extends Component{
                     image={tour.imgUrl}
                     title={tour.name}
                   />
-                  <CardContent className={classes.cardContent}>
+                  <CardContent>
                     <Typography gutterBottom variant="headline" component="h2">{tour.name}</Typography>
-                    <Typography component="p">{tour.description}</Typography>
+                    <Typography component="p" noWrap="true">{tour.description}</Typography>
                   </CardContent>
                 </CardActionArea>
               </Card>
