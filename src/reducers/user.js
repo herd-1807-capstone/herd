@@ -138,7 +138,7 @@ export const addTourToUser = tourId => async (dispatch, getState) => {
     const tourData = await axios.get(`${API_ROOT}/tours/${tourId}?access_token=${idToken}`);
     const tour = tourData.data;
     const users = tour.users || [];
-    if(loggedInUser && loggedInUser.id && users.indexOf(loggedInUser.uid) < 0){
+    if(loggedInUser && loggedInUser.uid && users.indexOf(loggedInUser.uid) < 0){
       users.push(loggedInUser.uid);
     }
 
