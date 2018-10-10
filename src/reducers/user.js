@@ -99,10 +99,9 @@ export const getAllUsers = () => (dispatch, getState) => {
     const userPermission = loggedInUser.status;
     const tourId = loggedInUser.tour;
     const refUsers = db.ref('/users');
-    console.log("Get all users, and the user tour is ",tourId)
-
+    
     if (!tourId) return;
-    console.log("After check user has tour, should not reach here without tour ",tourId)
+  
     refUsers
       .orderByChild('tour')
       .equalTo(tourId)
