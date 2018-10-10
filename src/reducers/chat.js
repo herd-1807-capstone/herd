@@ -1,5 +1,4 @@
-import firebase from '../utils/api-config';
-const db = firebase.database();
+import {db} from '../utils/api-config';
 
 // Actions
 const GET_CONVERSATION = 'GET_CONVERSATION';

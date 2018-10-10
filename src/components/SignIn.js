@@ -1,17 +1,11 @@
 import React, { Component } from 'react';
-import firebase from '../utils/api-config';
+import firebase, {auth} from '../utils/api-config';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 
-
-
 const provider = new firebase.auth.GoogleAuthProvider();
-const auth = firebase.auth();
-
-
-
 
 const style = theme => ({
   button: {
@@ -38,24 +32,21 @@ class SignIn extends Component{
       user
     });
   }
+
   async logout(){
     await auth.signOut();
     this.setState({
       user: null
     });
   }
+
   render(){
     const { classes } = this.props
     return(
     <div id = 'signin'>
-
-        {/* {this.state.user ? */}
-            <Button variant="extendedFab" onClick={this.logout} color="primary" className={classes.button} >
-              <AccountCircle />Logout
-            </Button>
-          {/* :
-            <button onClick={this.login}>Log in with Google</button>
-          } */}
+      <Button variant="extendedFab" onClick={this.logout} color="primary" className={classes.button} >
+        <AccountCircle />Logout
+      </Button>
     </div>
     )
   }

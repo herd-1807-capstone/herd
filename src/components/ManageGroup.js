@@ -11,7 +11,6 @@ import Checkbox from '@material-ui/core/Checkbox';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
-import firebase from '../utils/api-config';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -28,9 +27,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-
-
-import {API_ROOT} from '../utils/api-config';
+import {auth, API_ROOT} from '../utils/api-config';
 
 const styles = theme => ({
     root: {
@@ -133,7 +130,7 @@ constructor(props){
   }
 
   async componentDidMount(){
-    let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
+    let access_token = await auth.currentUser.getIdToken(/* forceRefresh */ true)
     let resGroupys = await axios.get(`${API_ROOT}/users?access_token=${access_token}`)
     let groupys = resGroupys.data
     if(groupys && groupys.length > 0 && !groupys[0].hasOwnProperty('tour')){

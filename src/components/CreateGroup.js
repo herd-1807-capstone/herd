@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import firebase from '../utils/api-config';
+import {auth} from '../utils/api-config';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -78,7 +78,7 @@ class CreateGroup extends Component {
         this.setState({formTip: "The Tour Ending Time should be later than Starting Time"})
         return
       }
-      let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
+      let access_token = await auth.currentUser.getIdToken(/* forceRefresh */ true)
       let createResult = await axios.post(`${API_ROOT}/tours?access_token=${access_token}`, {
                           "name": tourName,
                           "imgUrl": imgUrl,

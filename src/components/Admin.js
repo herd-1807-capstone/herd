@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter, Link } from 'react-router-dom'
 import axios from 'axios'
 import '../css/component.css'
-import firebase, {API_ROOT} from '../utils/api-config';
-
+import {auth, API_ROOT} from '../utils/api-config';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -105,7 +104,7 @@ class Admin extends Component{
 
     async componentDidMount(){
 
-        let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
+        let access_token = await auth.currentUser.getIdToken(/* forceRefresh */ true)
         const { currentUser, updateCurrentUser } = this.props
         let tourInfo
         if(currentUser.tour){

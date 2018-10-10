@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Route, Switch, withRouter } from 'react-router-dom';
-import firebase from '../utils/api-config';
+import {auth, db} from '../utils/api-config';
 import { connect } from 'react-redux';
 import '../css/App.css';
 import Login from './Login';
@@ -13,9 +13,6 @@ import CreateGroup from './CreateGroup';
 import ManageGroup from './ManageGroup';
 import LoadingState from './LoadingState'
 import { changeLoadingState } from '../reducers/user';
-
-const auth = firebase.auth();
-const db = firebase.database();
 
 class App extends Component {
 

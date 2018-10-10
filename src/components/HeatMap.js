@@ -2,25 +2,20 @@ import React, { Fragment, Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import GeolocationMarker from './GeolocationMarker';
 import GOOGLE_API_KEY from '../utils/secrets';
-import firebase from '../utils/api-config';
+import {auth, db} from '../utils/api-config';
 import { Spot } from './Marker';
 import axios from 'axios'
 import store, { getSpotsThunk, setSelected, findSelectedMarker, getAnnouncement } from '../store';
-import { connect } from 'react-redux';
 import {setCurrentUser, getHistoricalData} from '../reducers/user'
 import {API_ROOT} from '../utils/api-config';
 import Modal from '@material-ui/core/Modal';
 import {SpotsListWindow} from './ListWindow';
 import {setGoogleMap} from '../reducers/googlemap';
 
-const db = firebase.database();
-
-
 const createOptions = () => ({
   mapTypeControl: true,
   streetViewControl: true,
 })
-const db = firebase.database();
 
 class HeatMap extends Component {
   static defaultProps = {
@@ -66,7 +61,7 @@ class HeatMap extends Component {
     const tourId = this.props.currentUser.tour;
     const userId = this.props.currentUser.uid;
     try {
-      const idToken = await firebase.auth().currentUser.getIdToken();
+      const idToken = await auth.currentUser.getIdToken();
       await axios.put(
         `${API_ROOT}/tours/${tourId}/users/${userId}?access_token=${idToken}`,
         { lat, lng, lastSeen}
@@ -131,7 +126,7 @@ class HeatMap extends Component {
     window.infoWindow.open(this.props.map);
   }
   loadAfterAuthUser(){
-    firebase.auth().onAuthStateChanged(async user => {
+    auth.onAuthStateChanged(async user => {
       if (user) {
         // User is authenticated via firebase
         try {

@@ -1,6 +1,5 @@
 import axios from 'axios';
-import firebase, {API_ROOT} from '../utils/api-config';
-const db = firebase.database();
+import {auth, db, API_ROOT} from '../utils/api-config';
 
 // initial state
 const defaultTour = {
@@ -36,7 +35,7 @@ export const getCurrentTour = tour => {
 // thunks
 export const sendTourAnnouncement = (announcement) => async (dispatch, getState) => {
   try{
-    const idToken = await firebase.auth().currentUser.getIdToken();
+    const idToken = await auth.currentUser.getIdToken();
     // add an announcement to a tour(tourId) by finding a current tour of this logged-in user i.e., admin
 
     const loggedInUser = getState().user.currentUser;
@@ -71,7 +70,7 @@ export const getAnnouncement = () => async (dispatch, getState) => {
 
 export const fetchAllTours = () => async( dispatch, getState) => {
   try{
-    const idToken = await firebase.auth().currentUser.getIdToken();
+    const idToken = await auth.currentUser.getIdToken();
     const {data} = await axios.get(`${API_ROOT}/tours?access_token=${idToken}`);
 
     const tours = Object.keys(data).map(i => {
@@ -88,7 +87,7 @@ export const fetchAllTours = () => async( dispatch, getState) => {
 
 export const fetchUserTour = () => async(dispatch, getState) => {
   try{
-    const currentUser = await firebase.auth().currentUser;
+    const currentUser = await auth.currentUser;
     let idToken = await currentUser.getIdToken();
     const userData = await axios.get(`${API_ROOT}/users/${currentUser.uid}?access_token=${idToken}`);
 

@@ -2,20 +2,16 @@ import React, { Fragment, Component } from 'react';
 import GoogleMapReact from 'google-map-react';
 import GeolocationMarker from './GeolocationMarker';
 import GOOGLE_API_KEY from '../utils/secrets';
-import firebase from '../utils/api-config';
 import { Spot, Admin, User, OfflineUser, OfflineAdmin } from './Marker';
 import axios from 'axios'
 import store, { getAllUsers, getSpotsThunk, addSpotThunk, setSelected, findSelectedMarker, getAnnouncement } from '../store';
 import { connect } from 'react-redux';
 import {setCurrentUser, getHistoricalData} from '../reducers/user'
-import {API_ROOT} from '../utils/api-config';
+import {auth, db, API_ROOT} from '../utils/api-config';
 import Modal from '@material-ui/core/Modal';
 import {SpotsListWindow, UsersListWindow} from './ListWindow';
 import {setGoogleMap} from '../reducers/googlemap';
-
 import {retro, silver} from './MapStyles';
-
-const db = firebase.database();
 
 const createOptions = () => ({
   mapTypeControl: true,
@@ -66,7 +62,7 @@ class SimpleMap extends Component {
     const tourId = this.props.currentUser.tour;
     const userId = this.props.currentUser.uid;
     try {
-      const idToken = await firebase.auth().currentUser.getIdToken();
+      const idToken = await auth.currentUser.getIdToken();
       await axios.put(
         `${API_ROOT}/tours/${tourId}/users/${userId}?access_token=${idToken}`,
         { lat, lng, lastSeen}
@@ -187,7 +183,7 @@ class SimpleMap extends Component {
           return usersUpdate;
         }, {});
       try {
-        const idToken = await firebase.auth().currentUser.getIdToken();
+        const idToken = await auth.currentUser.getIdToken();
         await axios.post(`${API_ROOT}/tours/${tourId}/history?access_token=${idToken}`, {locationData});
       } catch (error) {
         console.error(error);
@@ -196,7 +192,7 @@ class SimpleMap extends Component {
   }
 
   loadAfterAuthUser(){
-    firebase.auth().onAuthStateChanged(async user => {
+    auth.onAuthStateChanged(async user => {
       if (user) {
         // User is authenticated via firebase
         try {

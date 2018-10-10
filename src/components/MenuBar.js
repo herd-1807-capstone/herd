@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import firebase from '../utils/api-config';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -11,6 +10,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
+import Done from '@material-ui/icons/Done';
 import Hidden from '@material-ui/core/Hidden';
 import Divider from '@material-ui/core/Divider';
 import MenuIcon from '@material-ui/icons/Menu';
@@ -26,7 +26,7 @@ import GpsFixed from '@material-ui/icons/GpsFixed';
 import PeopleIcon from '@material-ui/icons/People';
 import SpotsIcon from '@material-ui/icons/Place';
 import axios from 'axios';
-import {API_ROOT} from '../utils/api-config';
+import {auth, db, API_ROOT} from '../utils/api-config';
 
 const drawerWidth = 240;
 
@@ -109,8 +109,8 @@ class MenuBar extends React.Component {
   };
 
   async handleLogout() {
-    await firebase.auth().signOut();
-    await firebase.database().ref(`/users/${this.props.currentUser.uid}`).update({loggedIn: false});
+    await auth.signOut();
+    await db.ref(`/users/${this.props.currentUser.uid}`).update({loggedIn: false});
     this.props.logout();
   }
 
@@ -130,9 +130,8 @@ class MenuBar extends React.Component {
   }
 
   async handleInvite(evt){
-    let access_token = await firebase.auth().currentUser.getIdToken(/* forceRefresh */ true)
-
-    const result = await axios.post(`${API_ROOT}/tours/${"-LO9qp_CJeEownSICbbp"}/invitations/${"NCNNuK1w"}?access_token=${access_token}`)
+    let access_token = await auth.currentUser.getIdToken(/* forceRefresh */ true)
+    await axios.post(`${API_ROOT}/tours/${"-LO9qp_CJeEownSICbbp"}/invitations/${"NCNNuK1w"}?access_token=${access_token}`)
   }
 
   showAnnouncementModal = () => {
@@ -175,7 +174,8 @@ class MenuBar extends React.Component {
     }
   }
 
-  hidePSABar(){
+  hidePSABar(evt){
+    evt.preventDefault();
     this.setState({
       showPSA: 'none'
     })
@@ -267,11 +267,13 @@ class MenuBar extends React.Component {
           </Toolbar>
           <Divider />
           {
-            this.props.announcement?
+            this.props.announcement ?
             <div style={{backgroundColor: "#37BC9B", display: this.state.showPSA}}>
-                <img style={{width:"24px", height:"24px", paddingRight:'5px'}} src="info_outline.png" />
+              <img style={{width:"24px", height:"24px", paddingRight:'5px'}} alt="" src="info_outline.png" />
               <span style={{verticalAlign:"top"}}>{`${this.props.announcement}`}</span>
-              <span style={{float:"right", paddingRight:'10px'}}><a href="#" style={{textDecoration:'none', color: 'white'}} onClick={this.hidePSABar}>x</a></span>
+              <span style={{float:"right", paddingRight:'10px'}}>
+                <Done onClick={this.hidePSABar} />
+              </span>
             </div>
             :
             null
@@ -319,7 +321,7 @@ class MenuBar extends React.Component {
           <form onSubmit={this.sendTourAnnouncement}>
             <div>
               <label htmlFor="message">New PSA To Send:</label> <br />
-              <input placeholder="Type here..." type="text" className="psa-input" name="message" type="text" />
+              <input placeholder="Type here..." type="text" className="psa-input" name="message" />
             </div>
             <br />
               <Button variant="outlined" color="primary" size="small" type="submit">Send

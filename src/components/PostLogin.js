@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
-import firebase from '../utils/api-config';
+import {auth, db} from '../utils/api-config';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 
@@ -75,8 +75,8 @@ class PostLogin extends Component{
   }
 
   async handleLogout() {
-    await firebase.auth().signOut();
-    await firebase.database().ref(`/users/${this.props.currentUser.uid}`).update({loggedIn: false});
+    await auth.signOut();
+    await db.ref(`/users/${this.props.currentUser.uid}`).update({loggedIn: false});
     this.props.logout();
   }
 

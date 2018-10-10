@@ -1,6 +1,5 @@
 import axios from "axios";
-import firebase, { API_ROOT } from "../utils/api-config";
-const db = firebase.database();
+import { auth, db, API_ROOT } from "../utils/api-config";
 
 // INITIAL STATE
 const defaultSpots = {
@@ -65,7 +64,7 @@ export const addSpotThunk = spot => async (dispatch, getState) => {
 
       const tourId = getState().user.currentUser.tour;
 
-      const idToken = await firebase.auth().currentUser.getIdToken()
+      const idToken = await auth.currentUser.getIdToken()
       const {data} = await axios.post(`${API_ROOT}/tours/${tourId}/spots?access_token=${idToken}`, spot);
 
 
@@ -101,7 +100,7 @@ export const getSpotsThunk = () => (dispatch, getState) => {
 export const removeSpotThunk = (spotId) => async (dispatch, getState) => {
 
   try {
-    const idToken = await firebase.auth().currentUser.getIdToken();
+    const idToken = await auth.currentUser.getIdToken();
     const tourId = getState().user.currentUser.tour;
     const {status} = await axios.delete(`${API_ROOT}/tours/${tourId}/spots/${spotId}?access_token=${idToken}`);
     if (status === 201){
@@ -116,7 +115,7 @@ export const removeSpotThunk = (spotId) => async (dispatch, getState) => {
 export const editSpotThunk = (spot) => async (dispatch, getState) => {
   try {
     const spotId = spot.uid;
-    const idToken = await firebase.auth().currentUser.getIdToken();
+    const idToken = await auth.currentUser.getIdToken();
     const tourId = getState().user.currentUser.tour;
     const {status} = await axios.put(`${API_ROOT}/tours/${tourId}/spots/${spotId}?access_token=${idToken}`, spot);
     if (status === 201){
