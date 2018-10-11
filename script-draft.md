@@ -23,7 +23,7 @@
 ## Conclusion (Peng)
 - Database schema
 - Deployment
-- TECH: Firebase, Heroku
+- TECH: Firebase, Heroku, Progressive Web App
 - Challenge overcome of all those moving parts interact successfully
 - Summary of everything else
 - Work flow
