@@ -37,22 +37,17 @@ const styles = theme => ({
   },
   toolbar: theme.mixins.toolbar,
   tourDisplay: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    paddingTop: '50px',
-    justifyContent: 'center',
-    alignItem: 'space-between'
+    display: 'grid',
+    gridGap: '15px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+    gridTemplateRows: 'auto 1fr auto',
+    paddingTop: '70px',
   },
   adminLink:{
     alignSelf: 'center',
   },
   media: {
     height: 240,
-  },
-  card: {
-    margin: '20px 10px',
-    width: '25vw',
-    height: '25vw'
   },
 });
 
@@ -101,33 +96,32 @@ class PostLogin extends Component{
       <div className={classes.root}>
         <AppBar className={classes.appBar}>
           <Toolbar>
-            <Typography variant="title" color="inherit" noWrap>
+            <Typography variant="title" color="inherit">
               Herd - Tour Groups Management
             </Typography>
-            <Button color="inherit" onClick={this.handleLogout}>
+            <Button color="inherit" onClick={this.handleLogout} classes={{paper: classes.drawerButton}}>
               Log out
             </Button>
           </Toolbar>
         </AppBar>
+
         <div className={classes.tourDisplay}>
           {
             (this.state.tours.length === 0)?
             null
             :
             (this.state.tours.map(tour =>
-              <Card className={classes.card} key={tour.id} onClick={() => this.addTourToUser(tour.id)}>
+              <Card key={tour.id} onClick={() => this.addTourToUser(tour.id)}>
                 <CardActionArea component={Link} to='#'>
                   <CardMedia
                     component="img"
                     className={classes.media}
-                    height="140"
-                    width="140"
                     image={tour.imgUrl}
                     title={tour.name}
                   />
                   <CardContent>
                     <Typography gutterBottom variant="headline" component="h2">{tour.name}</Typography>
-                    <Typography component="p" noWrap="true">{tour.description}</Typography>
+                    <Typography component="p" noWrap={true}>{tour.description}</Typography>
                   </CardContent>
                 </CardActionArea>
               </Card>
@@ -141,7 +135,8 @@ class PostLogin extends Component{
                 <Link to="/admin">
                   <Button
                     variant="outlined"
-                    color="primary">
+                    color="primary"
+                    classes={{paper: classes.drawerButton}}>
                     Create A New Tour
                   </Button>
                 </Link>
