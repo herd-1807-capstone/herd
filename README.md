@@ -3,6 +3,8 @@
 Capstone project - FSA 1807
 Team: Mina Jeong - Andy Poon - Peng Liao - Patrick Boutier
 
+Presentation: [Youtube](https://www.youtube.com/watch?v=IgOtVFTctvk&list=PLx0iOsdUOUmkPQ6KrQya18cevlXmmAckQ&index=3&t=0s) videoclip
+
 ### Tech stack
 
 - Javascript
