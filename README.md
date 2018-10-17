@@ -5,6 +5,8 @@ Team: Mina Jeong - Andy Poon - Peng Liao - Patrick Boutier
 
 Presentation: [Youtube](https://www.youtube.com/watch?v=IgOtVFTctvk&list=PLx0iOsdUOUmkPQ6KrQya18cevlXmmAckQ&index=3&t=0s) videoclip
 
+Deployed app: [Herd](https://herd-217719.firebaseapp.com)
+
 ### Tech stack
 
 - Javascript
